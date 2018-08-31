@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="server_list">
+        <item>@string/debug_select_dialog_exbutton</item>
+        <item>@string/debug_select_dialog_innerbutton</item>
+        <item>@string/debug_select_dialog_testbutton</item>
+        <item>@string/debug_select_dialog_oraclebutton</item>
+        <item>@string/debug_select_dialog_shanchatbutton</item>
+    </string-array>
+
+</resources>

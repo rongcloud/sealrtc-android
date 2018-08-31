@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:gravity="center"
+    android:id="@+id/rel_data"
+    android:padding="20dp"
+    android:layout_marginRight="15dp"
+    android:layout_marginLeft="15dp"
+    android:background="@drawable/shape_dialog_whitebg"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:textSize="20sp"
+        android:singleLine="true"
+        android:textColor="@color/blink_black"
+        android:layout_marginBottom="20dp"
+        android:text="@string/settings_text_serverConfig"
+        android:ellipsize="end"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content" />
+
+
+    <LinearLayout
+        android:id="@+id/linear_cmp"
+        android:layout_below="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_marginBottom="5dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="@string/settings_text_serverCMP"
+            android:textSize="15sp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:textColor="#aaaaaa"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/edit_cmpServer"
+            style="@style/editStyle"  />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linear_token"
+        android:layout_below="@+id/linear_cmp"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="@string/settings_text_serverURL_TOKEN"
+            android:textSize="15sp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:textColor="#aaaaaa"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/edit_ServerURL"
+            style="@style/editStyle"  />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/linear_appid"
+        android:layout_below="@+id/linear_token"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="@string/settings_text_APPId"
+            android:textSize="15sp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:textColor="#aaaaaa"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/edit_appid"
+            style="@style/editStyle" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_below="@+id/linear_appid"
+        android:layout_width="match_parent"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:layout_height="45dp">
+
+        <Button
+            android:id="@+id/btn_ok"
+            android:layout_toLeftOf="@+id/viewTag"
+            style="?android:attr/borderlessButtonStyle"
+            android:background="@drawable/btn_clickbg"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:layout_marginRight="5dp"
+            android:text="@string/settings_text_confirm"
+            android:layout_height="match_parent"
+            android:textColor="@color/blink_black"
+            android:textSize="17sp" />
+        <View
+            android:id="@+id/viewTag"
+            android:layout_width="1px"
+            android:layout_centerInParent="true"
+            android:layout_height="match_parent"/>
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:background="@drawable/btn_clickbg"
+            android:layout_toRightOf="@+id/viewTag"
+            android:layout_marginLeft="5dp"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:text="@string/settings_text_cancel"
+            android:layout_height="match_parent"
+            android:textColor="@color/blink_black"
+            android:textSize="17sp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

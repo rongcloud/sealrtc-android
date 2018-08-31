@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:background="#ffffff"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#3581F2">
+
+        <TextView
+            android:id="@+id/pickoption_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="#ffffff"
+            android:text="@string/setting_title"
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:id="@+id/option_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textSize="16sp"
+                android:text="返回"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <ListView
+
+        android:id="@+id/content_listview"
+        android:layout_width="match_parent"
+        android:dividerHeight="0.5dp"
+        android:divider="#999999"
+        android:layout_height="match_parent">
+
+    </ListView>
+
+</LinearLayout>

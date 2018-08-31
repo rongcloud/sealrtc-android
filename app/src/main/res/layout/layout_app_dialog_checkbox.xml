@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_checkbox"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:orientation="vertical"
+    android:visibility="visible">
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/btn_modeSelect"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/selector_checkbox_request_changevideomode"
+        android:button="@null"
+        android:checked="false" />
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_request_to_normal"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="@dimen/checkbox_spacing"
+        android:background="@drawable/selector_checkbox_request_to_normal"
+        android:button="@null"
+        android:checked="false" />
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_whiteboard"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="@dimen/checkbox_spacing"
+        android:background="@drawable/selector_checkbox_whiteboard"
+        android:button="@null"
+        android:checked="false"
+        android:visibility="visible" />
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_switch"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="@dimen/checkbox_spacing"
+        android:background="@drawable/selector_switch_camera"
+        android:button="@null"
+        android:checked="false" />
+
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_mute_speaker"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="@dimen/checkbox_spacing"
+        android:background="@drawable/selector_checkbox_capture"
+        android:button="@null"
+        android:checked="false" />
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_up"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/checkbox_spacing"
+        android:background="@drawable/selector_checkbox_change_up"
+        android:button="@null"
+        android:checked="false" />
+
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/menu_down"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/checkbox_spacing"
+        android:background="@drawable/selector_checkbox_change_down"
+        android:button="@null"
+        android:checked="false" />
+</LinearLayout>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="blink_black">#000000</color>
+    <color name="blink_transparent">#a0000000</color>
+    <color name="blink_green">#006400</color>
+    <color name="blink_grey">#CFCFCE</color>
+    <color name="blink_text_grey">#333333</color>
+    <color name="blink_launcher_grey">#666666</color>
+    <color name="blink_text_green">#33CCFF</color>
+    <color name="blink_text_green1">#008B00</color>
+    <color name="blink_blue">#3A83F5</color>
+    <color name="blink_blue2">#1C86EE</color>
+    <color name="blink_grey1">#8C8C8C</color>
+    <color name="blink_orange">#FFA07A</color>
+    <color name="blink_orange1">#FF6347</color>
+    <color name="blink_yellow">#EEC900</color>
+    <color name="blink_yellow1">#EEE685</color>
+    <color name="dialog_bg_color">#00ffffff</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="blink_divider">#AAAAAA</color>
+    <color name="blink_text_white">#FFFFFF</color>
+</resources>
