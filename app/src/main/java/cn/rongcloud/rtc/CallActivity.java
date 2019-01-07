@@ -56,6 +56,7 @@ import android.widget.Toast;
 
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 
+import cn.rongcloud.rtc.engine.broadcast.BluetoothUtil;
 import cn.rongcloud.rtc.util.AppRTCUtils;
 import cn.rongcloud.rtc.util.RongRTCPopupWindow;
 import cn.rongcloud.rtc.engine.binstack.http.RongRTCHttpClient;
@@ -75,6 +76,7 @@ import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,7 +95,7 @@ import static cn.rongcloud.rtc.SettingActivity.IS_STREAM_TINY;
  */
 public class CallActivity extends RongRTCBaseActivity {
 
-    private static final String appid_ = "x4vkb1qpxfrzk";
+    private static final String appid_ = "x4vkb1qpxfrzk";//x4vkb1qpxfrzk
     private static String APPID = appid_;
 
     private AlertDialog ConfirmDialog = null;
@@ -115,7 +117,9 @@ public class CallActivity extends RongRTCBaseActivity {
             "android.permission.CAMERA",
             "android.permission.READ_PHONE_STATE",
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            "android.permission.BLUETOOTH_ADMIN",
+            "android.permission.BLUETOOTH"
     };
 
     private AppRTCAudioManager audioManager = null;
@@ -148,7 +152,7 @@ public class CallActivity extends RongRTCBaseActivity {
     private static RongRTCPopupWindow popupWindow;
     private LinearLayout call_reder_container,call_layout_title;
     private int sideBarWidth=0;
-    private AppCompatCheckBox btnSwitchCamera,btnMuteSpeaker,btnWhiteBoard,btnRaiseHand;
+    private AppCompatCheckBox btnSwitchCamera,btnMuteSpeaker,btnWhiteBoard,btnRaiseHand,btnChangeResolution_up,btnChangeResolution_down;
     private ImageView iv_modeSelect;
     /**
      * UpgradeToNormal邀请观察者发言,将观察升级为正常用户=0, 摄像头:1 麦克风:2
@@ -172,6 +176,7 @@ public class CallActivity extends RongRTCBaseActivity {
     private ScrollView scrollView;
     private HorizontalScrollView horizontalScrollView;
     private RelativeLayout rel_sv;//sv父布局
+    GPUImageBeautyFilter beautyFilter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -180,11 +185,8 @@ public class CallActivity extends RongRTCBaseActivity {
                 new UnhandledExceptionHandler(this));
 
         String userAppid = AppRTCUtils.getAppID();
-        if (!TextUtils.isEmpty(userAppid)) {
-            APPID = userAppid;
-        } else {
-            APPID = appid_;
-        }
+        APPID = TextUtils.isEmpty(userAppid)?appid_:userAppid;
+
         FinLog.i(TAG, "user appid=" + APPID);
         sideBarWidth=dip2px(CallActivity.this,40)+75;
 
@@ -204,6 +206,8 @@ public class CallActivity extends RongRTCBaseActivity {
         iUserName = intent.getStringExtra(EXTRA_USER_NAME);
         serverURL = intent.getStringExtra(EXTRA_SERVER_URL);
         isVideoMute = intent.getBooleanExtra(EXTRA_CAMERA, false);
+        //设置是否启用美颜模式
+        isGPUImageFliter = SessionManager.getInstance(this).getBoolean(IS_GPUIMAGEFILTER);
         RongRTCContext.ConfigParameter.isObserver = intent.getBooleanExtra(EXTRA_OBSERVER, false);
         if (channelID == null || channelID.length() == 0) {
             Log.e(TAG, "Incorrect room ID in intent!");
@@ -220,6 +224,8 @@ public class CallActivity extends RongRTCBaseActivity {
 
         initeBoottombtn();
         initRemoteScrollView();
+
+        RongRTCEngine.getInstance().registerHeadsetReceiver();
     }
 
     private void initAudioManager() {
@@ -302,6 +308,20 @@ public class CallActivity extends RongRTCBaseActivity {
 
         btnMuteSpeaker = (AppCompatCheckBox) findViewById(R.id.menu_mute_speaker);
         btnWhiteBoard = (AppCompatCheckBox) findViewById(R.id.menu_whiteboard);
+
+        btnChangeResolution_up= (AppCompatCheckBox) findViewById(R.id.menu_up);
+        btnChangeResolution_down= (AppCompatCheckBox) findViewById(R.id.menu_down);
+
+        if(BuildConfig.DEBUG && null!=btnChangeResolution_up){
+            btnChangeResolution_up.setVisibility(View.GONE);
+        }else{
+            btnChangeResolution_up.setVisibility(View.GONE);
+        }
+        if(BuildConfig.DEBUG && null!=btnChangeResolution_down){
+            btnChangeResolution_down.setVisibility(View.GONE);
+        }else{
+            btnChangeResolution_down.setVisibility(View.GONE);
+        }
         //
         call_layout_title= (LinearLayout) findViewById(R.id.call_layout_title);
         call_reder_container= (LinearLayout) findViewById(R.id.call_reder_container);
@@ -430,7 +450,7 @@ public class CallActivity extends RongRTCBaseActivity {
             @Override
             public void onClick(View v) {
                 destoryPopupWindow();
-                RongRTCEngine.getInstance().observerRequestBecomeNormalUser();
+//                RongRTCEngine.getInstance().observerRequestBecomeNormalUser();
             }
         });
         renderViewManager.setOnLocalVideoViewClickedListener(new VideoViewManager.OnLocalVideoViewClickedListener() {
@@ -443,6 +463,20 @@ public class CallActivity extends RongRTCBaseActivity {
             @Override
             public void onClick(View v) {
                 toggleActionButtons(buttonHangUp.getVisibility() == View.VISIBLE);
+            }
+        });
+        btnChangeResolution_up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                destoryPopupWindow();
+                changeVideoSize("up");
+            }
+        });
+        btnChangeResolution_up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                destoryPopupWindow();
+                changeVideoSize("down");
             }
         });
         setCallIdel();
@@ -592,6 +626,10 @@ public class CallActivity extends RongRTCBaseActivity {
             sharingMap.clear();
         }
         destroyWebView(whiteboardView);
+        if (beautyFilter != null) {
+            beautyFilter.destroy();
+            beautyFilter = null;
+        }
     }
 
 
@@ -766,9 +804,7 @@ public class CallActivity extends RongRTCBaseActivity {
             }
 
             parameters.put(RongRTCEngine.ParameterKey.KEY_USER_TYPE, RongRTCContext.ConfigParameter.isObserver ? RongRTCEngine.UserType.RongRTC_User_Observer : RongRTCEngine.UserType.RongRTC_User_Normal);
-            //设置是否启用美颜模式
-            isGPUImageFliter = SessionManager.getInstance(this).getBoolean(IS_GPUIMAGEFILTER);
-            parameters.put(RongRTCEngine.ParameterKey.KEY_IS_BEAUTY_FILETER_USED, isGPUImageFliter ? true : false);
+
             //设置是否使用SRTP
             parameters.put(RongRTCEngine.ParameterKey.KEY_IS_SRTP_USED, SessionManager.getInstance(this).getBoolean(IS_SRTP));
 
@@ -801,7 +837,6 @@ public class CallActivity extends RongRTCBaseActivity {
             if (TextUtils.isEmpty(deviceId)) {
                 deviceId = RongRTCSessionManager.getInstance().getString(RongRTCContext.RONGRTC_UUID);
             }
-            boolean isQuic =false;
             FinLog.i("BinClient", "tcp方式请求token");
             new Thread(new Runnable() {
                 @Override
@@ -913,6 +948,12 @@ public class CallActivity extends RongRTCBaseActivity {
         RongRTCEngine.getInstance().setRongRTCEngineEventHandler(new RongRTCEngineEventHandler() {
 
             @Override
+            public void onNotifyHeadsetState(int HeadsetType, boolean state) {
+                super.onNotifyHeadsetState(HeadsetType, state);
+                Log.i(BluetoothUtil.TAG,""+(HeadsetType==0?"蓝牙耳机":"有线耳机")+",,"+(state?"连接上":"断开了"));
+            }
+
+            @Override
             public void onStartCaptureResult(int resultCode) {
                 super.onStartCaptureResult(resultCode);
                 FinLog.i("onStartCaptureResult", "onStartCapture  Result=" + resultCode + "\n threadName=" + Thread.currentThread().getName());
@@ -967,7 +1008,7 @@ public class CallActivity extends RongRTCBaseActivity {
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                showToastLengthLong(getResources().getString(R.string.meeting_control_OpenWiteBoard));
+//                                showToastLengthLong(getResources().getString(R.string.meeting_control_OpenWiteBoard));
                             }
                         }, 1100);
                     }
@@ -1016,12 +1057,6 @@ public class CallActivity extends RongRTCBaseActivity {
             @Override
             public void onNetworkReceiveLost(int lossRate) {
 
-            }
-
-            @Override
-            public int onTextureFrameCaptured(int width, int height, int oesTextureId) {
-//                FinLog.e(TAG,"oesTextureId == "+oesTextureId);
-                return 0;
             }
 
             @Override
@@ -1079,162 +1114,174 @@ public class CallActivity extends RongRTCBaseActivity {
                 FinLog.i(TAG, userId + (isOpen ? "打开了屏幕共享" : "关闭了屏幕共享"));
                 sharingMap.put(userId, isOpen);
                 if (isOpen && renderViewManager.isBig(userId) && isSharing(userId)) {
-                    showToastLengthLong(getResources().getString(R.string.meeting_control_OpenWiteBoard));
+//                    showToastLengthLong(getResources().getString(R.string.meeting_control_OpenWiteBoard));
                 }
             }
         });
 
-        RongRTCEngine.getInstance().setChannelManageEventHandler(new RongRTCEngineChannelManageEventHandler() {
+//        RongRTCEngine.getInstance().setChannelManageEventHandler(new RongRTCEngineChannelManageEventHandler() {
+//
+//            @Override
+//            public void onObserverRequestBecomeNormalUser(int code) {
+//                if (code == 0)
+//                    toastMessage(getString(R.string.Requestsentsuccessfully));
+//                else toastMessage(getString(R.string.Requestfailedtosend) + code);
+//
+//            }
+//
+//            @Override
+//            public void onUpgradeObserverToNormalUser(int code) {
+//            }
+//
+//            @Override
+//            public void onDegradeNormalUserToObserver(int code) {
+//            }
+//
+//            @Override
+//            public void onRemoveUser(int code) {
+//            }
+//
+//            @Override
+//            public void onHostControlUserDevice(String userId, RongRTCEngine.RongRTCDeviceType dType, int code) {
+//            }
+//
+//            @Override
+//            public void onGetInviteURL(String url, int code) {
+//                if (code == 0)
+//                    copyInviteUrlToClipboard(url);
+//                else toastMessage(getString(R.string.Failedtogetinvitationlink));
+//            }
+//
+//            @Override
+//            public void onNormalUserRequestHostAuthority(int code) {
+//                if (code == 0)
+//                    toastMessage(getString(R.string.Youbecomethehostofthemeeting));
+//            }
+//
+//            @Override
+//            public void onNotifyNormalUserRequestHostAuthority(String userId) {
+//                toastMessage(getString(R.string.userstr) + userId + getString(R.string.becomesthemeetinghost));
+//            }
+//
+//            @Override
+//            public void onNotifyDegradeNormalUserToObserver(String hostUid, String userId) {
+//                if (userId.equals(getDeviceId())) {
+//                    changeToObserverOrNormal(true);
+//                    toastMessage(getString(R.string.downgradedtoanobserver));
+//                    RongRTCEngine.getInstance().answerDegradeNormalUserToObserver(hostUid, true);
+//                } else {
+//                    toastMessage(userId + getString(R.string.userdowngradedtoanobserver));
+//                    sharingMap.put(userId, false);
+//                }
+//            }
+//
+//            @Override
+//            public void onNotifyUpgradeObserverToNormalUser(String hostUid, String userId) {
+//                if (addActionState(0, hostUid, userId)) {
+//                    return;
+//                }
+//                showConfirmDialog(getResources().getString(R.string.meeting_control_inviteToUpgrade), hostUid, userId, RongRTCEngine.RongRTCActionType.UpgradeToNormal, null);
+//            }
+//
+//            @Override
+//            public void onNotifyRemoveUser(String userId) {
+//                toastMessage(getString(R.string.removedfromthecoversation));
+//                disconnect();
+//            }
+//
+//            @Override
+//            public void onNotifyObserverRequestBecomeNormalUser(String userId) {
+//                showConfirmDialog(getString(R.string.userstr) + userId + "请求发言", "", userId, RongRTCEngine.RongRTCActionType.RequestUpgradeToNormal, null);
+//            }
+//
+//            @Override
+//            public void onNotifyHostControlUserDevice(String userId, String hostId, RongRTCEngine.RongRTCDeviceType type, boolean isOpen) {
+//                if (isOpen) {
+//                    if (addActionState(type.getValue(), hostId, userId)) {
+//                        return;
+//                    }
+//                    String deviceType = "";
+//                    if (type == RongRTCEngine.RongRTCDeviceType.Camera)
+//                        deviceType = getResources().getString(R.string.meeting_control_inviteToOpen_camera);
+//                    if (type == RongRTCEngine.RongRTCDeviceType.Microphone)
+//                        deviceType = getResources().getString(R.string.meeting_control_inviteToOpen_microphone);
+//                    showConfirmDialog(deviceType, hostId, userId, RongRTCEngine.RongRTCActionType.InviteToOpen, type);
+//                } else {
+//                    if (userId.equals(getDeviceId())) {
+//                        if (type == RongRTCEngine.RongRTCDeviceType.Camera && !btnCloseCamera.isChecked())
+//                            btnCloseCamera.performClick();
+//                        if (type == RongRTCEngine.RongRTCDeviceType.Microphone && !btnMuteMic.isChecked())
+//                            btnMuteMic.performClick();
+//                        if (type == RongRTCEngine.RongRTCDeviceType.CameraAndMicrophone) {
+//                            if (!btnCloseCamera.isChecked())
+//                                btnCloseCamera.performClick();
+//                            if (!btnCloseCamera.isChecked())
+//                                btnMuteMic.performClick();
+//                        }
+//                        RongRTCEngine.getInstance().answerHostControlUserDevice(hostId, type, isOpen, true);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onNotifyAnswerUpgradeObserverToNormalUser(String userId, boolean isAccept) {
+//                String statusString = "";
+//                if (isAccept)
+//                    statusString = getString(R.string.Agree);
+//                else
+//                    statusString = getString(R.string.Refuse);
+//                toastMessage(getString(R.string.userstr) + userId + statusString + getString(R.string.Upgradetonormaluser));
+//            }
+//
+//            @Override
+//            public void onNotifyAnswerObserverRequestBecomeNormalUser(String userId, long status) {
+//                if (status == RongRTCEngine.RongRTCAnswerActionType.Busy.getValue()) {
+//                    showToastLengthLong(getString(R.string.plscalllater));
+//                } else if (status == RongRTCEngine.RongRTCAnswerActionType.Accept.getValue()) {
+////                    Toast.makeText(CallActivity.this, "主持人同意", Toast.LENGTH_SHORT).show();
+//                    if (userId.equals(getDeviceId())) {
+//                        changeToObserverOrNormal(false);
+//                    } else {
+////                        FinLog.i("","主持人同意了"+userId+"成为正常用户");
+//                    }
+//                } else if (status == RongRTCEngine.RongRTCAnswerActionType.Deny.getValue()) {
+////                    Toast.makeText(CallActivity.this, "主持人拒绝", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            /**
+//             * 主持人将其他与会人降级成为观察者时
+//             * @param userId   用户ID
+//             * @param isAccept 是否接受 true：被降级的与会人默认同意
+//             */
+//            @Override
+//            public void onNotifyAnswerDegradeNormalUserToObserver(String userId, boolean isAccept) {
+//                sharingMap.put(userId, false);
+//            }
+//
+//            /**
+//             * @param userId   用户ID 3947CD61-BBFE-4623-8BA7-D5FD5D7E9162
+//             * @param isOpen   操作类型 false
+//             * @param dType    设备类型 1:摄像头 2 麦克风 3 摄像头+麦克风 -1无效
+//             * @param isAccept 是否接受 true
+//             */
+//            @Override
+//            public void onNotifyAnswerHostControlUserDevice(String userId, boolean isOpen, RongRTCEngine.RongRTCDeviceType dType, boolean isAccept) {
+////                toastMessage("用户:" + userId + (isAccept ? " 同意" : " 拒绝") + "了你的请求:" + (isOpen ? " 打开" : " 关闭") + dType.name());
+////                int talkType=-2; //0-只有音频；1-视频；2-音频+视频；3-无 // 0 or 3摄像头被关闭
+//                deviceCover(userId, isOpen, dType);
+//            }
+//        });
 
+        RongRTCEngine.getInstance().setVideoFrameListener(new RongRTCEngineVideoFrameListener() {
             @Override
-            public void onObserverRequestBecomeNormalUser(int code) {
-                if (code == 0)
-                    toastMessage(getString(R.string.Requestsentsuccessfully));
-                else toastMessage(getString(R.string.Requestfailedtosend) + code);
-
-            }
-
-            @Override
-            public void onUpgradeObserverToNormalUser(int code) {
-            }
-
-            @Override
-            public void onDegradeNormalUserToObserver(int code) {
-            }
-
-            @Override
-            public void onRemoveUser(int code) {
-            }
-
-            @Override
-            public void onHostControlUserDevice(String userId, RongRTCEngine.RongRTCDeviceType dType, int code) {
-            }
-
-            @Override
-            public void onGetInviteURL(String url, int code) {
-                if (code == 0)
-                    copyInviteUrlToClipboard(url);
-                else toastMessage(getString(R.string.Failedtogetinvitationlink));
-            }
-
-            @Override
-            public void onNormalUserRequestHostAuthority(int code) {
-                if (code == 0)
-                    toastMessage(getString(R.string.Youbecomethehostofthemeeting));
-            }
-
-            @Override
-            public void onNotifyNormalUserRequestHostAuthority(String userId) {
-                toastMessage(getString(R.string.userstr) + userId + getString(R.string.becomesthemeetinghost));
-            }
-
-            @Override
-            public void onNotifyDegradeNormalUserToObserver(String hostUid, String userId) {
-                if (userId.equals(getDeviceId())) {
-                    changeToObserverOrNormal(true);
-                    toastMessage(getString(R.string.downgradedtoanobserver));
-                    RongRTCEngine.getInstance().answerDegradeNormalUserToObserver(hostUid, true);
-                } else {
-                    toastMessage(userId + getString(R.string.userdowngradedtoanobserver));
-                    sharingMap.put(userId, false);
+            public int processVideoFrame(int width, int height, int oesTextureId) {
+                if (isGPUImageFliter) {
+                    if (beautyFilter == null)
+                        beautyFilter = new GPUImageBeautyFilter();
+                    oesTextureId = beautyFilter.draw(width, height, oesTextureId);
                 }
-            }
-
-            @Override
-            public void onNotifyUpgradeObserverToNormalUser(String hostUid, String userId) {
-                if (addActionState(0, hostUid, userId)) {
-                    return;
-                }
-                showConfirmDialog(getResources().getString(R.string.meeting_control_inviteToUpgrade), hostUid, userId, RongRTCEngine.RongRTCActionType.UpgradeToNormal, null);
-            }
-
-            @Override
-            public void onNotifyRemoveUser(String userId) {
-                toastMessage(getString(R.string.removedfromthecoversation));
-                disconnect();
-            }
-
-            @Override
-            public void onNotifyObserverRequestBecomeNormalUser(String userId) {
-                showConfirmDialog(getString(R.string.userstr) + userId + "请求发言", "", userId, RongRTCEngine.RongRTCActionType.RequestUpgradeToNormal, null);
-            }
-
-            @Override
-            public void onNotifyHostControlUserDevice(String userId, String hostId, RongRTCEngine.RongRTCDeviceType type, boolean isOpen) {
-                if (isOpen) {
-                    if (addActionState(type.getValue(), hostId, userId)) {
-                        return;
-                    }
-                    String deviceType = "";
-                    if (type == RongRTCEngine.RongRTCDeviceType.Camera)
-                        deviceType = getResources().getString(R.string.meeting_control_inviteToOpen_camera);
-                    if (type == RongRTCEngine.RongRTCDeviceType.Microphone)
-                        deviceType = getResources().getString(R.string.meeting_control_inviteToOpen_microphone);
-                    showConfirmDialog(deviceType, hostId, userId, RongRTCEngine.RongRTCActionType.InviteToOpen, type);
-                } else {
-                    if (userId.equals(getDeviceId())) {
-                        if (type == RongRTCEngine.RongRTCDeviceType.Camera && !btnCloseCamera.isChecked())
-                            btnCloseCamera.performClick();
-                        if (type == RongRTCEngine.RongRTCDeviceType.Microphone && !btnMuteMic.isChecked())
-                            btnMuteMic.performClick();
-                        if (type == RongRTCEngine.RongRTCDeviceType.CameraAndMicrophone) {
-                            if (!btnCloseCamera.isChecked())
-                                btnCloseCamera.performClick();
-                            if (!btnCloseCamera.isChecked())
-                                btnMuteMic.performClick();
-                        }
-                        RongRTCEngine.getInstance().answerHostControlUserDevice(hostId, type, isOpen, true);
-                    }
-                }
-            }
-
-            @Override
-            public void onNotifyAnswerUpgradeObserverToNormalUser(String userId, boolean isAccept) {
-                String statusString = "";
-                if (isAccept)
-                    statusString = getString(R.string.Agree);
-                else
-                    statusString = getString(R.string.Refuse);
-                toastMessage(getString(R.string.userstr) + userId + statusString + getString(R.string.Upgradetonormaluser));
-            }
-
-            @Override
-            public void onNotifyAnswerObserverRequestBecomeNormalUser(String userId, long status) {
-                if (status == RongRTCEngine.RongRTCAnswerActionType.Busy.getValue()) {
-                    showToastLengthLong(getString(R.string.plscalllater));
-                } else if (status == RongRTCEngine.RongRTCAnswerActionType.Accept.getValue()) {
-//                    Toast.makeText(CallActivity.this, "主持人同意", Toast.LENGTH_SHORT).show();
-                    if (userId.equals(getDeviceId())) {
-                        changeToObserverOrNormal(false);
-                    } else {
-//                        FinLog.i("","主持人同意了"+userId+"成为正常用户");
-                    }
-                } else if (status == RongRTCEngine.RongRTCAnswerActionType.Deny.getValue()) {
-//                    Toast.makeText(CallActivity.this, "主持人拒绝", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            /**
-             * 主持人将其他与会人降级成为观察者时
-             * @param userId   用户ID
-             * @param isAccept 是否接受 true：被降级的与会人默认同意
-             */
-            @Override
-            public void onNotifyAnswerDegradeNormalUserToObserver(String userId, boolean isAccept) {
-                sharingMap.put(userId, false);
-            }
-
-            /**
-             * @param userId   用户ID 3947CD61-BBFE-4623-8BA7-D5FD5D7E9162
-             * @param isOpen   操作类型 false
-             * @param dType    设备类型 1:摄像头 2 麦克风 3 摄像头+麦克风 -1无效
-             * @param isAccept 是否接受 true
-             */
-            @Override
-            public void onNotifyAnswerHostControlUserDevice(String userId, boolean isOpen, RongRTCEngine.RongRTCDeviceType dType, boolean isAccept) {
-//                toastMessage("用户:" + userId + (isAccept ? " 同意" : " 拒绝") + "了你的请求:" + (isOpen ? " 打开" : " 关闭") + dType.name());
-//                int talkType=-2; //0-只有音频；1-视频；2-音频+视频；3-无 // 0 or 3摄像头被关闭
-                deviceCover(userId, isOpen, dType);
+                return oesTextureId;
             }
         });
 
@@ -1342,7 +1389,7 @@ public class CallActivity extends RongRTCBaseActivity {
             });
 
             progressDialog.show();
-            showToastLengthLong(getResources().getString(R.string.meeting_control_OpenWiteBoard));
+//            showToastLengthLong(getResources().getString(R.string.meeting_control_OpenWiteBoard));
             mRelativeWebView.setVisibility(View.VISIBLE);
             FinLog.i(TAG, url);
             whiteboardView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -1387,12 +1434,12 @@ public class CallActivity extends RongRTCBaseActivity {
                                 if (btnMuteMic.isChecked())
                                     btnMuteMic.performClick();
                             }
-                            RongRTCEngine.getInstance().answerHostControlUserDevice(hostUid, type, true, true);
+//                            RongRTCEngine.getInstance().answerHostControlUserDevice(hostUid, type, true, true);
                         } else if (action == RongRTCEngine.RongRTCActionType.RequestUpgradeToNormal) {
-                            RongRTCEngine.getInstance().answerObserverRequestBecomeNormalUser(managedUid, true);
+//                            RongRTCEngine.getInstance().answerObserverRequestBecomeNormalUser(managedUid, true);
                         } else if (action == RongRTCEngine.RongRTCActionType.UpgradeToNormal) {
                             removeActionState(0);
-                            RongRTCEngine.getInstance().answerUpgradeObserverToNormalUser(hostUid, true);
+//                            RongRTCEngine.getInstance().answerUpgradeObserverToNormalUser(hostUid, true);
                             changeToObserverOrNormal(false);
                         }
                     }
@@ -1402,12 +1449,12 @@ public class CallActivity extends RongRTCBaseActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if (action == RongRTCEngine.RongRTCActionType.InviteToOpen) {
                             removeActionState(type.getValue());
-                            RongRTCEngine.getInstance().answerHostControlUserDevice(hostUid, type, true, false);
+//                            RongRTCEngine.getInstance().answerHostControlUserDevice(hostUid, type, true, false);
                         } else if (action == RongRTCEngine.RongRTCActionType.RequestUpgradeToNormal) {
-                            RongRTCEngine.getInstance().answerObserverRequestBecomeNormalUser(managedUid, false);
+//                            RongRTCEngine.getInstance().answerObserverRequestBecomeNormalUser(managedUid, false);
                         } else if (action == RongRTCEngine.RongRTCActionType.UpgradeToNormal) {
                             removeActionState(0);
-                            RongRTCEngine.getInstance().answerUpgradeObserverToNormalUser(hostUid, false);
+//                            RongRTCEngine.getInstance().answerUpgradeObserverToNormalUser(hostUid, false);
                         }
                     }
                 })
@@ -1772,6 +1819,40 @@ public class CallActivity extends RongRTCBaseActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void changeVideoSize(String action) {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(RongRTCContext.ConfigParameter.videoWidth);
+        stringBuffer.append("x").append(RongRTCContext.ConfigParameter.videoHeight);
+        String resolutionStr = stringBuffer.toString();
+        int index = -1;
+
+        try {
+            if (changeResolutionMap.containsKey(resolutionStr)) {
+                index = changeResolutionMap.get(resolutionStr).getIndex();
+            }
+            if (action.equals("down")) {
+                if (index != 0) {
+                    String str = resolution[index - 1];
+                    RongRTCEngine.RongRTCVideoProfile profile = selectiveResolution(str);
+                    RongRTCEngine.getInstance().changeVideoSize(profile);
+                } else {
+                    Toast.makeText(CallActivity.this, R.string.resolutionmunimum, Toast.LENGTH_SHORT).show();
+                }
+            } else if (action.equals("up")) {
+                if (index != 7) {
+                    String str = resolution[index + 1];
+                    RongRTCEngine.RongRTCVideoProfile profile = selectiveResolution(str);
+                    RongRTCEngine.getInstance().changeVideoSize(profile);
+                } else {
+                    Toast.makeText(CallActivity.this, R.string.resolutionhighest, Toast.LENGTH_SHORT).show();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            FinLog.i(TAG, "error：" + e.getMessage());
         }
     }
 

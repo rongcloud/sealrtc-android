@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -34,14 +33,12 @@ import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 
 import cn.rongcloud.rtc.util.AppRTCUtils;
 import cn.rongcloud.rtc.engine.binstack.http.RongRTCHttpClient;
-import cn.rongcloud.rtc.engine.binstack.util.FinLog;
 import cn.rongcloud.rtc.entity.CMPAddress;
 import cn.rongcloud.rtc.util.ButtentSolp;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.util.Utils;
 
-import cn.rongcloud.rtc.engine.binstack.http.QuicHttpCallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -75,6 +72,12 @@ public class MainPageActivity extends RongRTCBaseActivity {
     private AlertDialog choiceServerDialog = null;
 
     private static final String TOKEN_SERVER_URL_EXTERNAL = "https://api.blinkcloud.cn:8800/token";
+    private static final String CMP_SERVER_URL_EXTERNAL = "cmp.blinkcloud.cn:443";
+
+    private static final String CER_URL = "https://api.blinktalk.online:8081/key/prod/blinktalk.crt";
+
+    private static final String SNIFFER_SERVER_URL_EXTERNAL = "sniffer.blinkcloud.cn:8061";
+    //原debug下请求config list url=https://api.blinktalk.online:8081/configlist
     private static final String RELEASE_HTTP_CONFIG_SERVER_URL = "https://rtcapi.ronghub.com/nav/rtclist";
     private static final String RELEASE_QUIC_CONFIG_SERVER_URL = "http://rtcapi.ronghub.com:8801/nav/rtclist";
 
@@ -184,8 +187,9 @@ public class MainPageActivity extends RongRTCBaseActivity {
                             configServersMode.setName(jsonObject.getString("name"));
                             serverNames[i] = configServersMode.getName();
                         }else{
-                            serverNames[i]="环境 "+(i+1);
+                            serverNames[i]="环境 "+i;
                         }
+                        configServersMode.setAppkey(jsonObject.has("appkey")?jsonObject.getString("appkey"):"");
                         if (jsonObject.has("nav"))
                             configServersMode.setNav(jsonObject.getString("nav"));
                         if (jsonObject.has("cmp"))
@@ -207,6 +211,7 @@ public class MainPageActivity extends RongRTCBaseActivity {
                             quicBean.setCmp(quicjb.getString("cmp"));
                             quicBean.setNav(quicjb.getString("nav"));
                             quicBean.setToken(quicjb.getString("token"));
+                            quicBean.setAppkey(quicjb.has("appkey")?quicjb.getString("appkey"):"");
                             configServersMode.setQuic(quicBean);
                         }
                         if (jsonObject.has("tcp")) {
@@ -215,6 +220,7 @@ public class MainPageActivity extends RongRTCBaseActivity {
                             tcpBean.setCmp(tcpjb.getString("cmp"));
                             tcpBean.setNav(tcpjb.getString("nav"));
                             tcpBean.setToken(tcpjb.getString("token"));
+                            tcpBean.setAppkey(tcpjb.has("appkey")?tcpjb.getString("appkey"):"");
                             configServersMode.setTcp(tcpBean);
                         }
                         configServersModes.add(configServersMode);
@@ -246,6 +252,28 @@ public class MainPageActivity extends RongRTCBaseActivity {
             loadingDialog.dismiss();
         }
     }
+
+    /**
+     * Debug模式下，弹出选择框，选择要使用的环境
+     */
+    private void showChoiceDialog() {
+        if (null != choiceServerDialog && choiceServerDialog.isShowing()) {
+            choiceServerDialog.dismiss();
+        }
+        choiceServerDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.debug_select_dialog_message)
+                .setItems(serverNames, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int index) {
+                        dialog.dismiss();
+                        chooseServerMode(index);
+                    }
+                })
+                .create();
+        choiceServerDialog.setCanceledOnTouchOutside(false);
+        choiceServerDialog.show();
+    }
+
     private void clearCer() {
         cerStream = null;
         RongRTCEngine.setCertificate(null, null);
@@ -259,6 +287,7 @@ public class MainPageActivity extends RongRTCBaseActivity {
         cmpServer = !TextUtils.isEmpty(configServersMode.getCmptls()) ? configServersMode.getCmptls() : configServersMode.getCmp();
         tokenServerURL = configServersMode.getToken();
         cerUrl = configServersMode.getCrt();
+        AppRTCUtils.setAppID(configServersMode.getAppkey());
 
         boolean isquic = SessionManager.getInstance(this).getBoolean(IS_RONGRTC_CONNECTIONMODE);
         if (isquic && null != configServersMode.getQuic()) {
@@ -267,12 +296,14 @@ public class MainPageActivity extends RongRTCBaseActivity {
             cmpServer = sb_quic.append(quicBean.getCmp()).toString();
             tokenServerURL = quicBean.getToken();
             cerUrl = "";
+            AppRTCUtils.setAppID(quicBean.getAppkey());
         } else if (!isquic && null != configServersMode.getTcp()) {
             StringBuffer sb_tcp = new StringBuffer(Utils.TCP);
             ConfigServersMode.TcpBean tcpBean = configServersMode.getTcp();
             cmpServer = sb_tcp.append(tcpBean.getCmp()).toString();
             tokenServerURL = tcpBean.getToken();
             cerUrl = "";
+            AppRTCUtils.setAppID(tcpBean.getAppkey());
         } else {
             StringBuffer sb_tcp = new StringBuffer(Utils.TCP);
             cmpServer = sb_tcp.append(cmpServer).toString();
@@ -424,6 +455,8 @@ public class MainPageActivity extends RongRTCBaseActivity {
             String configServerUrl = "";
             boolean isNeedDialog = true;
             boolean isQuic = SessionManager.getInstance(this).getBoolean(IS_RONGRTC_CONNECTIONMODE);
+
+//                configServerUrl = CONFIG_SERVER_URL_PRO;
             configServerUrl = isQuic ? RELEASE_QUIC_CONFIG_SERVER_URL : RELEASE_HTTP_CONFIG_SERVER_URL;
             isNeedDialog = false;
             getServerList(configServerUrl, isNeedDialog);

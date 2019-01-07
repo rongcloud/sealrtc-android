@@ -657,7 +657,7 @@ public class VideoViewManager {
                     selectedUserid.clear();
                     selectedUserid.add(userid);
                     if (mActivity.isSharing(userid)) {
-                        Toast.makeText(context, context.getResources().getString(R.string.meeting_control_OpenWiteBoard), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(context, context.getResources().getString(R.string.meeting_control_OpenWiteBoard), Toast.LENGTH_SHORT).show();
                     }
                 } catch (Resources.NotFoundException e) {
                     e.printStackTrace();

@@ -96,7 +96,7 @@ dependencies {
     compile 'com.android.support:support-v4:24.0.0-alpha1'
     compile 'com.github.bumptech.glide:glide:4.0.0'
     compile 'org.greenrobot:eventbus:3.0.0'
-    compile files('libs/RongRTCLib_2.1.0.jar')
+    compile files('libs/RongRTCLib_2.1.1.jar')
 }
 
 

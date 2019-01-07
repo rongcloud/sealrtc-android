@@ -74,14 +74,10 @@ public class checkBoxDialog extends Dialog{
         btnChangeResolution_up= (AppCompatCheckBox) findViewById(R.id.menu_up);
         btnChangeResolution_down= (AppCompatCheckBox) findViewById(R.id.menu_down);
 
-        if(BuildConfig.DEBUG && null!=btnChangeResolution_up){
-            btnChangeResolution_up.setVisibility(View.GONE);
-        }else{
+        if(null != btnChangeResolution_up){
             btnChangeResolution_up.setVisibility(View.GONE);
         }
-        if(BuildConfig.DEBUG && null!=btnChangeResolution_down){
-            btnChangeResolution_down.setVisibility(View.GONE);
-        }else{
+        if(null != btnChangeResolution_down){
             btnChangeResolution_down.setVisibility(View.GONE);
         }
     }

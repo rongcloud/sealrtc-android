@@ -95,3 +95,8 @@
 -dontwarn android.support.**
 -dontwarn com.tencent.bugly.**
 -ignorewarnings
+
+
+-keep class bailingquic.**{*;}
+
+-keep class go.**{*;}

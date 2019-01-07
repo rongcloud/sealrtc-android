@@ -48,9 +48,9 @@ public class Utils {
 
     public static final  String QUIC="quic://",TCP="tcp://";
     //默认使用的取token地址 release
-    public static final String TOKEN_SERVER_URL_EXTERNAL = "https://rtcapi.ronghub.com/voiptoken";
+    public static final String TOKEN_SERVER_URL_EXTERNAL = "https://api.blinkcloud.cn:8800/token";
     //默认使用的cmp地址 release
-    public static final String CMP_SERVER_URL_EXTERNAL = "rtccmp.ronghub.com:80";
+    public static final String CMP_SERVER_URL_EXTERNAL = "cmp.blinkcloud.cn:80";
 
     /**
      * 判断用户输入的cmp地址是否包含标识

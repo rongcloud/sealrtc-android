@@ -23,9 +23,7 @@ public class LauncherActivity extends RongRTCBaseActivity {
         setContentView(R.layout.activity_launcher);
         ((TextView)findViewById(R.id.launcher_loading)).setTextColor(getResources().getColor(R.color.blink_launcher_grey));
 
-        if(!SessionManager.getInstance(this).contains(SettingActivity.IS_RONGRTC_CONNECTIONMODE)){
-            SessionManager.getInstance(this).put(SettingActivity.IS_RONGRTC_CONNECTIONMODE,false);
-        }
+        SessionManager.getInstance(this).put(SettingActivity.IS_RONGRTC_CONNECTIONMODE,false);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

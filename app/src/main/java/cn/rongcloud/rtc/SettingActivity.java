@@ -18,13 +18,10 @@ import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 
 import cn.rongcloud.rtc.util.AppRTCUtils;
 import cn.rongcloud.rtc.engine.binstack.util.FinLog;
-import cn.rongcloud.rtc.engine.context.RongRTCContext;
 import cn.rongcloud.rtc.entity.CMPAddress;
 import cn.rongcloud.rtc.util.ButtentSolp;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.Utils;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

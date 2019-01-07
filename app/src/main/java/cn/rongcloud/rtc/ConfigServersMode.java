@@ -17,6 +17,15 @@ public class ConfigServersMode {
     private String token;
     private QuicBean quic;
     private TcpBean tcp;
+    private String appkey;
+
+    public String getAppkey() {
+        return appkey;
+    }
+
+    public void setAppkey(String appkey) {
+        this.appkey = appkey;
+    }
 
     public String getCmptls() {
         return cmptls;
@@ -103,6 +112,15 @@ public class ConfigServersMode {
         private String nav;
         private String cmp;
         private String token;
+        private String appkey;
+
+        public String getAppkey() {
+            return appkey;
+        }
+
+        public void setAppkey(String appkey) {
+            this.appkey = appkey;
+        }
 
         public String getNav() {
             return nav;
@@ -133,6 +151,15 @@ public class ConfigServersMode {
         private String nav;
         private String cmp;
         private String token;
+        private String appkey;
+
+        public String getAppkey() {
+            return appkey;
+        }
+
+        public void setAppkey(String appkey) {
+            this.appkey = appkey;
+        }
 
         public String getNav() {
             return nav;
