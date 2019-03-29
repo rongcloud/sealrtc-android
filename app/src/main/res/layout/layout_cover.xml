@@ -1,38 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     android:id="@+id/rl_CoverBase"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/blink_black"
-    android:layout_height="match_parent">
+    android:layout_margin="2dp">
+
+    <LinearLayout
+        android:id="@+id/testLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true">
+
+        <View
+            android:id="@+id/auto_test2"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@android:color/holo_blue_bright"
+            android:visibility="gone"></View>
+
+        <View
+            android:id="@+id/auto_test"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@android:color/holo_red_light"
+            android:visibility="gone"></View>
+    </LinearLayout>
+
 
     <RelativeLayout
         android:id="@+id/relative_cover"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/blink_black">
 
         <ImageView
             android:id="@+id/iv_bg"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:background="@drawable/userhead"
-            android:layout_height="match_parent" />
+            android:background="@drawable/userhead" />
 
         <TextView
             android:id="@+id/tv_UserName"
-            android:textSize="20sp"
-            android:textColor="@color/colorWhite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="@android:style/Widget.ProgressBar.Inverse"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:visibility="gone"
-            android:layout_height="wrap_content" />
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/show_user_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="30dp"
+            android:textColor="@android:color/holo_red_light"
+            android:layout_marginBottom="10dp"/>
         <!--android:indeterminateDrawable="@drawable/app_pb_style"-->
 
     </RelativeLayout>
@@ -40,14 +75,14 @@
     <ImageView
         android:id="@+id/iv_audiolevel"
         android:layout_width="25dp"
-        android:layout_marginBottom="3dp"
-        android:layout_marginRight="2dp"
-        android:visibility="invisible"
-
+        android:layout_height="25dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_height="25dp">
+
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="3dp"
+        android:visibility="invisible">
 
     </ImageView>
-<!--android:background="@drawable/audiolevel"-->
+    <!--android:background="@drawable/audiolevel"-->
 </RelativeLayout>

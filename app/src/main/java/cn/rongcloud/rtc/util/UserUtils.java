@@ -5,14 +5,29 @@ import android.text.TextUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @Author DengXudong.
- * @Time 2018/2/2.
- * @Description:
- */
 public class UserUtils {
+    public static final String RESPONSE_OK = "200";
+    public static final String ROOMID_KEY = "rooid_key";
+    public static final String PHONE = "phone";
+    public static final String KEY = "key";
+    public static final String RESULT = "result";
+    public static final String TOKEN = "token";
+    public static final String REGION = "region";
+    public static final String CODE = "code";
+//    public static final String TOKNE_KEY = "TOKEN_KEY";
+public static final String USERNAME_KEY = "USER_NAME";
+    public static final String BASE_URL = "https://sealrtc.rongcloud.cn/";
+    public static final String URL_LOGIN = "user/login";
+    public static final String URL_GET_TOKEN = "user/get_token";
+    public static final String URL_GET_TOKEN_NEW = "user/get_token_new";
 
-    public static final String USERNAME_KEY = "USER_NAME";
+    public static final String URL_SEND_CODE = "user/send_code";
+    public static final String URL_VERIFY_CODE = "user/verify_code";
+
+    public static final int VIDEOMUTE_MUST = 9;
+    public static final int OBSERVER_MUST = 30;
+    public static final String isVideoMute_key = "isVideoMute";
+    public static final String isObserver_key = "isObserver";
 
     private static final String NAMETYPE = "请检查名字不含有除汉字、英文以外的其他字符！";
     private static final String NAMESIZE = "请确保名字长度不超过12个字节！";

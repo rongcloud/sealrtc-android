@@ -250,38 +250,38 @@ public abstract class GPUImageFilter {
         }
     }
 
-    public int draw(int width, int height, int oesTextureId) {
+    public int draw(int width, int height, int rgbTextureId) {
 
 
-        if (textureCopy == null) {
-            textureCopy = new GlTextureFrameBuffer(GLES20.GL_RGBA);
-        }
+        //if (textureCopy == null) {
+         //   textureCopy = new GlTextureFrameBuffer(GLES20.GL_RGBA);
+       // }
 
-        textureCopy.setSize(width, height);
+        //textureCopy.setSize(width, height);
 
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, textureCopy.getFrameBufferId());
-        GlUtil.checkNoGLES2Error("glBindFramebuffer");
+       // GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, textureCopy.getFrameBufferId());
+       // GlUtil.checkNoGLES2Error("glBindFramebuffer");
 
         // Copy the OES texture content. This will also normalize the sampling matrix.
-        glRectDrawer.drawOes(oesTextureId, identityMatrix(), textureCopy.getWidth(),
-                textureCopy.getHeight(), 0, 0, textureCopy.getWidth(), textureCopy.getHeight());
+       // glRectDrawer.drawOes(oesTextureId, identityMatrix(), textureCopy.getWidth(),
+         //       textureCopy.getHeight(), 0, 0, textureCopy.getWidth(), textureCopy.getHeight());
 
         if (textureFilter == null) {
             textureFilter = new GlTextureFrameBuffer(GLES20.GL_RGBA);
         }
 
-        textureFilter.setSize(textureCopy.getWidth(), textureCopy.getHeight());
+        textureFilter.setSize(width, height);
 
         if (!mFilter.isInitialized()) {
             mFilter.init();
         }
 
-        mFilter.onOutputSizeChanged(textureCopy.getWidth(), textureCopy.getHeight());
+        mFilter.onOutputSizeChanged(width, height);
 
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, textureFilter.getFrameBufferId());
         GlUtil.checkNoGLES2Error("glBindFramebuffer");
 
-        mFilter.onDraw(textureCopy.getTextureId());
+        mFilter.onDraw(rgbTextureId);
         // Restore normal framebuffer.
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 

@@ -4,7 +4,7 @@
     <string name="loading">正在加载...</string>
     <string name="setting_title">设置</string>
     <string name="setting_back">返回</string>
-    <string name="room_description">请输入会议室名称</string>
+    <string name="room_description">输入以下信息开始会议</string>
     <string name="room_userName">请输入用户名</string>
     <string name="blink_description">欢迎体验实时高质量的音视频会议</string>
     <string name="blink_description_version">SealRTC V</string>
@@ -14,10 +14,10 @@
     <string name="debug_select_dialog_testbutton">测试环境</string>
     <string name="debug_select_dialog_oraclebutton">Oracle</string>
     <string name="debug_select_dialog_shanchatbutton">图灵</string>
-    <string name="room_input_hint">请在这里输入会议室名称</string>
+    <string name="room_input_hint">请输入会议室ID</string>
     <string name="room_input_hint_username">请在这里输入用户名称</string>
     <string name="room_connect_button">开始会议</string>
-    <string name="room_number">房间</string>
+    <string name="room_number">会议室 ID:&#160;</string>
     <string name="connection_duration">通话时间</string>
     <string name="network_traffic">流量</string>
     <string name="network_traffic_receive">接收:</string>
@@ -57,8 +57,8 @@
     <string name="meeting_control_destroy_whiteBoard">退出后白板将被销毁\n是否继续退出？</string>
     <string name="meeting_control_no_whiteBoard">当前没有白板供查看，请等待其他人创建白板</string>
     <string name="meeting_control_OpenWiteBoard">建议横屏，能看的更清楚</string>
-    <string name="room_join_observer">以旁听者身份加入</string>
-    <string name="room_join_close_camera">加入时不开启摄像头</string>
+    <string name="room_join_observer">只接收音视频流，不发布流模式</string>
+    <string name="room_join_close_camera">加入时关闭摄像头</string>
     <string name="Waitingforinput">请输入会议室名称和用户名称!</string>
     <string name="Thecurrentnetworkisnotavailable">当前网络不可用</string>
     <string name="saveSuccess">保存成功!</string>
@@ -89,4 +89,20 @@
     <string name="settings_text_MediaStreamTiny_no">否</string>
     <string name="Opensizestream">开启大小流</string>
     <string name="app_btn_loading">正在初始化</string>
+    <string name="autotest">自动化测试</string>
+    <string name="join_room_observer_prompt">会议室中人数已超过 30 人，你将以旁听者模式加入会议室。</string>
+    <string name="join_room_audio_only_prompt">会议室中视频通话人数已经超过 9 人，你将以音频模式加入会议室。</string>
+    <string name="dialog_ok">确定</string>
+    <string name="dialog_cancel">取消</string>
+
+    <string name="get_code">重新获取验证码</string>
+    <string name="VerificationCodeError">验证码错误，请重新获取</string>
+    <string name="input_roomId">请输入会议室ID!</string>
+    <string name="input_room_phoneNum">请输入手机号码!</string>
+    <string name="input_room_phoneNum_error">手机号码格式有误!</string>
+    <string name="SendVerificationCode">发送验证码</string>
+    <string name="MobilePhoneVerificationCode">手机验证码</string>
+    <string name="phoneNumber">手机号</string>//phone number
+    <string name="PhoneNumberLoginTips">请输入手机号验证登录,目前支持中国区号</string>
+    <string name="login">验证登录</string>//Verify login
 </resources>

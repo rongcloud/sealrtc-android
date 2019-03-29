@@ -3,11 +3,12 @@ package cn.rongcloud.rtc.util;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import cn.rongcloud.rtc.MainPageActivity;
 import cn.rongcloud.rtc.R;
 import android.widget.TextView;
 
-import cn.rongcloud.rtc.MainPageActivity;
-
+import cn.rongcloud.rtc.VerifyActivity;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.SettingActivity;
 
@@ -18,7 +19,6 @@ public class LauncherActivity extends RongRTCBaseActivity {
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         setContentView(R.layout.activity_launcher);
         ((TextView)findViewById(R.id.launcher_loading)).setTextColor(getResources().getColor(R.color.blink_launcher_grey));
@@ -32,8 +32,7 @@ public class LauncherActivity extends RongRTCBaseActivity {
         },1000);
     }
 
-    private void skipToMainPage()
-    {
+    private void skipToMainPage() {
         Intent intent = new Intent(this, MainPageActivity.class);
         startActivity(intent);
         finish();

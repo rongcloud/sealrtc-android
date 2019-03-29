@@ -3,19 +3,21 @@ package cn.rongcloud.rtc;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import cn.rongcloud.rtc.core.RendererCommon;
-import cn.rongcloud.rtc.engine.binstack.util.FinLog;
+import cn.rongcloud.rtc.utils.FinLog;
 import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
 
 /**
- * Created by Administrator on 2017/3/30.
+ * Created by RongCloud on 2017/3/30.
  */
 
 public class ContainerLayout extends RelativeLayout {
+    private static final String TAG = "ContainerLayout";
     private Context context;
     public ContainerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -29,11 +31,12 @@ public class ContainerLayout extends RelativeLayout {
         if (renderHolder.containerLayout.getParent()!=null && renderHolder.containerLayout.getParent()!=ContainerLayout.this){
             return;
         }
+        Log.i(TAG,"addView()");
         super.addView(renderHolder.containerLayout, getBigContainerParams(renderHolder.coverView.getRongRTCVideoView()));
         renderHolder.coverView.getRongRTCVideoView().setOnSizeChangedListener(new RongRTCVideoView.OnSizeChangedListener() {
             @Override
             public void onChanged(RongRTCVideoView.Size size) {
-                FinLog.d("得到准确尺寸，重新刷新视图：size= W:" + size.with + " H:" + size.height);
+                FinLog.d(TAG,"得到准确尺寸，重新刷新视图：size= W:" + size.with + " H:" + size.height);
                 if (renderHolder.containerLayout.getParent()!=null && renderHolder.containerLayout.getParent()!=ContainerLayout.this){
                     return;
                 }

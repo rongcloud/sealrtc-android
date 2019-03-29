@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 
-import cn.rongcloud.rtc.engine.binstack.util.FinLog;
+import cn.rongcloud.rtc.utils.FinLog;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by Administrator on 2016/11/21.
+ * Created by RongCloud on 2016/11/21.
  */
 public class AssetsFilesUtil {
     private static final String TAG = "AssetsFilesUtil";

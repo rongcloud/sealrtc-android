@@ -30,5 +30,8 @@
         <!--<item name="android:layout_marginRight">50dp</item>-->
         <!--<item name="android:background">@color/blink_blue2</item>-->
     </style>
+    <style name="test_activity">
+        <item name="android:textSize">10dp</item>
+    </style>
 
 </resources>

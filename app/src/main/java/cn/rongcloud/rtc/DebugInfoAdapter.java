@@ -8,13 +8,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import cn.rongcloud.rtc.engine.binstack.json.module.StatusBean;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.rongcloud.rtc.engine.report.StatusBean;
+
 /**
- * Created by Administrator on 2017/11/30.
+ * Created by RongCloud on 2017/11/30.
  */
 
 public class DebugInfoAdapter extends BaseAdapter {

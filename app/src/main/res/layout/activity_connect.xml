@@ -68,7 +68,7 @@
                     android:layout_centerHorizontal="true"
                     android:text="@string/blink_description_version"
                     android:textColor="@color/blink_text_green"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"/>
             </RelativeLayout>
 
             <LinearLayout
@@ -98,13 +98,34 @@
                     android:layout_height="48dp"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/shape_corner_input_gray"
-                    android:gravity="center"
                     android:hint="@string/room_input_hint"
+                    android:paddingLeft="5dp"
                     android:imeOptions="actionDone"
+                    android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+|=-_，"
+                    android:maxLength="64"
                     android:inputType="text"
                     android:maxLines="1"
+                    android:singleLine="true"
                     android:textColor="@color/blink_text_grey"
                     android:textColorHint="@color/blink_grey" />
+
+                <EditText
+                    android:id="@+id/room_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/shape_corner_input_gray"
+                    android:paddingLeft="5dp"
+                    android:hint="@string/phoneNumber"
+                    android:imeOptions="actionDone"
+                    android:digits="1234567890"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:maxLength="11"
+                    android:singleLine="true"
+                    android:textColor="@color/blink_text_grey"
+                    android:textColorHint="@color/blink_grey"
+                    android:visibility="visible" />
 
 
                 <TextView
@@ -114,7 +135,8 @@
                     android:textAlignment="center"
                     android:gravity="center_horizontal"
                     android:textColor="@color/blink_blue"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:visibility="gone"/>
 
 
                 <EditText
@@ -129,7 +151,8 @@
                     android:inputType="text"
                     android:maxLines="1"
                     android:textColor="@color/blink_text_grey"
-                    android:textColorHint="@color/blink_grey" />
+                    android:textColorHint="@color/blink_grey"
+                    android:visibility="gone" />
 
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/room_cb_close_camera"
@@ -146,7 +169,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/room_join_observer"
                     android:textColor="@color/blink_text_grey"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"/>
 
                 <Button
                     android:id="@+id/connect_button"

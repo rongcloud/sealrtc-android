@@ -19,4 +19,5 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="blink_divider">#AAAAAA</color>
     <color name="blink_text_white">#FFFFFF</color>
+    <color name="blink_rad">#ffff0000</color>
 </resources>

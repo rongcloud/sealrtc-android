@@ -208,11 +208,13 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="#dddddd"/>
+                    android:background="#dddddd"
+                    android:visibility="gone"/>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="40dp">
+                    android:layout_height="40dp"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -228,6 +230,7 @@
                     android:id="@+id/setting_option_9"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:visibility="gone"
                     android:background="#ffffff">
 
                     <TextView
@@ -616,6 +619,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#dddddd"></LinearLayout>
+
+            <!--自动化测试-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#dddddd"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginLeft="12dp"
+                    android:text="@string/autotest"
+                    android:textColor="#aaaaaa" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/setting_option_autotest"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="#ffffff">
+
+                <TextView
+                    android:id="@+id/tv_setting_option_autotest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="12dp"
+                    android:text="@string/settings_text_observer_no"
+                    android:textColor="#000000"
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="12dp"
+                    android:src="@drawable/list_arrow" />
+            </RelativeLayout>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

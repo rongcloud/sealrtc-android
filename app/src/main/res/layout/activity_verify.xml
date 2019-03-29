@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:scrollbars="none"
+    android:fillViewport="true"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:background="#F2F2F2"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="166dp">
+
+                <ImageView
+                    android:id="@+id/img_logo"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="16dp"
+                    android:contentDescription="@string/app_name"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_launcher" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/main_page_version"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:text="@string/blink_description"
+                    android:textColor="@color/blink_text_green"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/main_page_version_code"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/main_page_version"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/blink_description_version"
+                    android:textColor="@color/blink_text_green"
+                    android:textSize="18sp"/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="30dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:paddingRight="30dp"
+                android:paddingTop="40dp">
+
+                <TextView
+                    android:id="@+id/room_number_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/PhoneNumberLoginTips"
+                    android:textAlignment="center"
+                    android:textColor="@color/blink_blue"
+                    android:textSize="15sp" />
+
+
+                <EditText
+                    android:id="@+id/edit_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/shape_corner_input_gray"
+                    android:hint="@string/phoneNumber"
+                    android:imeOptions="actionDone"
+                    android:digits="1234567890"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:maxLength="11"
+                    android:singleLine="true"
+                    android:paddingLeft="5dp"
+                    android:textColor="@color/blink_text_grey"
+                    android:textColorHint="@color/blink_grey" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:weightSum="1"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/edit_verificationCode"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.65"
+                        android:layout_height="48dp"
+                        android:background="@drawable/shape_corner_input_gray"
+                        android:hint="@string/MobilePhoneVerificationCode"
+                        android:paddingLeft="5dp"
+                        android:digits="1234567890"
+                        android:imeOptions="actionDone"
+                        android:inputType="text"
+                        android:maxLength="9"
+                        android:maxLines="1"
+                        android:textColor="@color/blink_text_grey"
+                        android:textColorHint="@color/blink_grey" />
+
+                    <Button
+                        android:id="@+id/reg_getcode"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="0.35"
+                        android:background="@drawable/rs_select_btn_gray"
+                        android:clickable="false"
+                        android:paddingBottom="10dp"
+                        android:paddingTop="10dp"
+                        android:text="@string/SendVerificationCode"
+                        android:textColor="#FFF"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+
+                <Button
+                    android:id="@+id/btn_login"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/rs_select_btn_gray"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:text="@string/login"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_tips"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    android:textColor="@color/blink_rad"
+                    android:layout_marginBottom="20dp"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</ScrollView>

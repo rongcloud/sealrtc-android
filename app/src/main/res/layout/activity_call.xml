@@ -53,8 +53,7 @@
         android:layout_centerInParent="true"
         android:background="@drawable/shape_wait_tips"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
@@ -88,61 +87,69 @@
             <LinearLayout
                 android:id="@+id/call_reder_container"
                 android:layout_width="match_parent"
+                android:background="@color/colorWhite"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="visible"/>
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+            <!--<LinearLayout-->
+                <!--android:id="@+id/call_reder_container"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:visibility="visible">-->
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
+
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout2"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout3"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout4"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout4"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout5"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout5"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout6"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout6"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout7"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout7"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout8"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout8"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
-                <RelativeLayout
-                    android:id="@+id/remote_video_layout9"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/remote_video_layout9"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
 
-                <RelativeLayout
-                    android:id="@+id/local_video_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </LinearLayout>
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/local_video_layout"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
+            <!--</LinearLayout>-->
 
         </HorizontalScrollView>
 
@@ -249,7 +256,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
         android:background="@drawable/selector_button_hangup" />
-
 
     <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/menu_close"

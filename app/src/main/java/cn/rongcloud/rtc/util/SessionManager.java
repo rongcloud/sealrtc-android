@@ -79,6 +79,10 @@ public class SessionManager {
         return sharedPreferences.getBoolean(key, false);
     }
 
+    public Boolean getIsSupportTiny(String key){
+        return sharedPreferences.getBoolean(key, true);
+    }
+
     public Long getLong(String key) {
         return sharedPreferences.getLong(key, 0);
     }

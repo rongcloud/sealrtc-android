@@ -17,7 +17,7 @@ import android.widget.Toast;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 
 import cn.rongcloud.rtc.util.AppRTCUtils;
-import cn.rongcloud.rtc.engine.binstack.util.FinLog;
+import cn.rongcloud.rtc.utils.FinLog;
 import cn.rongcloud.rtc.entity.CMPAddress;
 import cn.rongcloud.rtc.util.ButtentSolp;
 import cn.rongcloud.rtc.util.SessionManager;
@@ -50,18 +50,21 @@ public class SettingActivity extends RongRTCBaseActivity {
     public static final String IS_RONGRTC_CONNECTIONMODE = "IS_RONGRTC_CONNECTIONMODE";
     /**保存的bool值 true：大小流开启，false 关闭**/
     public static final String IS_STREAM_TINY="STREAMTINY";
+    /**自动化测试*/
+    public static final String IS_AUTO_TEST="AUTOTEST";
+
 
     public static final String RESOLUTION_LOW = "240x320";
     public static final String RESOLUTION_MEDIUM = "480x640";
     public static final String RESOLUTION_HIGH = "720x1280";
     public static final String RESOLUTION_SUPER = "1080x1920(仅部分手机支持)";
-    private String[] list_resolution = new String[]{RESOLUTION_LOW, RESOLUTION_MEDIUM, RESOLUTION_HIGH, RESOLUTION_SUPER};
+    private String[] list_resolution = new String[]{RESOLUTION_LOW, RESOLUTION_MEDIUM, RESOLUTION_HIGH};
     private String[] list_fps = new String[]{"15", "24", "30"};
     private String[] list_bitrate_max = new String[]{};
     private String[] list_bitrate_min = new String[]{};
     private String[] list_connectionMode = new String[]{"Relay", "P2P"};
     private String[] list_format = new String[]{"H264", "VP8", "VP9"};
-    private String[] list_observer,list_gpuImageFilter,list_connectionType,list_streamTiny;
+    private String[] list_observer,list_gpuImageFilter,list_connectionType,list_streamTiny,list_autotest;
 
     private int defaultBitrateMinIndex = 0;
     private int defaultBitrateMaxIndex = 0;
@@ -77,12 +80,13 @@ public class SettingActivity extends RongRTCBaseActivity {
     private static final int REQUEST_CODE_IS_SRTP = 20;
     private static final int REQUEST_CODE_IS_CONNECTIONTYPE = 21;
     private static final int REQUEST_CODE_IS_STREAM_TINY = 22;
+    private static final int REQUEST_CODE_IS_AUTO_TEST = 23;
 
     private int tapStep = 0;
     private long lastClickTime = 0;
     private TextView settingOptionText1, settingOptionText2, settingOptionText3, settingOptionText4, settingOptionText5,
             settingOptionText6, settingOptionText7, settingOptionText8, settingOptionSRTP, settingOptionConnectionType,
-            setting_option_streamTiny;
+            setting_option_streamTiny,setting_autotest;
     private LinearLayout settings_Modify;
 
     @Override
@@ -107,8 +111,13 @@ public class SettingActivity extends RongRTCBaseActivity {
         list_streamTiny= new String[]{getResources().getString(R.string.settings_text_MediaStreamTiny_no), getResources().getString(R.string.settings_text_MediaStreamTiny_yes)};
         setting_option_streamTiny= (TextView) findViewById(R.id.setting_option_10_txt);
         //true：大小流开启，false 关闭(默认)
-        boolean streamTiny=SessionManager.getInstance(this).getBoolean(IS_STREAM_TINY);
+        boolean streamTiny=SessionManager.getInstance(this).getIsSupportTiny(IS_STREAM_TINY);
         setting_option_streamTiny.setText(streamTiny?list_streamTiny[1]:list_streamTiny[0]);
+
+        //默认关闭自动化测试
+        list_autotest= new String[]{getResources().getString(R.string.settings_text_MediaStreamTiny_no), getResources().getString(R.string.settings_text_MediaStreamTiny_yes)};
+        setting_autotest = (TextView) findViewById(R.id.tv_setting_option_autotest);
+        setting_autotest.setText(SessionManager.getInstance(this).getBoolean(IS_AUTO_TEST) ? list_streamTiny[1] : list_streamTiny[0]);
 
         settingOptionText1 = ((TextView) findViewById(R.id.setting_option_1_txt));
         String resolution = SessionManager.getInstance(this).getString(RESOLUTION);
@@ -190,6 +199,7 @@ public class SettingActivity extends RongRTCBaseActivity {
         });
         findViewById(R.id.settings_title_layout).setOnClickListener(new OnTitleViewClickListener());
         findViewById(R.id.setting_option_streamTiny).setOnClickListener(new OnOptionViewClickListener(R.string.Opensizestream,list_streamTiny,REQUEST_CODE_IS_STREAM_TINY));
+        findViewById(R.id.setting_option_autotest).setOnClickListener(new OnOptionViewClickListener(R.string.autotest,list_autotest,REQUEST_CODE_IS_AUTO_TEST));
     }
 
     private class OnOptionViewClickListener implements View.OnClickListener {
@@ -226,8 +236,11 @@ public class SettingActivity extends RongRTCBaseActivity {
             } else {
                 tapStep++;
                 if (tapStep == 4) {
+                    if (BuildConfig.DEBUG) {
+                        //findViewById(R.id.setting_options_hidden).setVisibility(View.VISIBLE);
+                    }
                     if (null != settings_Modify) {
-                        settings_Modify.setVisibility(View.VISIBLE);
+                        //settings_Modify.setVisibility(View.VISIBLE);
                         settings_Modify.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -250,24 +263,20 @@ public class SettingActivity extends RongRTCBaseActivity {
         String kbps = "Kbps";
         try {
             //数组长度 間隔  最小
-            int length = 0, parameters = 0, min = 0;//
+            int length = 0, parameters = 10, min = 0;//
             if (!TextUtils.isEmpty(resolution)) {
                 if (RESOLUTION_MEDIUM.equals(resolution)) {
-                    parameters = 10;
                     //                min=200;
                     length = (1000 - min) / parameters;
                 } else if (RESOLUTION_HIGH.equals(resolution)) {
-                    parameters = 10;
                     //                min=500;
-                    length = (2000 - min) / parameters;
+                    length = (3000 - min) / parameters;
                 } else if (RESOLUTION_LOW.equals(resolution)) {
-                    parameters = 10;
                     //                min=100;
                     length = (600 - min) / parameters;
                 } else if (RESOLUTION_SUPER.equals(resolution)) {
-                    parameters = 10;
                     //                min=1500;
-                    length = (4000 - min) / parameters;
+                    length = (4600 - min) / parameters;
                 }
             }
             list_bitrate_max = new String[length + 1];
@@ -277,19 +286,19 @@ public class SettingActivity extends RongRTCBaseActivity {
                 list_bitrate_max[i] = bitrate + kbps;
                 list_bitrate_min[i] = bitrate + kbps;
             }
-            //設置默認
+            //設置默認 步长：10
             if (!TextUtils.isEmpty(resolution) && RESOLUTION_MEDIUM.equals(resolution)) {
-                defaultBitrateMinIndex = 10;//100
-                defaultBitrateMaxIndex = 50;//500
+                defaultBitrateMinIndex = 35;//350
+                defaultBitrateMaxIndex = 100;//1000
             } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_HIGH.equals(resolution)) {
-                defaultBitrateMinIndex = 10;//100
-                defaultBitrateMaxIndex = 150;//1500
-            } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_LOW.equals(resolution)) {
-                defaultBitrateMinIndex = 10;//100
-                defaultBitrateMaxIndex = 32;//320
-            } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_SUPER.equals(resolution)) {
-                defaultBitrateMinIndex = 10;//100
+                defaultBitrateMinIndex = 75;//750
                 defaultBitrateMaxIndex = 250;//2500
+            } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_LOW.equals(resolution)) {
+                defaultBitrateMinIndex = 15;//150
+                defaultBitrateMaxIndex = 50;//500
+            } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_SUPER.equals(resolution)) {
+                defaultBitrateMinIndex = 150;//1500
+                defaultBitrateMaxIndex = 450;//4500
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -357,6 +366,10 @@ public class SettingActivity extends RongRTCBaseActivity {
             case REQUEST_CODE_IS_STREAM_TINY:
                 setting_option_streamTiny.setText(result);
                 SessionManager.getInstance(this).put(IS_STREAM_TINY,list_streamTiny[1].equals(result));
+                break;
+            case REQUEST_CODE_IS_AUTO_TEST:
+                setting_autotest.setText(result);
+                SessionManager.getInstance(this).put(IS_AUTO_TEST,list_autotest[1].equals(result));
                 break;
             default:
                 break;
@@ -477,7 +490,7 @@ public class SettingActivity extends RongRTCBaseActivity {
                             } else {
                                 boolean bool = AppRTCUtils.setCMPAddress(cmp, tokenServer, 1);
                                 if (bool && bool_appid) {
-                                    RongRTCEngine.setVOIPServerAddress(cmp);
+                                    //RongRTCEngine.setVOIPServerAddress(cmp);
 
                                     saveSuccess(cmp);
                                 }
@@ -518,8 +531,8 @@ public class SettingActivity extends RongRTCBaseActivity {
                 public void run() {
                     FinLog.i("BinClient", "重新初始化 cmp 地址等==cerUrl=" + cerUrl + ",cmpServer=" + cmpServer);
 
-                    RongRTCEngine.setVOIPServerAddress(cmpServer);
-//                            RongRTCEngine.init(getApplicationContext(), cmpServer, cmpServer);
+                    //RongRTCEngine.setVOIPServerAddress(cmpServer);
+                    // RongRTCEngine.init(getApplicationContext(), cmpServer, cmpServer);
                 }
             });
         }
@@ -538,7 +551,7 @@ public class SettingActivity extends RongRTCBaseActivity {
                     baos.flush();
                     InputStream stream1 = new ByteArrayInputStream(baos.toByteArray());
                     InputStream stream2 = new ByteArrayInputStream(baos.toByteArray());
-                    RongRTCEngine.setCertificate(stream1, stream2);
+                    //RongRTCEngine.setCertificate(stream1, stream2);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

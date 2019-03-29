@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cn.rongcloud.rtc"
-    android:versionCode="1"
-    android:versionName="1.0">
-
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="21" />
+    package="cn.rongcloud.rtc">
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -37,6 +31,7 @@
         <activity
             android:name=".util.LauncherActivity"
             android:label="@string/app_name"
+            android:resizeableActivity="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -59,27 +54,45 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".LoginActivity"
+            android:resizeableActivity="true"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
             android:name=".MainPageActivity"
             android:label="@string/app_name"
+            android:resizeableActivity="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".CallActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="portrait"
             android:label="@string/app_name"
+            android:resizeableActivity="true"
+            android:screenOrientation="portrait"
             android:theme="@style/CallActivityTheme" />
         <activity
             android:name=".SettingActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
+            android:resizeableActivity="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".OptionsPickActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
+            android:resizeableActivity="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity android:name=".base.RongRTCBaseActivity" />
+        <activity android:name=".VerifyActivity"
+            android:label="@string/app_name"
+            android:resizeableActivity="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>

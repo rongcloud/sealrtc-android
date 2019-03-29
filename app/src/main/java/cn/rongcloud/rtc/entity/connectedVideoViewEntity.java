@@ -9,11 +9,15 @@ import cn.rongcloud.rtc.VideoViewManager;
 public class connectedVideoViewEntity {
     private VideoViewManager.RenderHolder renderHolder;
     private String userId;
+    private String tag;
 
-    public connectedVideoViewEntity(){}
-    public connectedVideoViewEntity(VideoViewManager.RenderHolder renderHolder, String userId) {
+    public connectedVideoViewEntity() {
+    }
+
+    public connectedVideoViewEntity(VideoViewManager.RenderHolder renderHolder, String userId, String tag) {
         this.renderHolder = renderHolder;
         this.userId = userId;
+        this.tag = tag;
     }
 
     public VideoViewManager.RenderHolder getRenderHolder() {
@@ -28,7 +32,19 @@ public class connectedVideoViewEntity {
         return userId;
     }
 
+    public String getKey() {
+        return userId + "_" + tag;
+    }
+
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }
