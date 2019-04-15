@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#ffffff"
                 android:textSize="16sp"
-                android:text="返回"/>
+                android:text="@string/setting_back"/>
 
         </LinearLayout>
 

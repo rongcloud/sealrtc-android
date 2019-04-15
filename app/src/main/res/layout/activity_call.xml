@@ -226,6 +226,15 @@
             android:button="@null"
             android:checked="false" />
 
+        <ImageButton
+            android:id="@+id/menu_members"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/checkbox_spacing"
+            android:background="@drawable/img_members"
+            android:button="@null"
+            android:checked="false" />
+
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_up"
             android:layout_width="36dp"

@@ -26,8 +26,8 @@
 
                 <ImageView
                     android:id="@+id/img_logo"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     android:layout_marginBottom="16dp"
@@ -89,7 +89,7 @@
                     android:text="@string/room_description"
                     android:textAlignment="center"
                     android:textColor="@color/blink_blue"
-                    android:textSize="20sp" />
+                    android:textSize="18sp" />
 
 
                 <EditText
@@ -110,22 +110,72 @@
                     android:textColorHint="@color/blink_grey" />
 
                 <EditText
-                    android:id="@+id/room_phone"
+                    android:id="@+id/tv_user_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/shape_corner_input_gray"
+                    android:hint="@string/room_input_hint_username"
+                    android:paddingLeft="5dp"
+                    android:imeOptions="actionDone"
+                    android:maxLength="8"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/blink_text_grey"
+                    android:textColorHint="@color/blink_grey" />
+
+                <TextView
+                    android:id="@+id/tv_country"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/shape_corner_input_gray"
                     android:paddingLeft="5dp"
-                    android:hint="@string/phoneNumber"
-                    android:imeOptions="actionDone"
-                    android:digits="1234567890"
-                    android:inputType="text"
+                    android:maxLength="64"
                     android:maxLines="1"
-                    android:maxLength="11"
-                    android:singleLine="true"
-                    android:textColor="@color/blink_text_grey"
-                    android:textColorHint="@color/blink_grey"
-                    android:visibility="visible" />
+                    android:gravity="center_vertical"
+                    android:visibility="visible"
+                    android:textSize="16sp"
+                    android:ellipsize="end"
+                    android:scrollbars="vertical"
+                    android:drawableRight="@drawable/list_arrow"
+                    android:textColor="@color/blink_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_corner_input_gray"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_region"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/blink_text_grey"
+                        android:textSize="16sp"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginRight="2dp"/>
+
+
+                    <EditText
+                        android:id="@+id/room_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#00000000"
+                        android:hint="@string/phoneNumber"
+                        android:imeOptions="actionDone"
+                        android:digits="1234567890"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:textColor="@color/blink_text_grey"
+                        android:textColorHint="@color/blink_grey"
+                        android:visibility="visible" />
+
+                </LinearLayout>
 
 
                 <TextView

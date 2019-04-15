@@ -1,19 +1,17 @@
 package cn.rongcloud.rtc;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,26 +19,24 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
-import cn.rongcloud.rtc.callback.JoinRoomUICallBack;
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
+import cn.rongcloud.rtc.entity.CountryInfo;
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
-import cn.rongcloud.rtc.room.RongRTCRoom;
 import cn.rongcloud.rtc.util.ButtentSolp;
 import cn.rongcloud.rtc.util.DownTimer;
 import cn.rongcloud.rtc.util.DownTimerListener;
+import cn.rongcloud.rtc.util.SealErrorCode;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.FinLog;
-import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
 
 import static cn.rongcloud.rtc.util.UserUtils.*;
 
 public class VerifyActivity extends RongRTCBaseActivity implements DownTimerListener {
-
+    private static final int REQUEST_CODE_SELECT_COUNTRY = 1200;
     public static final String TAG = "VerifyActivity";
     private static final String _S = "s";
     private static DownTimer downTimer = new DownTimer();
@@ -50,6 +46,9 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
     private boolean isBright = true;
     private StringBuffer stringBuffer = new StringBuffer();
     private String mPhone = "";
+    private TextView mTvCountry;
+    private TextView mTvRegion;
+    private CountryInfo mCountryInfo;
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -63,6 +62,10 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
                     verifyCode();
                     break;
                 case R.id.reg_getcode:
+                    if (mCountryInfo == null) {
+                        showToast(R.string.select_country);
+                        return;
+                    }
                     if (ButtentSolp.check(v.getId(), 500)) {
                         return;
                     }
@@ -73,6 +76,10 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
                     downTimer.startDown(60 * 1000);
                     sendCode();
                     edit_verificationCode.setText("");
+                    break;
+                case R.id.tv_country:
+                    Intent intent = new Intent(VerifyActivity.this, CountryListActivity.class);
+                    startActivityForResult(intent, REQUEST_CODE_SELECT_COUNTRY);
                     break;
                 default:
                     break;
@@ -98,7 +105,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() == 11 && isBright) {
+                if (s.length() >= 1 && isBright) {
                     reg_getcode.setClickable(true);
                     reg_getcode.setBackgroundDrawable(getResources().getDrawable(R.drawable.rs_select_btn_blue));
                 } else {
@@ -154,6 +161,10 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
         versionCodeView = (TextView) findViewById(R.id.main_page_version_code);
         versionCodeView.setText(getResources().getString(R.string.blink_description_version) + BuildConfig.VERSION_NAME + (BuildConfig.DEBUG ? "_Debug" : ""));
         versionCodeView.setTextColor(getResources().getColor(R.color.blink_text_green));
+        mTvRegion = (TextView) findViewById(R.id.tv_region);
+        mTvCountry = (TextView) findViewById(R.id.tv_country);
+        mTvCountry.setOnClickListener(onClickListener);
+        updateCountry();
     }
 
     @Override
@@ -208,7 +219,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             mPhone = edit_phone.getText().toString().trim();
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(UserUtils.PHONE, mPhone);
-            jsonObject.put(REGION, "86");
+            jsonObject.put(REGION, mCountryInfo != null ? mCountryInfo.region : "86");
             json = jsonObject.toString();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -218,7 +229,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             return;
         }
         Request.Builder request = new Request.Builder();
-        request.url(UserUtils.BASE_URL+UserUtils.URL_SEND_CODE);
+        request.url(UserUtils.BASE_URL + UserUtils.URL_SEND_CODE);
         request.method(RequestMethod.POST);
         request.body(json);
         HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {
@@ -232,7 +243,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
                         code = String.valueOf(jsonObject.get(CODE));
                     }
                     if (!TextUtils.isEmpty(code) && code.equals(RESPONSE_OK)) {
-                        toast("验证码发送成功，请注意查收！");
+                        toast(Utils.getContext().getString(R.string.verify_code_sent_prompt));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -242,14 +253,14 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             @Override
             public void onFailure(int errorCode) {
                 FinLog.i(TAG, "send code error errorCode:" + errorCode);
-                toast("验证码获取失败，请重试！");
+                toast(Utils.getContext().getString(R.string.verify_code_sent_prompt_failed));
                 stopDown();
             }
 
             @Override
             public void onError(IOException exception) {
                 FinLog.i(TAG, "send code error :" + exception.getMessage());
-                toast("验证码获取失败，请将检查网络连接！");
+                toast(Utils.getContext().getString(R.string.verify_code_sent_prompt_error));
                 stopDown();
             }
         });
@@ -264,7 +275,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(PHONE, mPhone);
-            jsonObject.put(REGION, "86");
+            jsonObject.put(REGION, mCountryInfo != null ? mCountryInfo.region : "86");
             jsonObject.put(CODE, edit_verificationCode.getText().toString().trim());
             jsonObject.put(KEY, mPhone + DeviceUtils.getDeviceId(Utils.getContext()));
             json = jsonObject.toString();
@@ -277,7 +288,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             return;
         }
         Request.Builder request = new Request.Builder();
-        request.url(UserUtils.BASE_URL+UserUtils.URL_VERIFY_CODE);
+        request.url(UserUtils.BASE_URL + UserUtils.URL_VERIFY_CODE);
         request.method(RequestMethod.POST);
         request.body(json);
         HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {
@@ -304,7 +315,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             @Override
             public void onError(IOException exception) {
                 FinLog.e(TAG, "verify code error .message:" + exception.getMessage());
-                toast("验证失败，请将检查网络连接！");
+                toast(Utils.getContext().getString(R.string.Thecurrentnetworkisnotavailable));
                 LoadDialog.dismiss(VerifyActivity.this);
                 stopDown();
             }
@@ -314,28 +325,31 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
     private void getToken(String result) {
         FinLog.i(TAG, "verify result result:" + result);
         try {
-            String code = "";
+            int code = 0;
             JSONObject jsonObject = new JSONObject(result);
             if (jsonObject.has(CODE)) {
-                code = String.valueOf(jsonObject.get(CODE));
+                code = jsonObject.getInt(CODE);
             }
-            if (!TextUtils.isEmpty(code) && code.equals("200")) {
+            if (code == 200) {
                 if (jsonObject.has(RESULT)) {
                     JSONObject jsonObjectResult = jsonObject.getJSONObject(RESULT);
                     if (jsonObjectResult.has(TOKEN)) {
                         String token = String.valueOf(jsonObjectResult.get(TOKEN));
-                        SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE,mPhone);
+                        SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, mPhone);
                         SessionManager.getInstance(Utils.getContext()).put(mPhone, token);
                         LoadDialog.dismiss(VerifyActivity.this);
-//                                connectRongIM(token);
-                        toast("验证成功，请开始会议！");
+                        toast(Utils.getContext().getString(R.string.verify_code_success));
                         finish();
                     }
                 }
             } else {
-                if (jsonObject.has("message")) {
-                    toast(String.valueOf(jsonObject.get("message")));
+                String promptMsg = Utils.getContext().getString(R.string.VerificationCodeError);
+                if (code == SealErrorCode.INVALID_VERIFICATION_CODE.getValue()) {
+                    promptMsg = Utils.getContext().getString(R.string.verify_code_invalid);
+                } else if (code == SealErrorCode.VERIFICATION_CODE_EXPIRED.getValue()) {
+                    promptMsg = Utils.getContext().getString(R.string.verify_code_expired);
                 }
+                toast(promptMsg);
                 LoadDialog.dismiss(VerifyActivity.this);
                 showTips();
             }
@@ -345,34 +359,6 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
         }
     }
 
-    /**
-     * 连接 im
-     *
-     * @param token
-     */
-    private void connectRongIM(String token) {
-        FinLog.i(TAG, "connectRongIM token ：" + token);
-        RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
-            @Override
-            public void onTokenIncorrect() {
-                FinLog.e(TAG, "connectRongIM onTokenIncorrect");
-                Toast.makeText(VerifyActivity.this, "验证失败，请重新获取！", Toast.LENGTH_SHORT).show();
-                LoadDialog.dismiss(VerifyActivity.this);
-            }
-
-            @Override
-            public void onSuccess(String s) {
-                FinLog.e(TAG, "connectRongIM onSuccess s:" + s);
-                connectToRoom();
-            }
-
-            @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                FinLog.e(TAG, "connectRongIM errorCode:" + errorCode);
-                LoadDialog.dismiss(VerifyActivity.this);
-            }
-        });
-    }
 
     private void toast(final String msg) {
         runOnUiThread(new Runnable() {
@@ -393,100 +379,29 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
         });
     }
 
-    private void connectToRoom() {
-        if (RongIMClient.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
-            final String roomId = SessionManager.getInstance(Utils.getContext()).getString(UserUtils.ROOMID_KEY);
-            RongRTCEngine.getInstance().joinRoom(roomId, new JoinRoomUICallBack() {
-                @Override
-                protected void onUiSuccess(RongRTCRoom rongRTCRoom) {
-                    LoadDialog.dismiss(VerifyActivity.this);
-                    Toast.makeText(VerifyActivity.this, "加入房间成功", Toast.LENGTH_SHORT).show();
-                    int userCount = rongRTCRoom.getRemoteUsers().size();
 
-                    if (userCount >= OBSERVER_MUST) {
-                        AlertDialog dialog = new AlertDialog.Builder(VerifyActivity.this)
-                                .setMessage(getResources().getString(R.string.join_room_observer_prompt))
-                                .setNegativeButton(getResources().getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        quitRoom(roomId);
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .setPositiveButton(getResources().getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                        startCallActivity(true, true, false, roomId);
-                                    }
-                                })
-                                .create();
-                        dialog.show();
-                    } else if (userCount >= VIDEOMUTE_MUST) {
-                        AlertDialog dialog = new AlertDialog.Builder(VerifyActivity.this)
-                                .setMessage(getResources().getString(R.string.join_room_audio_only_prompt))
-                                .setNegativeButton(getResources().getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        quitRoom(roomId);
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .setPositiveButton(getResources().getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                        startCallActivity(true, false, true, roomId);
-
-                                    }
-                                })
-                                .create();
-                        dialog.show();
-                    } else {
-                        boolean isVideoMute = SessionManager.getInstance(Utils.getContext()).getBoolean(UserUtils.isVideoMute_key);
-                        boolean isObserver = SessionManager.getInstance(Utils.getContext()).getBoolean(UserUtils.isObserver_key);
-                        startCallActivity(isVideoMute, isObserver, false, roomId);
-                    }
-                }
-
-                @Override
-                protected void onUiFailed(RTCErrorCode errorCode) {
-                    LoadDialog.dismiss(VerifyActivity.this);
-                    Toast.makeText(VerifyActivity.this, "加入房间失败", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            LoadDialog.dismiss(VerifyActivity.this);
-            Toast.makeText(VerifyActivity.this, "IM 还未建立连接", Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE_SELECT_COUNTRY:
+                updateCountry();
+                break;
         }
     }
 
-    private void startCallActivity(boolean muteVideo, boolean observer, boolean canOnlyPublishAudio, String roomId) {
-        Intent intent = new Intent(this, CallActivity.class);
-        //加入房间之前 置为默认状态
-        SessionManager.getInstance(Utils.getContext()).put("VideoModeKey", "smooth");
-        //
-        intent.putExtra(CallActivity.EXTRA_ROOMID, roomId);
-        intent.putExtra(CallActivity.EXTRA_CAMERA, muteVideo);
-        intent.putExtra(CallActivity.EXTRA_OBSERVER, observer);
-        intent.putExtra(CallActivity.EXTRA_ONLY_PUBLISH_AUDIO, canOnlyPublishAudio);
-        startActivity(intent);
-        finish();
-    }
-
-    private void quitRoom(String roomId) {
-        RongRTCEngine.getInstance().quitRoom(roomId, new RongRTCResultUICallBack() {
-
-                    @Override
-                    public void onUiSuccess() {
-
-                    }
-
-                    @Override
-                    public void onUiFailed(RTCErrorCode errorCode) {
-
-                    }
-                }
-        );
+    private void updateCountry() {
+        String json = SessionManager.getInstance(this).getString(UserUtils.COUNTRY);
+        if (TextUtils.isEmpty(json)) {
+            mCountryInfo = CountryInfo.createDefault();
+        } else {
+            try {
+                mCountryInfo = new Gson().fromJson(json, CountryInfo.class);
+            } catch (Exception e) {
+                mCountryInfo = CountryInfo.createDefault();
+            }
+        }
+        mTvCountry.setText(getString(R.string.select_country_hint) + " " + (Utils.isZhLanguage() ? mCountryInfo.zh : mCountryInfo.en));
+        mTvRegion.setText("+" + mCountryInfo.region);
     }
 }

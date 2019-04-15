@@ -1,7 +1,9 @@
 package cn.rongcloud.rtc.util;
 
+import android.content.Context;
 import android.text.TextUtils;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +16,8 @@ public class UserUtils {
     public static final String TOKEN = "token";
     public static final String REGION = "region";
     public static final String CODE = "code";
+    public static final String COUNTRY = "country";
+
 //    public static final String TOKNE_KEY = "TOKEN_KEY";
 public static final String USERNAME_KEY = "USER_NAME";
     public static final String BASE_URL = "https://sealrtc.rongcloud.cn/";
@@ -31,6 +35,8 @@ public static final String USERNAME_KEY = "USER_NAME";
 
     private static final String NAMETYPE = "请检查名字不含有除汉字、英文以外的其他字符！";
     private static final String NAMESIZE = "请确保名字长度不超过12个字节！";
+
+    public static final String URL_GET_COUNTRY = "http://api.sealtalk.im/user/regionlist";
 
     public static boolean isNumber(String string) {
         Pattern p = Pattern.compile("[0-9]*");

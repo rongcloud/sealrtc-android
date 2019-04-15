@@ -6,9 +6,12 @@ import android.support.multidex.MultiDex;
 
 import com.tencent.bugly.crashreport.CrashReport;
 
+import cn.rongcloud.rtc.message.RoomInfoMessage;
 import cn.rongcloud.rtc.utils.FileLogUtil;
 import cn.rongcloud.rtc.util.Utils;
 import io.rong.common.FileUtils;
+import io.rong.imlib.AnnotationNotFoundException;
+import io.rong.imlib.RongIMClient;
 
 /**
  * Created by suancai on 2016/11/22.
@@ -38,6 +41,11 @@ public class RongRTCApplication extends Application {
             String logPath = FileUtils.getCachePath(this, "/ronglog");
             String filePath = logPath + "/rcvoip.log";
             FileLogUtil.setFileLog(filePath);
+        }
+        try {
+            RongIMClient.registerMessageType(RoomInfoMessage.class);
+        } catch (AnnotationNotFoundException e) {
+            e.printStackTrace();
         }
         // 内测时设置为true ， 发布时修改为false
 //        CrashReport.initCrashReport(getApplicationContext(), "ef48d6a01a", true);

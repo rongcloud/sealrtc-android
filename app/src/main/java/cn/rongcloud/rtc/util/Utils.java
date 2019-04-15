@@ -180,4 +180,14 @@ public class Utils {
         mapLastClickTime.put(eventType, curTime);
         return false;
     }
+
+    /**
+     * 判断当前系统是否使用中文
+     * @return
+     */
+    public static boolean isZhLanguage(){
+        if (getContext() == null)
+            return true;
+        return getContext().getResources().getConfiguration().locale.getLanguage().endsWith("zh");
+    }
 }

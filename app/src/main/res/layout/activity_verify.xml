@@ -82,23 +82,57 @@
                     android:textColor="@color/blink_blue"
                     android:textSize="15sp" />
 
-
-                <EditText
-                    android:id="@+id/edit_phone"
+                <TextView
+                    android:id="@+id/tv_country"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:layout_marginTop="10dp"
                     android:background="@drawable/shape_corner_input_gray"
-                    android:hint="@string/phoneNumber"
-                    android:imeOptions="actionDone"
-                    android:digits="1234567890"
+                    android:layout_marginTop="10dp"
+                    android:paddingLeft="5dp"
+                    android:maxLength="64"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:maxLength="11"
-                    android:singleLine="true"
-                    android:paddingLeft="5dp"
-                    android:textColor="@color/blink_text_grey"
-                    android:textColorHint="@color/blink_grey" />
+                    android:gravity="center_vertical"
+                    android:visibility="visible"
+                    android:textSize="16sp"
+                    android:ellipsize="end"
+                    android:scrollbars="vertical"
+                    android:drawableRight="@drawable/list_arrow"
+                    android:textColor="@color/blink_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_corner_input_gray"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_region"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/blink_text_grey"
+                        android:textSize="16sp"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginRight="2dp"/>
+
+                    <EditText
+                        android:id="@+id/edit_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#00000000"
+                        android:hint="@string/phoneNumber"
+                        android:imeOptions="actionDone"
+                        android:digits="1234567890"
+                        android:gravity="center_vertical"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:textColor="@color/blink_text_grey"
+                        android:textColorHint="@color/blink_grey" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -110,7 +144,7 @@
                     <EditText
                         android:id="@+id/edit_verificationCode"
                         android:layout_width="0dp"
-                        android:layout_weight="0.65"
+                        android:layout_weight="0.55"
                         android:layout_height="48dp"
                         android:background="@drawable/shape_corner_input_gray"
                         android:hint="@string/MobilePhoneVerificationCode"
@@ -129,7 +163,8 @@
                         android:layout_height="48dp"
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="10dp"
-                        android:layout_weight="0.35"
+                        android:layout_weight="0.45"
+                        android:gravity="center"
                         android:background="@drawable/rs_select_btn_gray"
                         android:clickable="false"
                         android:paddingBottom="10dp"

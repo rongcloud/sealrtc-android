@@ -33,7 +33,7 @@ public class CoverView extends RelativeLayout {
     public RelativeLayout mRl_Container, rl_CoverBase;
     public TextView tv_userName;
     private GradientDrawable mGroupDrawable;
-    public ImageView iv_Header, iv_Audiolevel;
+    public ImageView iv_Header, iv_Audiolevel,ivAudioCover;
     private Context mContext;
     //    private TextPaint textPaint;
     private String UserId = "", UserName = "RongRTC";
@@ -43,7 +43,6 @@ public class CoverView extends RelativeLayout {
     private View trackTest;
     private View firstFrameTest;
     private View testLayout;
-    private TextView showUserMessage;
     public CoverView(Context context) {
         super(context);
         this.mContext = context;
@@ -63,10 +62,10 @@ public class CoverView extends RelativeLayout {
             LayoutInflater.from(mContext).inflate(R.layout.layout_cover, this, true);
             trackTest = findViewById(R.id.auto_test);
             testLayout = findViewById(R.id.testLayout);
+            ivAudioCover = (ImageView) findViewById(R.id.iv_audiocover);
             firstFrameTest = findViewById(R.id.auto_test2);
             mRl_Container = (RelativeLayout) findViewById(R.id.relative_cover);
             rl_CoverBase = (RelativeLayout) findViewById(R.id.rl_CoverBase);
-            showUserMessage = (TextView) findViewById(R.id.show_user_message);
 
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
             tv_userName = (TextView) findViewById(R.id.tv_UserName);
@@ -103,6 +102,8 @@ public class CoverView extends RelativeLayout {
         if (iv_Audiolevel.getVisibility() != VISIBLE) {
             iv_Audiolevel.setVisibility(VISIBLE);
         }
+        iv_Audiolevel.bringToFront();
+        tv_userName.bringToFront();
     }
 
     public void closeAudioLevel() {
@@ -117,8 +118,7 @@ public class CoverView extends RelativeLayout {
     public void setUserInfo(String name, String id) {
 
         if (null != tv_userName && !TextUtils.isEmpty(name)) {
-            UserName = UserUtils.truncatameUserName(name);
-            tv_userName.setText(UserName);
+            tv_userName.setText(name.length() > 4 ? name.substring(0, 4) : name);
         }
 
         if (!TextUtils.isEmpty(id)) {
@@ -133,7 +133,7 @@ public class CoverView extends RelativeLayout {
     private void setCoverTransoarent() {
         try {
             iv_Header.setVisibility(INVISIBLE);
-            tv_userName.setVisibility(INVISIBLE);
+//            tv_userName.setVisibility(INVISIBLE);
             closeLoading();
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,7 +160,7 @@ public class CoverView extends RelativeLayout {
                     LayoutParams.WRAP_CONTENT);
             p.addRule(RelativeLayout.CENTER_IN_PARENT);
             mRl_Container.addView(rongRTCVideoView, p);
-
+            tv_userName.bringToFront();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -170,14 +170,10 @@ public class CoverView extends RelativeLayout {
         for (int i = 0; i < mRl_Container.getChildCount(); i++) {
             if (mRl_Container.getChildAt(i) instanceof RongRTCVideoView) {
                 mRl_Container.getChildAt(i).setVisibility(VISIBLE);
-                if(UserId.equals(RongIMClient.getInstance().getCurrentUserId())){
-                    showUserMessage.setText("自己");
-                }
-                showUserMessage.setVisibility(VISIBLE);
-                showUserMessage.bringToFront();
             }
         }
         setCoverTransoarent();
+        ivAudioCover.setVisibility(INVISIBLE);
     }
 
     public void showUserHeader() {
@@ -193,6 +189,7 @@ public class CoverView extends RelativeLayout {
                     videoView.setVisibility(INVISIBLE);
                 }
             }
+            ivAudioCover.setVisibility(VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
             FinLog.i(TAG, "coverView Error:" + e.getMessage());

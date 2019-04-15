@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.widget.Toast;
+
+import cn.rongcloud.rtc.VerifyActivity;
 
 public class RongRTCBaseActivity extends Activity {
 
@@ -27,5 +30,22 @@ public class RongRTCBaseActivity extends Activity {
             e.printStackTrace();
         }
         return res;
+    }
+
+    protected void postShowToast(final String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showToast(msg);
+            }
+        });
+    }
+
+    protected void showToast( String msg) {
+        Toast.makeText(RongRTCBaseActivity.this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    protected void showToast( int resId) {
+        Toast.makeText(RongRTCBaseActivity.this, resId, Toast.LENGTH_SHORT).show();
     }
 }

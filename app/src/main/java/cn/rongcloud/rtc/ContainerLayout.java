@@ -32,7 +32,7 @@ public class ContainerLayout extends RelativeLayout {
             return;
         }
         Log.i(TAG,"addView()");
-        super.addView(renderHolder.containerLayout, getBigContainerParams(renderHolder.coverView.getRongRTCVideoView()));
+        super.addView(renderHolder.containerLayout, getBigContainerParams(renderHolder));
         renderHolder.coverView.getRongRTCVideoView().setOnSizeChangedListener(new RongRTCVideoView.OnSizeChangedListener() {
             @Override
             public void onChanged(RongRTCVideoView.Size size) {
@@ -42,7 +42,7 @@ public class ContainerLayout extends RelativeLayout {
                 }
                 ContainerLayout.this.removeAllViews();
                 renderHolder.containerLayout.setGravity(Gravity.CENTER);
-                ContainerLayout.this.addView(renderHolder.containerLayout, getBigContainerParams(renderHolder.coverView.getRongRTCVideoView()));
+                ContainerLayout.this.addView(renderHolder.containerLayout, getBigContainerParams(renderHolder));
             }
         });
     }
@@ -56,18 +56,21 @@ public class ContainerLayout extends RelativeLayout {
         //解决横屏显示共享内容不全问题
         renderHolder.coverView.getRongRTCVideoView().setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         renderHolder.containerLayout.setGravity(Gravity.CENTER);
-        ContainerLayout.this.addView(renderHolder.containerLayout, getBigContainerParams(renderHolder.coverView.getRongRTCVideoView()));
+        ContainerLayout.this.addView(renderHolder.containerLayout, getBigContainerParams(renderHolder));
     }
 
     @NonNull
-    private LayoutParams getBigContainerParams(RongRTCVideoView videoView) {
-        LayoutParams layoutParams=null;
-        if (screenHeight > screenWidth) { //V
-            int layoutParamsHeight=(videoView.rotatedFrameHeight == 0 || videoView.rotatedFrameWidth == 0) ? ViewGroup.LayoutParams.WRAP_CONTENT : screenWidth * videoView.rotatedFrameHeight / videoView.rotatedFrameWidth;
-            layoutParams = new LayoutParams(screenWidth, layoutParamsHeight);
-        }else {
-            int layoutParamsWidth=(videoView.rotatedFrameHeight == 0 || videoView.rotatedFrameHeight == 0) ? ViewGroup.LayoutParams.WRAP_CONTENT :(screenWidth * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight > screenWidth ? screenWidth : screenHeight * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight);
-            layoutParams = new LayoutParams(layoutParamsWidth, screenHeight);
+    private LayoutParams getBigContainerParams(VideoViewManager.RenderHolder renderHolder) {
+        LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (renderHolder.coverView != null && renderHolder.coverView.getRongRTCVideoView() != null) {
+            RongRTCVideoView videoView = renderHolder.coverView.getRongRTCVideoView();
+            if (screenHeight > screenWidth) { //V
+                int layoutParamsHeight = (videoView.rotatedFrameHeight == 0 || videoView.rotatedFrameWidth == 0) ? ViewGroup.LayoutParams.WRAP_CONTENT : screenWidth * videoView.rotatedFrameHeight / videoView.rotatedFrameWidth;
+                layoutParams = new LayoutParams(screenWidth, layoutParamsHeight);
+            } else {
+                int layoutParamsWidth = (videoView.rotatedFrameHeight == 0 || videoView.rotatedFrameHeight == 0) ? ViewGroup.LayoutParams.WRAP_CONTENT : (screenWidth * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight > screenWidth ? screenWidth : screenHeight * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight);
+                layoutParams = new LayoutParams(layoutParamsWidth, screenHeight);
+            }
         }
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         return layoutParams;

@@ -611,6 +611,11 @@ public class VideoViewManager {
             this.containerLayout.addView(coverView, p);
         }
 
+        public void updateUserInfo(String userName) {
+            this.userName = userName;
+            coverView.setUserInfo(userName, userId);
+        }
+
         public void removeCoverView() {
             this.containerLayout.removeView(coverView);
         }

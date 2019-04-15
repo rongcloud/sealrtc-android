@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/blink_text_white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="#0195ff" >
+
+        <TextView
+            android:id="@+id/tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
+            android:clickable="true"
+            android:drawablePadding="5dp"
+            android:drawableLeft="@drawable/icon_back"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_country"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_search"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/titleView"
+        android:background="#e4e5e7"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp">
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/shape_input_bg"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"
+            android:hint="@string/search_hint"
+            android:drawableLeft="@drawable/icon_search"
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:textColor="#FFB3B3B3" />
+    </RelativeLayout>
+
+    <me.yokeyword.indexablerv.IndexableLayout
+        android:id="@+id/countrylist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:indexBar_layout_width="12dp"
+        app:indexBar_background="#08000000"
+        app:indexBar_textColor="#0195ff"
+        app:indexBar_selectedTextColor="#0195ff"
+        app:indexBar_textSize="12sp"
+        app:indexBar_textSpace="4dp"/>
+
+</LinearLayout>

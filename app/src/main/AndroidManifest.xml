@@ -93,6 +93,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".CountryListActivity"
+                  android:label="@string/app_name"
+                  android:resizeableActivity="true"
+                  android:screenOrientation="portrait"
+                  android:theme="@style/Theme.AppCompat.NoActionBar"
+                  android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>
