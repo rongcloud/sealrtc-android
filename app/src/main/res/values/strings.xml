@@ -29,6 +29,7 @@
     <string name="settings_text_observer">Observer Mode</string>
     <string name="settings_text_observer_yes">Yes</string>
     <string name="settings_text_observer_no">No</string>
+    <string name="settings_text_media_url">Media Server URL</string>
     <string name="settings_text_gpufliter">Beauty</string>
     <string name="settings_text_srtp">SRTP</string>
     <string name="settings_text_connection">Quic</string>
@@ -90,6 +91,7 @@
     <string name="settings_text_MediaStreamTiny_no">No</string>
     <string name="Opensizestream">Size Stream</string>
     <string name="autotest">Auto Test</string>
+    <string name="watermark">Water Mark</string>
 
     <string name="get_code">Get Code</string>
     <string name="VerificationCodeError">The verification code is wrong, please re-acquire</string>
@@ -125,4 +127,19 @@
     <string name="mode_audio_video">Video mode</string>
     <string name="mode_observer">Observer mode</string>
     <string name="verify_code_invalid">Invalid verification code</string>
+    <string name="user_video_custom">Customize video</string>
+    <string name="username_empty_hint">User name cannot be empty</string>
+
+    <string name="white_board_service_error">white board service error,please try again later</string>
+    <string name="white_board_loading">white board loading...</string>
+    <string name="white_board_pencil">pencil</string>
+    <string name="white_board_text">text</string>
+    <string name="white_board_eraser">eraser</string>
+    <string name="white_board_clear">clear</string>
+    <string name="white_board_add">add</string>
+    <string name="white_board_delete">delete</string>
+    <string name="white_board_room_not_exist">white board room not exist</string>
+    <string name="publish_failed">Publish failed</string>
+    <string name="publish_disabled">A video file has been posted in the room</string>
+
 </resources>

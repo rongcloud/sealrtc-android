@@ -33,6 +33,7 @@
     <string name="settings_text_observer">观察者模式</string>
     <string name="settings_text_observer_yes">是</string>
     <string name="settings_text_observer_no">否</string>
+    <string name="settings_text_media_url">媒体服务器地址</string>
     <string name="settings_text_min_rate">最小码率</string>
     <string name="settings_text_rate">码率</string>
     <string name="settings_text_connection_mode">连接方式</string>
@@ -59,7 +60,7 @@
     <string name="meeting_control_no_whiteBoard">当前没有白板供查看，请等待其他人创建白板</string>
     <string name="meeting_control_OpenWiteBoard">建议横屏，能看的更清楚</string>
     <string name="room_join_observer">旁听者模式</string>
-    <string name="room_join_close_camera">加入时关闭摄像头</string>
+    <string name="room_join_close_camera">音频模式</string>
     <string name="Waitingforinput">请输入会议室名称和用户名称!</string>
     <string name="Thecurrentnetworkisnotavailable">当前网络不可用</string>
     <string name="saveSuccess">保存成功!</string>
@@ -91,6 +92,7 @@
     <string name="Opensizestream">开启大小流</string>
     <string name="app_btn_loading">正在初始化</string>
     <string name="autotest">自动化测试</string>
+    <string name="watermark">水印</string>
     <string name="join_room_observer_prompt">会议室中人数已超过 30 人，你将以旁听者模式加入会议室。</string>
     <string name="join_room_audio_only_prompt">会议室中视频通话人数已经超过 9 人，你将以音频模式加入会议室。</string>
     <string name="dialog_ok">确定</string>
@@ -130,4 +132,19 @@
     <string name="mode_audio_video">视频模式</string>
     <string name="mode_observer">旁观者模式</string>
     <string name="verify_code_invalid">无效的验证码</string>
+    <string name="user_video_custom">自定义视频</string>
+    <string name="username_empty_hint">用户名不能为空</string>
+
+    <string name="white_board_service_error">白板服务错误，请稍后重试</string>
+    <string name="white_board_loading">白板加载中...</string>
+    <string name="white_board_pencil">画笔</string>
+    <string name="white_board_text">文字</string>
+    <string name="white_board_eraser">橡皮</string>
+    <string name="white_board_clear">清空</string>
+    <string name="white_board_add">新建</string>
+    <string name="white_board_delete">删除</string>
+    <string name="white_board_room_not_exist">房间内未创建白板</string>
+    <string name="publish_failed">发布失败</string>
+    <string name="publish_disabled">房间中已有人发布视频文件</string>
+
 </resources>

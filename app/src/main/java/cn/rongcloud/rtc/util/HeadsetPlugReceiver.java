@@ -42,7 +42,7 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
             }
         }
         if (null != headsetInfo && headsetPlugListener != null) {
-            Log.i("bugtags", "isConnected:" + headsetInfo.isConnected() + ",type:" + headsetInfo.getType());
+            Log.i("HeadsetPlugReceiver", "isConnected:" + headsetInfo.isConnected() + ",type:" + headsetInfo.getType());
             headsetPlugListener.onNotifyHeadsetState(headsetInfo.isConnected(), headsetInfo.getType());
         }
     }

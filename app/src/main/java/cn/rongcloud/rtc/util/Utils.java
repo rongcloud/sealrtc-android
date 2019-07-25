@@ -95,7 +95,7 @@ public class Utils {
             isQuic = false;
         }
 //        SessionManager.getInstance(Utils.getContext()).put(SettingActivity.IS_RONGRTC_CONNECTIONMODE,isQuic);
-//        FinLog.i("BinClient","输入的是："+(isQuic?"Quic":"Tcp"+"地址"));
+//        FinLog.v("BinClient","输入的是："+(isQuic?"Quic":"Tcp"+"地址"));
         return isQuic;
     }
 

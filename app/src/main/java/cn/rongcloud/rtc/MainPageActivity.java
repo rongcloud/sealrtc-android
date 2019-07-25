@@ -17,7 +17,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +25,7 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -42,6 +42,7 @@ import org.json.JSONObject;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.entity.CountryInfo;
 import cn.rongcloud.rtc.message.RoomInfoMessage;
+import cn.rongcloud.rtc.util.ButtentSolp;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.utils.FinLog;
 import cn.rongcloud.rtc.media.http.HttpClient;
@@ -58,10 +59,13 @@ import io.rong.imlib.common.DeviceUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static cn.rongcloud.rtc.SettingActivity.IS_AUTO_TEST;
+import static cn.rongcloud.rtc.SettingActivity.IS_WATER;
 import static cn.rongcloud.rtc.util.UserUtils.OBSERVER_MUST;
 import static cn.rongcloud.rtc.util.UserUtils.VIDEOMUTE_MUST;
 import static cn.rongcloud.rtc.util.UserUtils.isObserver_key;
@@ -80,8 +84,6 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     private static final int STATE_JOINED = 3;  //已加入
     private static final int STATE_FAILED = -1; //加入失败
     private static final String TAG = "MainPageActivity";
-    private static final String BASE_URL = "https://sealrtc.rongcloud.cn/";
-    private static final String URL_GET_TOKEN_NEW = "user/get_token_new";
     private static final int CONNECTION_REQUEST = 1;
     private static InputStream cerStream = null;
     private EditText roomEditText, edit_UserName, edit_room_phone, userNameEditText;
@@ -109,6 +111,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     private SharedPreferences.Editor editor;
     private RongRTCConfig.Builder configBuilder;
     private boolean isDebug;
+    private boolean joinRoomWhenConnectedInAutoTest;
     List<String> unGrantedPermissions;
     private static final String[] MANDATORY_PERMISSIONS = {
             "android.permission.MODIFY_AUDIO_SETTINGS",
@@ -146,9 +149,15 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     private void initViews() {
         roomEditText = (EditText) findViewById(R.id.room_inputnumber);
         roomId = SessionManager.getInstance(Utils.getContext()).getString(UserUtils.ROOMID_KEY);
+        String mediaServerUrl = SessionManager.getInstance(this).getString("MediaUrl");
+        //设置media server地址，内部自动化测试使用，开发者一般不需要关心
+        if (!TextUtils.isEmpty(mediaServerUrl)) {
+            RongRTCEngine.getInstance().setMediaServerUrl(mediaServerUrl);
+        }
         if (!TextUtils.isEmpty(roomId)) {
             roomEditText.setText(roomId);
         }
+
 //        if (!TextUtils.isEmpty(roomId)) {
 //            roomEditText.setEnabled(false);
 //            roomEditText.setText(roomId);
@@ -165,6 +174,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         edit_UserName.requestFocus();
         edit_UserName.setText(username);
         userNameEditText = (EditText) findViewById(R.id.tv_user_name);
+        userNameEditText.setText(SessionManager.getInstance(Utils.getContext()).getString(UserUtils.USERNAME_KEY));
         connectButton = (Button) findViewById(R.id.connect_button);
         connectButton.setText(R.string.room_connect_button);
         if (TextUtils.isEmpty(edit_room_phone.getText().toString().trim()) || TextUtils.isEmpty(roomId)) {
@@ -219,6 +229,20 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         mTvCountry = (TextView) findViewById(R.id.tv_country);
         mTvRegion = (TextView) findViewById(R.id.tv_region);
         updateCountry();
+        logoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ButtentSolp.check(v.getId(), 1500)) {
+                    return;
+                }
+                try {
+                    Intent intent=new Intent("CN.RONGCLOUD.RTC.DEVICE.OEMMAINACTIVITY");
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void clearCer() {
@@ -235,6 +259,9 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 startSetting();
                 break;
             case R.id.connect_button:
+                //小乔环境登录
+//                connectForXQ();
+
                 if (Utils.isFastDoubleClick()) {
                     return;
                 }
@@ -251,14 +278,19 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     Toast.makeText(this, getResources().getString(R.string.input_room_phoneNum_error), Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (TextUtils.isEmpty(userNameEditText.getText().toString().trim())){
+                    showToast(R.string.username_empty_hint);
+                    return;
+                }
                 SessionManager.getInstance(Utils.getContext()).put(UserUtils.ROOMID_KEY, roomEditText.getText().toString().trim());
+                SessionManager.getInstance(Utils.getContext()).put(UserUtils.USERNAME_KEY, userNameEditText.getText().toString().trim());
                 if (!SessionManager.getInstance(Utils.getContext()).contains(phoneNumber)) {
                     startVerifyActivity(phoneNumber);
                 } else {
                     if (mStatus == STATE_JOINING)
                         return;
                     mStatus = STATE_JOINING;
-                    FinLog.i(TAG,"CurrentConnectionStatu : "+RongIMClient.getInstance().getCurrentConnectionStatus().name());
+                    FinLog.v(TAG,"CurrentConnectionStatu : "+RongIMClient.getInstance().getCurrentConnectionStatus().name());
                     if (RongIMClient.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
                         connectToRoom();
                         return;
@@ -268,8 +300,12 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                         }
 
                     }
+                    final boolean autoTest = SessionManager.getInstance(this).getBoolean(IS_AUTO_TEST);
+                    if (autoTest) {
+                        joinRoomWhenConnectedInAutoTest = true;
+                    }
                     String token = SessionManager.getInstance(Utils.getContext()).getString(phoneNumber);
-                    FinLog.i(TAG,"token 存在 ："+token);
+                    FinLog.v(TAG,"token 存在 ："+token);
                     RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
                         @Override
                         public void onTokenIncorrect() {
@@ -286,13 +322,15 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                         @Override
                         public void onSuccess(String s) {
                             SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE,phoneNumber);
-                            connectToRoom();
+                            if(!autoTest){
+                                connectToRoom();
+                            }
                         }
 
                         @Override
                         public void onError(RongIMClient.ErrorCode errorCode) {
                             mStatus = STATE_FAILED;
-                            FinLog.e(TAG, "RongIMClient connect errorcode :" + errorCode);
+                            FinLog.e(TAG, "RongIMClient connectForXQ errorcode :" + errorCode);
                         }
                     });
                 }
@@ -312,7 +350,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         updateCamerCheck();
         updateConfiguration();
         isDebug = SessionManager.getInstance(this).getBoolean(IS_AUTO_TEST);
-        if(isDebug){
+        if (isDebug) {
             connectButton.setBackgroundColor(R.drawable.shape_corner_button_blue);
         }
 
@@ -320,6 +358,26 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         if (!TextUtils.isEmpty(phoneNum)) {
             edit_room_phone.setText(phoneNum);
         }
+        RongIMClient.setConnectionStatusListener(new RongIMClient.ConnectionStatusListener() {
+            @Override
+            public void onChanged(ConnectionStatus connectionStatus) {
+                //点击"开始会议"按钮时，IM为非CONNECTED时会主动connect，如果还是失败，自动化测试case失败
+                //监听IM连接状态，做1次自动加入房间的尝试，开发者可以忽略此修改
+                if (ConnectionStatus.CONNECTED.equals(connectionStatus)) {
+                    if (isDebug && joinRoomWhenConnectedInAutoTest) {
+                        joinRoomWhenConnectedInAutoTest = false;
+                        Log.d(TAG, "RongLog IM connected, Join Room");
+                        connectToRoom();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        RongIMClient.setConnectionStatusListener(null);
     }
 
     private void updateConfiguration() {
@@ -328,13 +386,13 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         String minBitRate = SessionManager.getInstance(this).getString(SettingActivity.BIT_RATE_MIN);
         if (!TextUtils.isEmpty(minBitRate) && minBitRate.length() > 4) {
             int bitRateIntvalue = Integer.valueOf(minBitRate.substring(0, minBitRate.length() - 4));
-            FinLog.i(TAG, "BIT_RATE_MIN=" + bitRateIntvalue);
+            FinLog.v(TAG, "BIT_RATE_MIN=" + bitRateIntvalue);
             configBuilder.setMinRate(bitRateIntvalue);
         }
         String maxBitRate = SessionManager.getInstance(this).getString(SettingActivity.BIT_RATE_MAX);
         if (!TextUtils.isEmpty(maxBitRate) && maxBitRate.length() > 4) {
             int bitRateIntvalue = Integer.valueOf(maxBitRate.substring(0, maxBitRate.length() - 4));
-            FinLog.i(TAG, "BIT_RATE_MAX=" + bitRateIntvalue);
+            FinLog.v(TAG, "BIT_RATE_MAX=" + bitRateIntvalue);
             configBuilder.setMaxRate(bitRateIntvalue);
         }
         //set resolution
@@ -352,7 +410,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         }
         boolean enableTinyStream = SessionManager.getInstance(this).getIsSupportTiny(SettingActivity.IS_STREAM_TINY);
         configBuilder.enableTinyStream(enableTinyStream);
-        FinLog.i(TAG, "enableTinyStream: " + enableTinyStream);
+        FinLog.v(TAG, "enableTinyStream: " + enableTinyStream);
         RongRTCCapture.getInstance().setRTCConfig(configBuilder.build());
     }
 
@@ -388,6 +446,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
     private void connectToRoom() {
         mStatus = STATE_JOINING;
+        joinRoomWhenConnectedInAutoTest = false;
         if (RongIMClient.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
             LoadDialog.show(this);
             final String roomId = roomEditText.getText().toString();
@@ -470,9 +529,11 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         SessionManager.getInstance(Utils.getContext()).put("VideoModeKey", "smooth");
         //
         intent.putExtra(CallActivity.EXTRA_ROOMID, roomEditText.getText().toString());
+        intent.putExtra(CallActivity.EXTRA_USER_NAME, userNameEditText.getText().toString());
         intent.putExtra(CallActivity.EXTRA_CAMERA, muteVideo);
         intent.putExtra(CallActivity.EXTRA_OBSERVER, observer);
         intent.putExtra(CallActivity.EXTRA_AUTO_TEST, SessionManager.getInstance(Utils.getContext()).getBoolean(IS_AUTO_TEST));
+        intent.putExtra(CallActivity.EXTRA_WATER, SessionManager.getInstance(Utils.getContext()).getBoolean(IS_WATER));
         RongRTCRoom rongRTCRoom = CenterManager.getInstance().getRongRTCRoom();
         int joinMode = RoomInfoMessage.JoinMode.AUDIO_VIDEO;
         if (observer) {
@@ -537,18 +598,22 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         mTvRegion.setText("+"+info.region);
     }
 
-    private void connect() {
-        String token = sp.getString("tokenNew", "");
+    /**
+     * 使用小乔环境
+     */
+    private void connectForXQ() {
+        String token = sp.getString("tokenXQ", "");
         if (!TextUtils.isEmpty(token)) {
             RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
                 @Override
                 public void onTokenIncorrect() {
-                    getTokenNew();
+                    getTokenForXQ();
                 }
 
                 @Override
                 public void onSuccess(String s) {
-                    FinLog.d(TAG, "IM  connect success ");
+                    FinLog.d(TAG, "IM  connectForXQ success ");
+                    connectToRoom();
                 }
 
                 @Override
@@ -557,8 +622,80 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 }
             });
         } else {
-            getTokenNew();
+            getTokenForXQ();
         }
+    }
+
+    private void getTokenForXQ(){
+        StringBuilder params = new StringBuilder();
+        params.append("userId=")
+                .append(edit_room_phone.getText().toString())
+                .append("&")
+                .append("name=")
+                .append(userNameEditText.getText().toString());
+        long timestamp = System.currentTimeMillis();
+        int nonce = (int) (Math.random()*10000);
+        String appSecret = "UfmrYyG1lpE";
+        String signature = "";
+        try {
+            signature = sha1(appSecret+nonce+timestamp);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        Request request = new Request.Builder()
+                .url("http://apixq.rongcloud.net/user/getToken.json")
+                .method(RequestMethod.POST)
+                .addHeader("Content-Type","application/x-www-form-urlencoded")
+                .addHeader("Timestamp", String.valueOf(timestamp))
+                .addHeader("Nonce", String.valueOf(nonce))
+                .addHeader("Signature",signature)
+                .addHeader("App-Key",UserUtils.APP_KEY)
+                .body(params.toString())
+                .build();
+        HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
+
+            @Override
+            public void onResponse(String result) {
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    if (jsonObject.optInt("code") == 200) {
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putString("tokenXQ", jsonObject.optString("token"));
+                        editor.commit();
+                        connectForXQ();
+                    }else{
+                        postShowToast("[getTokenForXQ] code not 200, code="+jsonObject.optInt("code"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int errorCode) {
+                postShowToast("[getTokenForXQ] onFailed: "+errorCode);
+            }
+
+            @Override
+            public void onError(IOException exception) {
+                exception.printStackTrace();
+                postShowToast("[getTokenForXQ] onError: "+exception.getMessage());
+            }
+        });
+    }
+
+    public static String sha1(String data) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA1");
+        md.update(data.getBytes());
+        StringBuffer buf = new StringBuffer();
+        byte[] bits = md.digest();
+        for(int i=0;i<bits.length;i++){
+            int a = bits[i];
+            if(a<0) a+=256;
+            if(a<16) buf.append("0");
+            buf.append(Integer.toHexString(a));
+        }
+        return buf.toString();
     }
 
     private void getTokenNew() {
@@ -569,7 +706,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
             e.printStackTrace();
         }
         Request request = new Request.Builder()
-                .url(BASE_URL + URL_GET_TOKEN_NEW)
+                .url(UserUtils.BASE_URL + UserUtils.URL_GET_TOKEN_NEW)
                 .method(RequestMethod.POST)
                 .body(loginInfo.toString())
                 .build();
@@ -594,7 +731,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
                                     @Override
                                     public void onSuccess(String s) {
-                                        FinLog.d(TAG, "IM  connect success in getTokenNew");
+                                        FinLog.d(TAG, "IM  connectForXQ success in getTokenNew");
                                         LoadDialog.dismiss(MainPageActivity.this);
                                         SharedPreferences.Editor editor = sp.edit();
                                         editor.putString("tokenNew", token);
@@ -605,7 +742,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                                     public void onError(RongIMClient.ErrorCode errorCode) {
                                         LoadDialog.dismiss(MainPageActivity.this);
                                         Toast.makeText(MainPageActivity.this, "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
-                                        FinLog.d(TAG, "IM  connect = " + errorCode.getValue());
+                                        FinLog.d(TAG, "IM  connectForXQ = " + errorCode.getValue());
                                     }
                                 });
                             }
@@ -683,7 +820,9 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
     private void initSDK() {
         mStatus = STATE_INIT;
-        RongIMClient.init(getApplication(), "z3v5yqkbv8v30", false);
+        RongIMClient.setServerInfo(UserUtils.NAV_SERVER,UserUtils.FILE_SERVER );
+        RongIMClient.init(getApplication(), UserUtils.APP_KEY, false);
+
     }
 
     /**

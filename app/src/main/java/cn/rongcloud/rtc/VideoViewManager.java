@@ -61,6 +61,10 @@ public class VideoViewManager {
     private ArrayList<RenderHolder> positionRenders = new ArrayList<>();
 
     LinearLayout.LayoutParams remoteLayoutParams;
+    /**
+     * 自定义视频流的数量
+     */
+    private int customVideoCount = 0;
 //    RelativeLayout.LayoutParams localLayoutParams;
     /**
      * 存储当前显示在大屏幕上的用户id
@@ -108,6 +112,15 @@ public class VideoViewManager {
 
         screenWidth = wm.getDefaultDisplay().getWidth();
         screenHeight = wm.getDefaultDisplay().getHeight();
+    }
+
+    public void onCreateEglFailed(String userId,String tag) {
+        VideoViewManager.RenderHolder renderHolder = getViewHolder(userId, tag);
+        Log.i(TAG, "onCreateEglFailed() renderHolder = " + renderHolder);
+        if (renderHolder != null) {
+            renderHolder.coverView.onCreateEglFailed();
+        }
+
     }
 
     private class RemoteRenderClickListener implements View.OnClickListener {
@@ -169,12 +182,12 @@ public class VideoViewManager {
                 remoteUser.exchangeStreamToTinyStream(new RongRTCResultUICallBack() { //切换成小流
                     @Override
                     public void onUiSuccess() {
-                        FinLog.i(TAG,lastId+" exchangeStreamToTinyStream success !");
+                        FinLog.v(TAG,lastId+" exchangeStreamToTinyStream success !");
                     }
 
                     @Override
                     public void onUiFailed(RTCErrorCode errorCode) {
-                        FinLog.i(TAG,lastId+" exchangeStreamToTinyStream failed ! errorCode: "+errorCode);
+                        FinLog.e(TAG,lastId+" exchangeStreamToTinyStream failed ! errorCode: "+errorCode);
                     }
                 });
             }
@@ -199,12 +212,12 @@ public class VideoViewManager {
                 remoteUser.exchangeStreamToNormalStream(new RongRTCResultUICallBack() { //切换大流
                     @Override
                     public void onUiSuccess() {
-                        FinLog.i(TAG,targetId+" exchangeStreamToNormalStream success !");
+                        FinLog.v(TAG,targetId+" exchangeStreamToNormalStream success !");
                     }
 
                     @Override
                     public void onUiFailed(RTCErrorCode errorCode) {
-                        FinLog.i(TAG,targetId+" exchangeStreamToNormalStream failed ! errorCode: "+errorCode);
+                        FinLog.e(TAG,targetId+" exchangeStreamToNormalStream failed ! errorCode: "+errorCode);
                     }
                 });
             }
@@ -242,7 +255,6 @@ public class VideoViewManager {
 
                 addVideoViewEntiry(userID, tag, renderHolder);
 //                unUsedRemoteRenders.remove(0);
-                ((CallActivity) context).setWaitingTipsVisiable(false);
             }
             if (connectedUsers.size() != 0 && connectedUsers != null && !containsKeyVideoViewEntiry(userID, tag)) {
                 RenderHolder renderHolder = createRenderHolder();//unUsedRemoteRenders.get(0);
@@ -254,8 +266,9 @@ public class VideoViewManager {
 
                 addVideoViewEntiry(userID, tag, renderHolder);
 //                unUsedRemoteRenders.remove(0);
-                ((CallActivity) context).setWaitingTipsVisiable(false);
             }
+
+            toggleTips();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -267,6 +280,11 @@ public class VideoViewManager {
         Log.i(TAG, ">>>>>>>>>>>>>>>>setVideoView isSelf==" + isSelf);
         if (!connetedRemoteRenders.containsKey(generateKey(userID,tag))) {
             if (isSelf) {
+
+                if (!CenterManager.RONG_TAG.equals(tag) && !TextUtils.isEmpty(tag)) {//自定义视频流的视图
+                    customVideoCount = customVideoCount + 1;
+                }
+
                 if (connetedRemoteRenders.size() == 0) {
                     mediaStreamTypeMode = largeView(isSelf, userID, tag, userName, render, talkType);
                 } else {
@@ -275,7 +293,24 @@ public class VideoViewManager {
             } else {
                 if (null != connectedUsers && connectedUsers.size() > 0 && null != connectedUsers.get(0) && !TextUtils.isEmpty(connectedUsers.get(0).getUserId()) &&
                         connectedUsers.get(0).getKey().equals(generateKey(userID, tag))) {
+                    //放入大屏的远端用户需要切换到大流
                     mediaStreamTypeMode = largeView(isSelf, userID, tag, userName, render, talkType);
+                    if (rongRTCRoom != null) {
+                        final String targetId = selectedRender.userId;
+                        RongRTCRemoteUser remoteUser = rongRTCRoom.getRemoteUser(userID);
+                        //todo 切换大流
+                        remoteUser.exchangeStreamToNormalStream(new RongRTCResultUICallBack() { //切换大流
+                            @Override
+                            public void onUiSuccess() {
+                                FinLog.v(TAG,targetId+" exchangeStreamToNormalStream success !");
+                            }
+
+                            @Override
+                            public void onUiFailed(RTCErrorCode errorCode) {
+                                FinLog.e(TAG,targetId+" exchangeStreamToNormalStream failed ! errorCode: "+errorCode);
+                            }
+                        });
+                    }
                 } else {
                     mediaStreamTypeMode = smallView(isSelf, userID, tag, userName, render, talkType);
                 }
@@ -299,7 +334,7 @@ public class VideoViewManager {
         try {
             String key = generateKey(userID, tag);
             boolean isBigScreen = selectedUserid != null && selectedUserid.contains(key);
-//            Log.i(TAG, "refreshRemoteView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() + ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + "isBigScreen==" + isBigScreen);
+//            Log.v(TAG, "refreshRemoteView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() + ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + "isBigScreen==" + isBigScreen);
             RenderHolder renderHolder = connetedRemoteRenders.get(key);
             renderHolder.userName = userName;
             renderHolder.userId = userID;
@@ -341,7 +376,7 @@ public class VideoViewManager {
     private MediaStreamTypeMode smallView(boolean isSelf, String userID, String tag, String userName, RongRTCVideoView render, String talkType) {
         MediaStreamTypeMode mediaStreamTypeMode = new MediaStreamTypeMode();
         RenderHolder renderHolder = null;
-//        Log.i(TAG, "smallView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() + ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + ",talkType=" + talkType);
+//        Log.v(TAG, "smallView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() + ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + ",talkType=" + talkType);
         if (containsKeyVideoViewEntiry(userID,tag)) {
             renderHolder = getViewHolder(userID,tag);
             renderHolder.userName = userName;
@@ -354,7 +389,7 @@ public class VideoViewManager {
             addVideoViewEntiry(userID, tag, renderHolder);
 
             holderContainer.addView(renderHolder.containerLayout, remoteLayoutParams);
-            ((CallActivity) context).setWaitingTipsVisiable(false);
+            toggleTips();
 
 //            unUsedRemoteRenders.remove(0);
         }
@@ -387,7 +422,7 @@ public class VideoViewManager {
     private MediaStreamTypeMode largeView(boolean isSelf, String userID, String tag,String userName, RongRTCVideoView render, String talkType) {
         MediaStreamTypeMode mediaStreamTypeMode = null;
         RenderHolder renderHolder = null;
-//        Log.i(TAG, "largeView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() + ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + ",talkType=" + talkType);
+//        Log.v(TAG, "largeView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() + ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + ",talkType=" + talkType);
         if (isSelf) {
             renderHolder = createRenderHolder();//unUsedRemoteRenders.get(0);
 //            unUsedRemoteRenders.remove(0);
@@ -481,7 +516,7 @@ public class VideoViewManager {
         String key = generateKey(renderHolder.userId, renderHolder.tag);
         if (connetedRemoteRenders.containsKey(key)) {
 
-            FinLog.e("render:", "connetedRemoteRenders.containsKey userid =" + renderHolder.userId);
+            FinLog.d("render:", "connetedRemoteRenders.containsKey userid =" + renderHolder.userId);
             connetedRemoteRenders.get(key).release();
             RenderHolder releaseTaget = connetedRemoteRenders.remove(key);
 
@@ -506,7 +541,7 @@ public class VideoViewManager {
                         Map.Entry mapentry = (Map.Entry) iterator.next();
                         RenderHolder newRender = (RenderHolder) mapentry.getValue();// 从远程连接中获取到新的 渲染器
                         String id = (String) mapentry.getKey();
-                        FinLog.e("render:", "删除小窗口：" + id);
+                        FinLog.d("render:", "删除小窗口：" + id);
                         holderContainer.removeView(newRender.containerLayout);// 小容器删除 layout
                         holderBigContainer.addView(newRender, screenWidth, screenHeight);//将新的渲染器添加到大容器中
                         selectedRender = newRender;// 新渲染器辅给大窗口渲染器
@@ -514,10 +549,10 @@ public class VideoViewManager {
                         break;
                     }
                 }
-                FinLog.e("render:", "selectedRender == releaseTaget  remove:" + renderHolder.userId);
+                FinLog.d("render:", "selectedRender == releaseTaget  remove:" + renderHolder.userId);
                 holderBigContainer.removeView(releaseTaget.containerLayout);
             } else {
-                FinLog.e("render:", " remove:" + renderHolder.userId);
+                FinLog.d("render:", " remove:" + renderHolder.userId);
                 holderContainer.removeView(releaseTaget.containerLayout);
                 positionRenders.remove(releaseTaget);
             }
@@ -528,9 +563,12 @@ public class VideoViewManager {
         }
     }
 
-    public void removeVideoView(String userId, String tag) {
+    public void removeVideoView(boolean isSelf,String userId, String tag) {
         RenderHolder renderHolder = getViewHolder(userId, tag);
         if (renderHolder != null) {
+            if (isSelf && customVideoCount > 0) {
+                customVideoCount = customVideoCount - 1;
+            }
             removeVideoView(renderHolder);
             toggleTips();
         }
@@ -550,8 +588,7 @@ public class VideoViewManager {
      * 控制屏幕中間的提示
      */
     private void toggleTips() {
-        int size = isObserver ? 0 : 1;
-        if (connetedRemoteRenders.size() == size) {
+        if (!hasConnectedUser()) {
             ((CallActivity) context).setWaitingTipsVisiable(true);
         } else {
             ((CallActivity) context).setWaitingTipsVisiable(false);
@@ -570,7 +607,7 @@ public class VideoViewManager {
      * Method to judge whether has conneted users
      */
     public boolean hasConnectedUser() {
-        int size = isObserver ? 0 : 1;
+        int size = isObserver ? 0 +customVideoCount: 1+customVideoCount;
         //connectedRemoteRenders only contains local render by default. when its size is large than 1, means new user joined
         return connetedRemoteRenders.size() > size;
     }
@@ -603,7 +640,7 @@ public class VideoViewManager {
                 coverView = new CoverView(context);
                 coverView.mRenderHolder = this;
             }
-            coverView.setUserInfo(userName, userId);
+            coverView.setUserInfo(userName, userId, tag);
             coverView.showUserHeader();
             RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                     RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -613,7 +650,7 @@ public class VideoViewManager {
 
         public void updateUserInfo(String userName) {
             this.userName = userName;
-            coverView.setUserInfo(userName, userId);
+            coverView.setUserInfo(userName, userId, tag);
         }
 
         public void removeCoverView() {
@@ -770,7 +807,7 @@ public class VideoViewManager {
             for (int i = 0; i < connectedUsers.size(); i++) {
                 if (null != connectedUsers.get(i)
                         && !TextUtils.isEmpty(connectedUsers.get(i).getUserId()) && connectedUsers.get(i).getUserId().equals(userId)
-                        && !TextUtils.isEmpty(connectedUsers.get(i).getTag()) && connectedUsers.get(i).getTag().equals(tag)) {
+                         && connectedUsers.get(i).getTag().equals(tag)) {
                     renderHolder = connectedUsers.get(i).getRenderHolder();
                     break;
                 }
@@ -789,7 +826,7 @@ public class VideoViewManager {
             for (int i = 0; i < connectedUsers.size(); i++) {
                 if (null != connectedUsers.get(i)
                         && !TextUtils.isEmpty(connectedUsers.get(i).getUserId()) && connectedUsers.get(i).getUserId().equals(userid)
-                        && !TextUtils.isEmpty(connectedUsers.get(i).getTag()) && connectedUsers.get(i).getTag().equals(tag) ) {
+                        && connectedUsers.get(i).getTag().equals(tag) ) {
                     bool = true;
                 }
             }
@@ -803,7 +840,7 @@ public class VideoViewManager {
             for (int i = 0; i < connectedUsers.size(); i++) {
                 if (null != connectedUsers.get(i)
                         && !TextUtils.isEmpty(connectedUsers.get(i).getUserId()) && connectedUsers.get(i).getUserId().equals(userid)
-                        && !TextUtils.isEmpty(connectedUsers.get(i).getTag()) && connectedUsers.get(i).getTag().equals(tag)) {
+                        && connectedUsers.get(i).getTag().equals(tag)) {
                     connectedUsers.remove(i);
                 }
             }
@@ -816,7 +853,7 @@ public class VideoViewManager {
             for (int i = 0; i < connectedUsers.size(); i++) {
                 if (null != connectedUsers.get(i)
                         && !TextUtils.isEmpty(connectedUsers.get(i).getUserId()) && connectedUsers.get(i).getUserId().equals(userid)
-                        && !TextUtils.isEmpty(connectedUsers.get(i).getTag()) && connectedUsers.get(i).getTag().equals(tag)) {
+                        && connectedUsers.get(i).getTag().equals(tag)) {
                     connectedUsers.remove(i);
                 }
             }

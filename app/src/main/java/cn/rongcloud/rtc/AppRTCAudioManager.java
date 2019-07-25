@@ -19,6 +19,8 @@ import android.media.AudioManager;
 import android.util.Log;
 
 import cn.rongcloud.rtc.util.AppRTCUtils;
+import cn.rongcloud.rtc.util.BluetoothUtil;
+import cn.rongcloud.rtc.utils.FinLog;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -115,7 +117,8 @@ public class AppRTCAudioManager {
       // Example: user holds his hand over the device (closer than ~5 cm),
       // or removes his hand from the device.
       public void run() {
-//        onProximitySensorChangedState();
+          if (isCurrentSpeakerOn && !BluetoothUtil.hasBluetoothA2dpConnected())
+            onProximitySensorChangedState();
       }
     });
     AppRTCUtils.logDeviceInfo(TAG);
@@ -148,7 +151,9 @@ public class AppRTCAudioManager {
     // Do initial selection of audio device. This setting can later be changed
     // either by adding/removing a wired headset or by covering/uncovering the
     // proximity sensor.
-    updateAudioDeviceState(hasWiredHeadset());
+    //判断是否已连接蓝牙耳机
+    if (!BluetoothUtil.hasBluetoothA2dpConnected())
+      updateAudioDeviceState(hasWiredHeadset());
 
     // Register receiver for broadcast intents related to adding/removing a
     // wired headset (Intent.ACTION_HEADSET_PLUG).
@@ -259,7 +264,6 @@ public class AppRTCAudioManager {
         }
       }
     };
-
     apprtcContext.registerReceiver(wiredHeadsetReceiver, filter);
   }
 

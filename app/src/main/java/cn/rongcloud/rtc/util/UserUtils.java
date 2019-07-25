@@ -24,6 +24,9 @@ public static final String USERNAME_KEY = "USER_NAME";
     public static final String URL_LOGIN = "user/login";
     public static final String URL_GET_TOKEN = "user/get_token";
     public static final String URL_GET_TOKEN_NEW = "user/get_token_new";
+    public static final String APP_KEY = "请通过开发者后台申请";
+    public static final String NAV_SERVER = "nav.cn.ronghub.com";
+    public static final String FILE_SERVER = "up.qbox.me";
 
     public static final String URL_SEND_CODE = "user/send_code";
     public static final String URL_VERIFY_CODE = "user/verify_code";

@@ -117,3 +117,8 @@
 -keep class bailingquic.**{*;}
 
 -keep class go.**{*;}
+
+# here white sdk
+-keep class com.herewhite.** { *; }
+-keepattributes  *JavascriptInterface*
+-keepattributes Signature

@@ -14,12 +14,12 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import cn.rongcloud.rtc.CenterManager;
 import cn.rongcloud.rtc.VideoViewManager;
 import cn.rongcloud.rtc.utils.FinLog;
 import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
 
 import cn.rongcloud.rtc.R;
-import io.rong.imlib.RongIMClient;
 
 /**
  * @Author DengXuDong.
@@ -43,6 +43,7 @@ public class CoverView extends RelativeLayout {
     private View trackTest;
     private View firstFrameTest;
     private View testLayout;
+    private View eglTest;
     public CoverView(Context context) {
         super(context);
         this.mContext = context;
@@ -62,6 +63,7 @@ public class CoverView extends RelativeLayout {
             LayoutInflater.from(mContext).inflate(R.layout.layout_cover, this, true);
             trackTest = findViewById(R.id.auto_test);
             testLayout = findViewById(R.id.testLayout);
+            eglTest = findViewById(R.id.auto_test3);
             ivAudioCover = (ImageView) findViewById(R.id.iv_audiocover);
             firstFrameTest = findViewById(R.id.auto_test2);
             mRl_Container = (RelativeLayout) findViewById(R.id.relative_cover);
@@ -115,11 +117,13 @@ public class CoverView extends RelativeLayout {
         }
     }
 
-    public void setUserInfo(String name, String id) {
+    public void setUserInfo(String name, String id,String tag) {
 
         if (null != tv_userName && !TextUtils.isEmpty(name)) {
             tv_userName.setText(name.length() > 4 ? name.substring(0, 4) : name);
         }
+        if (!TextUtils.isEmpty(tag) && !tag.equals(CenterManager.RONG_TAG))
+        tv_userName.setText(name + "-" + mContext.getResources().getString(R.string.user_video_custom));
 
         if (!TextUtils.isEmpty(id)) {
             this.UserId = id;
@@ -192,7 +196,7 @@ public class CoverView extends RelativeLayout {
             ivAudioCover.setVisibility(VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
-            FinLog.i(TAG, "coverView Error:" + e.getMessage());
+            FinLog.v(TAG, "coverView Error:" + e.getMessage());
         }
     }
 
@@ -274,6 +278,12 @@ public class CoverView extends RelativeLayout {
     public void setFirstDraw() {
         Log.i(TAG,"setTrackisAdded");
         firstFrameTest.setVisibility(VISIBLE);
+        testLayout.bringToFront();
+    }
+
+    public void onCreateEglFailed() {
+        Log.i(TAG,"onCreateEglFailed");
+        eglTest.setVisibility(VISIBLE);
         testLayout.bringToFront();
     }
 }

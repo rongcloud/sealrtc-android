@@ -13,7 +13,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true">
-
+        <View
+            android:id="@+id/auto_test3"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@android:color/holo_orange_light"
+            android:visibility="gone"></View>
         <View
             android:id="@+id/auto_test2"
             android:layout_width="10dp"
@@ -78,7 +83,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/audio_cover"
-        android:visibility="invisible"
         android:layout_centerInParent="true"/>
 
 

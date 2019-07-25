@@ -235,7 +235,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
         HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {
             @Override
             public void onResponse(String result) {
-                FinLog.i(TAG, "send codo result result:" + result);
+                FinLog.v(TAG, "send codo result result:" + result);
                 try {
                     String code = "";
                     JSONObject jsonObject = new JSONObject(result);
@@ -252,14 +252,14 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
 
             @Override
             public void onFailure(int errorCode) {
-                FinLog.i(TAG, "send code error errorCode:" + errorCode);
+                FinLog.v(TAG, "send code error errorCode:" + errorCode);
                 toast(Utils.getContext().getString(R.string.verify_code_sent_prompt_failed));
                 stopDown();
             }
 
             @Override
             public void onError(IOException exception) {
-                FinLog.i(TAG, "send code error :" + exception.getMessage());
+                FinLog.v(TAG, "send code error :" + exception.getMessage());
                 toast(Utils.getContext().getString(R.string.verify_code_sent_prompt_error));
                 stopDown();
             }
@@ -277,7 +277,9 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             jsonObject.put(PHONE, mPhone);
             jsonObject.put(REGION, mCountryInfo != null ? mCountryInfo.region : "86");
             jsonObject.put(CODE, edit_verificationCode.getText().toString().trim());
-            jsonObject.put(KEY, mPhone + DeviceUtils.getDeviceId(Utils.getContext()));
+            jsonObject.put(KEY, mPhone + (DeviceUtils.getDeviceId(Utils.getContext()).length() > 4 ?
+                    DeviceUtils.getDeviceId(Utils.getContext()).substring(0, 4) :
+                    DeviceUtils.getDeviceId(Utils.getContext())));
             json = jsonObject.toString();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -323,7 +325,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
     }
 
     private void getToken(String result) {
-        FinLog.i(TAG, "verify result result:" + result);
+        FinLog.v(TAG, "verify result result:" + result);
         try {
             int code = 0;
             JSONObject jsonObject = new JSONObject(result);

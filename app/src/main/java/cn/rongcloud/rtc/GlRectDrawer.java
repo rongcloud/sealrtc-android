@@ -173,7 +173,7 @@ public class GlRectDrawer {
             shader = new Shader(fragmentShader);
             shaders.put(fragmentShader, shader);
             shader.glShader.useProgram();
-            // Initialize fragment shader uniform values.
+            // Initialize fragment shader uniform shape_corner.
             if (fragmentShader == YUV_FRAGMENT_SHADER_STRING) {
                 GLES20.glUniform1i(shader.glShader.getUniformLocation("y_tex"), 0);
                 GLES20.glUniform1i(shader.glShader.getUniformLocation("u_tex"), 1);
@@ -185,7 +185,7 @@ public class GlRectDrawer {
             } else {
                 throw new IllegalStateException("Unknown fragment shader: " + fragmentShader);
             }
-            GlUtil.checkNoGLES2Error("Initialize fragment shader uniform values.");
+            GlUtil.checkNoGLES2Error("Initialize fragment shader uniform shape_corner.");
             // Initialize vertex shader attributes.
             shader.glShader.setVertexAttribArray("in_pos", 2, FULL_RECTANGLE_BUF);
             shader.glShader.setVertexAttribArray("in_tc", 2, FULL_RECTANGLE_TEX_BUF);

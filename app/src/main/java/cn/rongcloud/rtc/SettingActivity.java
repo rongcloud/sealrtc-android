@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 
+import cn.rongcloud.rtc.media.http.HttpClient;
+import cn.rongcloud.rtc.media.http.Request;
+import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.util.AppRTCUtils;
 import cn.rongcloud.rtc.utils.FinLog;
 import cn.rongcloud.rtc.entity.CMPAddress;
@@ -25,6 +28,7 @@ import cn.rongcloud.rtc.util.Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -48,10 +52,13 @@ public class SettingActivity extends RongRTCBaseActivity {
     public static final String IS_GPUIMAGEFILTER = "IS_GPUIMAGEFILTER";
     public static final String IS_SRTP = "IS_SRTP";
     public static final String IS_RONGRTC_CONNECTIONMODE = "IS_RONGRTC_CONNECTIONMODE";
+    public static final String MEDIA_URL = "media_url";
     /**保存的bool值 true：大小流开启，false 关闭**/
     public static final String IS_STREAM_TINY="STREAMTINY";
     /**自动化测试*/
     public static final String IS_AUTO_TEST="AUTOTEST";
+    /**水印*/
+    public static final String IS_WATER="show_water_mark";
 
 
     public static final String RESOLUTION_LOW = "240x320";
@@ -64,7 +71,7 @@ public class SettingActivity extends RongRTCBaseActivity {
     private String[] list_bitrate_min = new String[]{};
     private String[] list_connectionMode = new String[]{"Relay", "P2P"};
     private String[] list_format = new String[]{"H264", "VP8", "VP9"};
-    private String[] list_observer,list_gpuImageFilter,list_connectionType,list_streamTiny,list_autotest;
+    private String[] list_observer,list_gpuImageFilter,list_connectionType,list_streamTiny,list_autotest,list_water;
 
     private int defaultBitrateMinIndex = 0;
     private int defaultBitrateMaxIndex = 0;
@@ -81,12 +88,13 @@ public class SettingActivity extends RongRTCBaseActivity {
     private static final int REQUEST_CODE_IS_CONNECTIONTYPE = 21;
     private static final int REQUEST_CODE_IS_STREAM_TINY = 22;
     private static final int REQUEST_CODE_IS_AUTO_TEST = 23;
+    private static final int REQUEST_CODE_IS_WATER = 24;
 
     private int tapStep = 0;
     private long lastClickTime = 0;
     private TextView settingOptionText1, settingOptionText2, settingOptionText3, settingOptionText4, settingOptionText5,
             settingOptionText6, settingOptionText7, settingOptionText8, settingOptionSRTP, settingOptionConnectionType,
-            setting_option_streamTiny,setting_autotest;
+            setting_option_streamTiny,setting_autotest,setting_water, settingOptionMediaUrl;
     private LinearLayout settings_Modify;
 
     @Override
@@ -118,6 +126,10 @@ public class SettingActivity extends RongRTCBaseActivity {
         list_autotest= new String[]{getResources().getString(R.string.settings_text_MediaStreamTiny_no), getResources().getString(R.string.settings_text_MediaStreamTiny_yes)};
         setting_autotest = (TextView) findViewById(R.id.tv_setting_option_autotest);
         setting_autotest.setText(SessionManager.getInstance(this).getBoolean(IS_AUTO_TEST) ? list_streamTiny[1] : list_streamTiny[0]);
+
+        list_water= new String[]{getResources().getString(R.string.settings_text_MediaStreamTiny_no), getResources().getString(R.string.settings_text_MediaStreamTiny_yes)};
+        setting_water = (TextView) findViewById(R.id.tv_setting_option_water);
+        setting_water.setText(SessionManager.getInstance(this).getBoolean(IS_WATER) ? list_water[1] : list_water[0]);
 
         settingOptionText1 = ((TextView) findViewById(R.id.setting_option_1_txt));
         String resolution = SessionManager.getInstance(this).getString(RESOLUTION);
@@ -178,6 +190,17 @@ public class SettingActivity extends RongRTCBaseActivity {
         settingOptionConnectionType = (TextView) findViewById(R.id.setting_option_connectiontype_txt);
         boolean isQuic = SessionManager.getInstance(this).getBoolean(IS_RONGRTC_CONNECTIONMODE);
         settingOptionConnectionType.setText(list_connectionType[isQuic ? 0 : 1]);
+
+        settingOptionMediaUrl = (TextView) findViewById(R.id.tv_setting_option_media_url);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String name = SessionManager.getInstance(this).getString("MediaName");
+        if (!TextUtils.isEmpty(name)) {
+            settingOptionMediaUrl.setText(name);
+        }
     }
 
     private void setupListeners() {
@@ -200,6 +223,13 @@ public class SettingActivity extends RongRTCBaseActivity {
         findViewById(R.id.settings_title_layout).setOnClickListener(new OnTitleViewClickListener());
         findViewById(R.id.setting_option_streamTiny).setOnClickListener(new OnOptionViewClickListener(R.string.Opensizestream,list_streamTiny,REQUEST_CODE_IS_STREAM_TINY));
         findViewById(R.id.setting_option_autotest).setOnClickListener(new OnOptionViewClickListener(R.string.autotest,list_autotest,REQUEST_CODE_IS_AUTO_TEST));
+        findViewById(R.id.setting_option_water).setOnClickListener(new OnOptionViewClickListener(R.string.watermark,list_water,REQUEST_CODE_IS_WATER));
+        findViewById(R.id.setting_option_media_url_).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SettingActivity.this, MediaServerActivity.class));
+            }
+        });
     }
 
     private class OnOptionViewClickListener implements View.OnClickListener {
@@ -237,7 +267,7 @@ public class SettingActivity extends RongRTCBaseActivity {
                 tapStep++;
                 if (tapStep == 4) {
                     if (BuildConfig.DEBUG) {
-                        //findViewById(R.id.setting_options_hidden).setVisibility(View.VISIBLE);
+                        findViewById(R.id.setting_options_hidden).setVisibility(View.VISIBLE);
                     }
                     if (null != settings_Modify) {
                         //settings_Modify.setVisibility(View.VISIBLE);
@@ -245,7 +275,7 @@ public class SettingActivity extends RongRTCBaseActivity {
                             @Override
                             public void onClick(View v) {
                                 if (ButtentSolp.check(v.getId(), 1800)) {
-                                    FinLog.i("SettingActivity", getString(R.string.btnsolpstr));
+                                    FinLog.v("SettingActivity", getString(R.string.btnsolpstr));
                                     return;
                                 }
                                 modifyServerAddress();
@@ -371,6 +401,10 @@ public class SettingActivity extends RongRTCBaseActivity {
                 setting_autotest.setText(result);
                 SessionManager.getInstance(this).put(IS_AUTO_TEST,list_autotest[1].equals(result));
                 break;
+            case REQUEST_CODE_IS_WATER:
+                setting_water.setText(result);
+                SessionManager.getInstance(this).put(IS_WATER,list_water[1].equals(result));
+                break;
             default:
                 break;
         }
@@ -476,13 +510,13 @@ public class SettingActivity extends RongRTCBaseActivity {
                             if (!TextUtils.isEmpty(cmp) && !TextUtils.isEmpty(tokenServer) &&
                                     null != address && !TextUtils.isEmpty(address.getServerURL()) &&
                                     address.getCmpServer().equals(cmp) && address.getServerURL().equals(tokenServer)) {
-//                                FinLog.i(TAG,"用户继续保存的地址就是第一次进来默认选择的地址，就不用管，防止用户将默认地址保存成自定义的地址," +
+//                                FinLog.v(TAG,"用户继续保存的地址就是第一次进来默认选择的地址，就不用管，防止用户将默认地址保存成自定义的地址," +
 //                                        "并将自定义的地址删除 已方便显示成默认地址，然后重新下载证书");
                                 SessionManager.getInstance(Utils.getContext()).remove(AppRTCUtils.CUSTOM_CMPKEY);
                                 reInitialization();
                                 saveSuccess(cmp);
                             } else if (TextUtils.isEmpty(cmp) && TextUtils.isEmpty(tokenServer)) {
-                                FinLog.i(TAG, "同时为空 删除自定义的地址！");
+                                FinLog.v(TAG, "同时为空 删除自定义的地址！");
                                 SessionManager.getInstance(Utils.getContext()).remove(AppRTCUtils.CUSTOM_CMPKEY);
                                 reInitialization();
 
@@ -496,11 +530,11 @@ public class SettingActivity extends RongRTCBaseActivity {
                                 }
                             }
                         } else {
-                            FinLog.i(TAG, "ERROR null!");
+                            FinLog.v(TAG, "ERROR null!");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        FinLog.i(TAG, "ERROR " + e.getMessage());
+                        FinLog.v(TAG, "ERROR " + e.getMessage());
                     }
                     break;
                 case R.id.btn_cancel:
@@ -529,7 +563,7 @@ public class SettingActivity extends RongRTCBaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    FinLog.i("BinClient", "重新初始化 cmp 地址等==cerUrl=" + cerUrl + ",cmpServer=" + cmpServer);
+                    FinLog.v("BinClient", "重新初始化 cmp 地址等==cerUrl=" + cerUrl + ",cmpServer=" + cmpServer);
 
                     //RongRTCEngine.setVOIPServerAddress(cmpServer);
                     // RongRTCEngine.init(getApplicationContext(), cmpServer, cmpServer);

@@ -87,96 +87,68 @@
             <LinearLayout
                 android:id="@+id/call_reder_container"
                 android:layout_width="match_parent"
-                android:background="@color/colorWhite"
                 android:layout_height="wrap_content"
+                android:background="@color/colorWhite"
                 android:orientation="horizontal"
-                android:visibility="visible"/>
-
-            <!--<LinearLayout-->
-                <!--android:id="@+id/call_reder_container"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:orientation="horizontal"-->
-                <!--android:visibility="visible">-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout2"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout3"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout4"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout5"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout6"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout7"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout8"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/remote_video_layout9"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-
-                <!--<RelativeLayout-->
-                    <!--android:id="@+id/local_video_layout"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-            <!--</LinearLayout>-->
-
+                android:visibility="visible" />
         </HorizontalScrollView>
 
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="wrap_content"
-            android:visibility="gone"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
         </ScrollView>
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/call_whiteboard"
+    <LinearLayout
+        android:id="@+id/call_whiteboard_container"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="30dp"
+        android:background="@color/colorWhite"
+        android:orientation="vertical"
+        android:visibility="gone"></LinearLayout>
 
-    </RelativeLayout>
+    <Button
+        android:id="@+id/white_board_close"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/ic_white_board_close"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/white_board_pages_previous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="20dp"
+        android:background="@drawable/selector_white_board_action_previous"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/white_board_pages_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/selector_white_board_action_next"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/call_more_container"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
         android:layout_marginRight="18dp"
         android:orientation="vertical">
 
@@ -194,18 +166,26 @@
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_request_to_normal"
             android:button="@null"
-            android:visibility="gone"
-            android:checked="false" />
+            android:checked="false"
+            android:visibility="gone" />
 
         <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/menu_whiteboard"
+            android:id="@+id/menu_custom_audio"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginTop="@dimen/checkbox_spacing"
-            android:background="@drawable/selector_checkbox_whiteboard"
+            android:background="@drawable/selector_checkbox_custom_audio_stream"
             android:button="@null"
-            android:checked="false"
-            android:visibility="visible" />
+            android:checked="false" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/menu_custom_stream"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/checkbox_spacing"
+            android:background="@drawable/selector_checkbox_custom_stream"
+            android:button="@null"
+            android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_switch"
@@ -236,26 +216,44 @@
             android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/menu_whiteboard"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/checkbox_spacing"
+            android:background="@drawable/selector_checkbox_whiteboard"
+            android:button="@null"
+            android:checked="false"
+            android:visibility="visible" />
+
+        <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_up"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:visibility="gone"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_change_up"
             android:button="@null"
-            android:checked="false" />
+            android:checked="false"
+            android:visibility="gone" />
 
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_down"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:visibility="gone"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_change_down"
             android:button="@null"
-            android:checked="false" />
+            android:checked="false"
+            android:visibility="gone" />
     </LinearLayout>
+
+    <include
+        layout="@layout/item_white_board_action"
+        android:id="@+id/white_board_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/call_btn_hangup"
@@ -270,10 +268,10 @@
         android:id="@+id/menu_close"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="@dimen/checkbox_spacing"
         android:background="@drawable/selector_checkbox_close_camera"
         android:button="@null"
-        android:layout_alignParentBottom="true"
         android:checked="false" />
 
 
@@ -281,10 +279,10 @@
         android:id="@+id/menu_mute_mic"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="@dimen/checkbox_spacing"
         android:background="@drawable/selector_checkbox_mute"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:button="@null"
         android:checked="false" />
 

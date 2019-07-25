@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical" android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:background="#90000000">
+              android:background="#CC000000">
 
     <include layout="@layout/item_member"/>
     <android.support.v7.widget.RecyclerView

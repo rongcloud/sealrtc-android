@@ -20,4 +20,13 @@
     <color name="blink_divider">#AAAAAA</color>
     <color name="blink_text_white">#FFFFFF</color>
     <color name="blink_rad">#ffff0000</color>
+    <color name="white_board_pencil_color_red">#ff0000</color>
+    <color name="white_board_pencil_color_orange">#FFA500</color>
+    <color name="white_board_pencil_color_yellow">#FFFF00</color>
+    <color name="white_board_pencil_color_blue">#0000FF</color>
+    <color name="white_board_pencil_color_cyan">#00FFFF</color>
+    <color name="white_board_pencil_color_green">#008000</color>
+    <color name="white_board_pencil_color_black">#000000</color>
+    <color name="white_board_pencil_color_purple">#800080</color>
+    <color name="white_board_pencil_color_gray">#808080</color>
 </resources>
