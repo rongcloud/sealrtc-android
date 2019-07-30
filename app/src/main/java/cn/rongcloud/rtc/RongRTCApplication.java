@@ -6,7 +6,6 @@ import android.support.multidex.MultiDex;
 
 import com.tencent.bugly.crashreport.CrashReport;
 
-import cn.rongcloud.rtc.device.utils.DeviceUtils;
 import cn.rongcloud.rtc.message.RoomInfoMessage;
 import cn.rongcloud.rtc.message.WhiteBoardInfoMessage;
 import cn.rongcloud.rtc.utils.FileLogUtil;
@@ -31,7 +30,6 @@ public class RongRTCApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Utils.init(this);
-        DeviceUtils.init(this);
         //bugly 配置，查看对应崩溃日志。
         String processName = Utils.getCurProcessName(this);
         // 设置是否为上报进程
