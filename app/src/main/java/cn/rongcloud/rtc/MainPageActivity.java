@@ -13,7 +13,6 @@ package cn.rongcloud.rtc;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -25,7 +24,6 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -36,13 +34,20 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
+import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
+import cn.rongcloud.rtc.device.utils.Consts;
 import cn.rongcloud.rtc.entity.CountryInfo;
+import cn.rongcloud.rtc.entity.KickEvent;
 import cn.rongcloud.rtc.message.RoomInfoMessage;
-import cn.rongcloud.rtc.util.ButtentSolp;
+import cn.rongcloud.rtc.updateapk.UpDateApkHelper;
+import cn.rongcloud.rtc.util.PromptDialog;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.utils.FinLog;
 import cn.rongcloud.rtc.media.http.HttpClient;
@@ -85,6 +90,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     private static final int STATE_FAILED = -1; //加入失败
     private static final String TAG = "MainPageActivity";
     private static final int CONNECTION_REQUEST = 1;
+    private static final long KICK_SILENT_PERIOD = 5 * 60 * 1000;
     private static InputStream cerStream = null;
     private EditText roomEditText, edit_UserName, edit_room_phone, userNameEditText;
     private Button connectButton;
@@ -107,8 +113,6 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
     private String roomId;
     private String username;
-    private SharedPreferences sp;
-    private SharedPreferences.Editor editor;
     private RongRTCConfig.Builder configBuilder;
     private boolean isDebug;
     private boolean joinRoomWhenConnectedInAutoTest;
@@ -125,7 +129,6 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
             "android.permission.BLUETOOTH"
     };
 
-
     public static final String CR_720x1280 = "720x1280";
     public static final String CR_1080x1920 = "1088x1920";
     public static final String CR_480x720 = "480x720";
@@ -134,16 +137,23 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     public static final String CR_368x480 = "368x480";
     public static final String CR_240x320 = "240x320";
     public static final String CR_144x256 = "144x256";
+    private int tapStep = 0;
+    private long lastClickTime = 0;
+
+    private boolean TokenIncorrectMark=true;//记录私有云环境请求token失败后，仅重试一次
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
-        sp = getSharedPreferences("config", MODE_PRIVATE);
-        editor = sp.edit();
         roomId = getIntent().getStringExtra("roomId");
         checkPermissions();
         initViews();
+        new UpDateApkHelper(this).diffVersionFromServer();
+
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
     }
 
     private void initViews() {
@@ -193,13 +203,22 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         cbCamera.setOnCheckedChangeListener(this);
         cbObserver.setOnCheckedChangeListener(this);
         logoView = (ImageView) findViewById(R.id.img_logo);
+        if (logoView != null) {
+            if (ServerUtils.usePrivateCloud()) {
+                logoView.setImageResource(R.drawable.ic_launcher_privatecloud);
+            } else {
+                logoView.setImageResource(R.drawable.ic_launcher);
+            }
+        }
+
         versionCodeView.setText(getResources().getString(R.string.blink_description_version) + BuildConfig.VERSION_NAME + (BuildConfig.DEBUG ? "_Debug" : ""));
         versionCodeView.setTextColor(getResources().getColor(R.color.blink_text_green));
         versionCodeText = versionCodeView.getText().toString();
         ((TextView) findViewById(R.id.main_page_version)).setTextColor(getResources().getColor(R.color.blink_text_green));
         ((TextView) findViewById(R.id.room_number_description)).setTextColor(getResources().getColor(R.color.blink_blue));
         ((TextView) findViewById(R.id.blink_copyright)).setTextColor(getResources().getColor(R.color.blink_text_grey));
-        findViewById(R.id.tv_country).setOnClickListener(this);
+        mTvCountry = (TextView) findViewById(R.id.tv_country);
+        mTvCountry.setOnClickListener(this);
         connectButton.setOnClickListener(this);
 
         roomEditText.addTextChangedListener(new TextWatcher() {
@@ -226,23 +245,32 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
             }
         });
-        mTvCountry = (TextView) findViewById(R.id.tv_country);
         mTvRegion = (TextView) findViewById(R.id.tv_region);
         updateCountry();
         logoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ButtentSolp.check(v.getId(), 1500)) {
-                    return;
+                long timeDuration = System.currentTimeMillis() - lastClickTime;
+                if (timeDuration > 500) {
+                    tapStep = 0;
+                    lastClickTime = 0;
+                } else {
+                    tapStep++;
+//                    if (tapStep == 6) {
+                        try {
+                            Intent intent=new Intent("CN.RONGCLOUD.RTC.DEVICE.OEMMAINACTIVITY");
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+//                    }
                 }
-                try {
-                    Intent intent=new Intent("CN.RONGCLOUD.RTC.DEVICE.OEMMAINACTIVITY");
-                    startActivity(intent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                lastClickTime = System.currentTimeMillis();
             }
         });
+        if (ServerUtils.usePrivateCloud() && mTvCountry != null) {
+            mTvCountry.setVisibility(View.GONE);
+        }
     }
 
     private void clearCer() {
@@ -251,7 +279,6 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
     private String cerUrl = null;
 
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -259,8 +286,6 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 startSetting();
                 break;
             case R.id.connect_button:
-                //小乔环境登录
-//                connectForXQ();
 
                 if (Utils.isFastDoubleClick()) {
                     return;
@@ -269,28 +294,56 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     Toast.makeText(this, getResources().getString(R.string.input_roomId), Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (TextUtils.isEmpty(userNameEditText.getText().toString().trim())) {
+                    showToast(R.string.username_empty_hint);
+                    return;
+                }
+
                 final String phoneNumber = edit_room_phone.getText().toString().trim();
                 if (TextUtils.isEmpty(phoneNumber)) {
                     Toast.makeText(this, getResources().getString(R.string.input_room_phoneNum), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(phoneNumber.length()<1){
+                if (phoneNumber.length() < 1) {
                     Toast.makeText(this, getResources().getString(R.string.input_room_phoneNum_error), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (TextUtils.isEmpty(userNameEditText.getText().toString().trim())){
-                    showToast(R.string.username_empty_hint);
-                    return;
+
+                if (ServerUtils.usePrivateCloud() && !phoneNumber.equals(SessionManager.getInstance(Utils.getContext()).getString(UserUtils.PHONE))) {
+                    //私有环境下，手机号发生变化，需要重新取token
+                    SessionManager.getInstance(Utils.getContext()).remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
                 }
+
                 SessionManager.getInstance(Utils.getContext()).put(UserUtils.ROOMID_KEY, roomEditText.getText().toString().trim());
                 SessionManager.getInstance(Utils.getContext()).put(UserUtils.USERNAME_KEY, userNameEditText.getText().toString().trim());
+                SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, phoneNumber);
+
+                if (ServerUtils.usePrivateCloud()) {
+                    if (ServerUtils.getTokenConnection()) {
+                        LoadDialog.show(MainPageActivity.this);
+                        FinLog.i(TAG, "-- getTokenConnection --");
+                        connectForXQ();
+                        return;
+                    } else {
+                        Toast.makeText(this, getResources().getString(R.string.private_clouconfiguration_cannot_be_empty), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
                 if (!SessionManager.getInstance(Utils.getContext()).contains(phoneNumber)) {
                     startVerifyActivity(phoneNumber);
                 } else {
+                    long kickTime = SessionManager.getInstance(this).getLong("KICK_TIME");
+                    String kickedRoomId = SessionManager.getInstance(this).getString("KICK_ROOM_ID");
+                    String roomId = roomEditText.getText().toString();
+                    if (kickTime > 0 && (System.currentTimeMillis() - kickTime < KICK_SILENT_PERIOD && roomId.equals(kickedRoomId))) {
+                        Toast.makeText(this, R.string.member_operate_kicked, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     if (mStatus == STATE_JOINING)
                         return;
                     mStatus = STATE_JOINING;
-                    FinLog.v(TAG,"CurrentConnectionStatu : "+RongIMClient.getInstance().getCurrentConnectionStatus().name());
+                    FinLog.v(TAG, "CurrentConnectionStatu : " + RongIMClient.getInstance().getCurrentConnectionStatus().name());
                     if (RongIMClient.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
                         connectToRoom();
                         return;
@@ -321,8 +374,8 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
                         @Override
                         public void onSuccess(String s) {
-                            SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE,phoneNumber);
-                            if(!autoTest){
+                            SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, phoneNumber);
+                            if (!autoTest) {
                                 connectToRoom();
                             }
                         }
@@ -337,7 +390,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 break;
             case R.id.tv_country:
                 Intent intent = new Intent(MainPageActivity.this, CountryListActivity.class);
-                startActivityForResult(intent,REQUEST_CODE_SELECT_COUNTRY);
+                startActivityForResult(intent, REQUEST_CODE_SELECT_COUNTRY);
                 break;
             default:
                 break;
@@ -350,7 +403,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         updateCamerCheck();
         updateConfiguration();
         isDebug = SessionManager.getInstance(this).getBoolean(IS_AUTO_TEST);
-        if (isDebug) {
+        if(isDebug){
             connectButton.setBackgroundColor(R.drawable.shape_corner_button_blue);
         }
 
@@ -366,7 +419,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 if (ConnectionStatus.CONNECTED.equals(connectionStatus)) {
                     if (isDebug && joinRoomWhenConnectedInAutoTest) {
                         joinRoomWhenConnectedInAutoTest = false;
-                        Log.d(TAG, "RongLog IM connected, Join Room");
+                        FinLog.d(TAG, "RongLog IM connected, Join Room");
                         connectToRoom();
                     }
                 }
@@ -410,7 +463,37 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         }
         boolean enableTinyStream = SessionManager.getInstance(this).getIsSupportTiny(SettingActivity.IS_STREAM_TINY);
         configBuilder.enableTinyStream(enableTinyStream);
+        configBuilder.enableStereo(SessionManager.getInstance(this).getBoolean(SettingActivity.IS_STEREO));
+        configBuilder.enableAudioProcess(SessionManager.getInstance(this).getBoolean(SettingActivity.IS_AUDIO_PROCESS));
+        configBuilder.setAudioBitrate(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_BITRATE));
+        configBuilder.setAudioAgcLimiter(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_LIMITER));
+        configBuilder.setAudioAgcTargetDBOV(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_TARGET_DBOV));
+        configBuilder.setAudioAgcCompression(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_COMPRESSION));
+        configBuilder.setNoiseSuppression(SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION));
+        configBuilder.setNoiseSuppressionLevel(SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION_LEVEL));
+        configBuilder.setEchoCancel(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_ECHO_CANCEL));
+        configBuilder.setPreAmplifier(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER));
+        configBuilder.setPreAmplifierLevel(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER_LEVEL));
+
+        //在device设置界面设置的屏幕旋转角度 在此在设置一次，防止被覆盖
+        int cameraDisplayOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_cameraDisplayOrientation_key);
+        int frameOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_frameOrientation_key);
+        configBuilder.setCameraDisplayOrientation(cameraDisplayOrientation);
+        configBuilder.setFrameOrientation(frameOrientation==0?-1:frameOrientation);
+
         FinLog.v(TAG, "enableTinyStream: " + enableTinyStream);
+        FinLog.v(TAG, "audio option stereo: " + SessionManager.getInstance(this).getBoolean(SettingActivity.IS_STEREO));
+        FinLog.v(TAG, "audio option audioProcess: " + SessionManager.getInstance(this).getBoolean(SettingActivity.IS_AUDIO_PROCESS));
+        FinLog.v(TAG, "audio option audio bitrate: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_BITRATE));
+        FinLog.v(TAG, "audio option audio agc limiter: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_LIMITER));
+        FinLog.v(TAG, "audio option audio agc target dbov: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_TARGET_DBOV));
+        FinLog.v(TAG, "audio option audio agc compression: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_COMPRESSION));
+        FinLog.v(TAG, "audio option audio noise suppression: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION));
+        FinLog.v(TAG, "audio option audio noise suppression level: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION_LEVEL));
+        FinLog.v(TAG, "audio option audio echo cancel: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_ECHO_CANCEL));
+        FinLog.v(TAG, "audio option audio preAmplifier : " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER));
+        FinLog.v(TAG, "audio option audio preAmplifier level: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER_LEVEL));
+
         RongRTCCapture.getInstance().setRTCConfig(configBuilder.build());
     }
 
@@ -459,14 +542,14 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     if (userCount >= OBSERVER_MUST) {
                         AlertDialog dialog = new AlertDialog.Builder(MainPageActivity.this)
                                 .setMessage(getResources().getString(R.string.join_room_observer_prompt))
-                                .setNegativeButton(getResources().getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
+                                .setNegativeButton(getResources().getString(R.string.rtc_dialog_cancel), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         quitRoom(roomId);
                                         dialog.dismiss();
                                     }
                                 })
-                                .setPositiveButton(getResources().getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
+                                .setPositiveButton(getResources().getString(R.string.rtc_dialog_ok), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
@@ -480,14 +563,14 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     } else if (userCount >= VIDEOMUTE_MUST) {
                         AlertDialog dialog = new AlertDialog.Builder(MainPageActivity.this)
                                 .setMessage(getResources().getString(R.string.join_room_audio_only_prompt))
-                                .setNegativeButton(getResources().getString(R.string.dialog_cancel), new DialogInterface.OnClickListener() {
+                                .setNegativeButton(getResources().getString(R.string.rtc_dialog_cancel), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         quitRoom(roomId);
                                         dialog.dismiss();
                                     }
                                 })
-                                .setPositiveButton(getResources().getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
+                                .setPositiveButton(getResources().getString(R.string.rtc_dialog_ok), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
@@ -544,13 +627,19 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         }
         String userId = rongRTCRoom.getLocalUser().getUserId();
         String userName = userNameEditText.getText().toString();
-        RoomInfoMessage roomInfoMessage = new RoomInfoMessage(userId, userName, joinMode, System.currentTimeMillis());
+        int remoteUserCount = 0;
+        if (rongRTCRoom.getRemoteUsers() != null) {
+            remoteUserCount = rongRTCRoom.getRemoteUsers().size();
+        }
+        intent.putExtra(CallActivity.EXTRA_IS_MASTER, remoteUserCount == 0);
+        RoomInfoMessage roomInfoMessage = new RoomInfoMessage(userId, userName, joinMode, System.currentTimeMillis(), remoteUserCount == 0);
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("userId", userId);
             jsonObject.put("userName", userName);
             jsonObject.put("joinMode", joinMode);
             jsonObject.put("joinTime", System.currentTimeMillis());
+            jsonObject.put("master", remoteUserCount == 0 ? 1 : 0);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -585,40 +674,55 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     private void updateCountry() {
         String json = SessionManager.getInstance(this).getString(UserUtils.COUNTRY);
         CountryInfo info;
-        if (TextUtils.isEmpty(json)){
+        if (TextUtils.isEmpty(json)) {
             info = CountryInfo.createDefault();
-        }else {
-            try{
+        } else {
+            try {
                 info = new Gson().fromJson(json, CountryInfo.class);
-            }catch (Exception e){
+            } catch (Exception e) {
                 info = CountryInfo.createDefault();
             }
         }
-        mTvCountry.setText(getString(R.string.select_country_hint)+" "+(Utils.isZhLanguage() ? info.zh : info.en));
-        mTvRegion.setText("+"+info.region);
+        mTvCountry.setText(getString(R.string.select_country_hint) + " " + (Utils.isZhLanguage() ? info.zh : info.en));
+        mTvRegion.setText("+" + info.region);
     }
 
     /**
-     * 使用小乔环境
+     * 使用小乔环境 或 私有云环境开始音视频
      */
     private void connectForXQ() {
-        String token = sp.getString("tokenXQ", "");
+        String token = SessionManager.getInstance(Utils.getContext()).getString(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
+        FinLog.i(TAG,"private_Cloud_tokne : "+token);
         if (!TextUtils.isEmpty(token)) {
             RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
                 @Override
                 public void onTokenIncorrect() {
-                    getTokenForXQ();
+                    FinLog.e(TAG, "onTokenIncorrect");
+                    if (TokenIncorrectMark) {
+                        postShowToast("Recapturing Token!");
+                        TokenIncorrectMark = false;
+                        getTokenForXQ();
+                    } else {
+                        LoadDialog.dismiss(MainPageActivity.this);
+                        postShowToast("Token不正确");
+                        TokenIncorrectMark = true;
+                    }
                 }
 
                 @Override
                 public void onSuccess(String s) {
+                    LoadDialog.dismiss(MainPageActivity.this);
                     FinLog.d(TAG, "IM  connectForXQ success ");
+                    TokenIncorrectMark = true;
                     connectToRoom();
                 }
 
                 @Override
                 public void onError(RongIMClient.ErrorCode errorCode) {
-                    Toast.makeText(MainPageActivity.this, "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
+                    LoadDialog.dismiss(MainPageActivity.this);
+                    TokenIncorrectMark = true;
+                    FinLog.e(TAG, "连接IM失败connect ErrorCode :" + errorCode.getValue());
+                    postShowToast("连接IM失败. ErrorCode: " + errorCode.getValue());
                 }
             });
         } else {
@@ -629,57 +733,65 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     private void getTokenForXQ(){
         StringBuilder params = new StringBuilder();
         params.append("userId=")
-                .append(edit_room_phone.getText().toString())
+                .append(edit_room_phone.getText().toString().trim() + (DeviceUtils.getDeviceId(Utils.getContext()).length() > 4 ?
+                        DeviceUtils.getDeviceId(Utils.getContext()).substring(0, 4) :
+                        DeviceUtils.getDeviceId(Utils.getContext())))
                 .append("&")
                 .append("name=")
                 .append(userNameEditText.getText().toString());
         long timestamp = System.currentTimeMillis();
         int nonce = (int) (Math.random()*10000);
-        String appSecret = "UfmrYyG1lpE";
         String signature = "";
         try {
-            signature = sha1(appSecret+nonce+timestamp);
+            signature = sha1(ServerUtils.APP_SECRET+nonce+timestamp);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+            LoadDialog.dismiss(MainPageActivity.this);
+            postShowToast("错误 :" +e.getMessage());
         }
+        FinLog.e(TAG,"API_SERVER: "+ServerUtils.API_SERVER + " ,  " + "signature :" +signature+" ,  params : "+params.toString());
         Request request = new Request.Builder()
-                .url("http://apixq.rongcloud.net/user/getToken.json")
+                .url(ServerUtils.API_SERVER+"/user/getToken.json")
                 .method(RequestMethod.POST)
                 .addHeader("Content-Type","application/x-www-form-urlencoded")
                 .addHeader("Timestamp", String.valueOf(timestamp))
                 .addHeader("Nonce", String.valueOf(nonce))
                 .addHeader("Signature",signature)
-                .addHeader("App-Key",UserUtils.APP_KEY)
+                .addHeader("App-Key",ServerUtils.APP_KEY)
                 .body(params.toString())
                 .build();
         HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
 
             @Override
             public void onResponse(String result) {
+                FinLog.e(TAG,"result :"+result);
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     if (jsonObject.optInt("code") == 200) {
-                        SharedPreferences.Editor editor = sp.edit();
-                        editor.putString("tokenXQ", jsonObject.optString("token"));
-                        editor.commit();
+                        SessionManager.getInstance(Utils.getContext()).put(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY, jsonObject.optString("token"));
                         connectForXQ();
                     }else{
-                        postShowToast("[getTokenForXQ] code not 200, code="+jsonObject.optInt("code"));
+                        postShowToast("code not 200, code="+jsonObject.optInt("code"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    postShowToast("请求错误: "+e.getMessage());
+                    FinLog.e(TAG,e.getMessage());
                 }
             }
 
             @Override
             public void onFailure(int errorCode) {
-                postShowToast("[getTokenForXQ] onFailed: "+errorCode);
+                LoadDialog.dismiss(MainPageActivity.this);
+                postShowToast("请求Token失败 onFailure: "+errorCode);
+                FinLog.e(TAG,"请求Token失败 errorCode:"+errorCode);
             }
 
             @Override
             public void onError(IOException exception) {
+                LoadDialog.dismiss(MainPageActivity.this);
                 exception.printStackTrace();
-                postShowToast("[getTokenForXQ] onError: "+exception.getMessage());
+                postShowToast("请求Token失败. exception: "+exception.getMessage());
             }
         });
     }
@@ -706,7 +818,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
             e.printStackTrace();
         }
         Request request = new Request.Builder()
-                .url(UserUtils.BASE_URL + UserUtils.URL_GET_TOKEN_NEW)
+                .url(UserUtils.getUrl(ServerUtils.getAppServer(),UserUtils.URL_GET_TOKEN_NEW))
                 .method(RequestMethod.POST)
                 .body(loginInfo.toString())
                 .build();
@@ -733,9 +845,9 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                                     public void onSuccess(String s) {
                                         FinLog.d(TAG, "IM  connectForXQ success in getTokenNew");
                                         LoadDialog.dismiss(MainPageActivity.this);
-                                        SharedPreferences.Editor editor = sp.edit();
-                                        editor.putString("tokenNew", token);
-                                        editor.commit();
+//                                        SharedPreferences.Editor editor = sp.edit();
+//                                        editor.putString("tokenNew", token);
+//                                        editor.commit();
                                     }
 
                                     @Override
@@ -820,9 +932,8 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
     private void initSDK() {
         mStatus = STATE_INIT;
-        RongIMClient.setServerInfo(UserUtils.NAV_SERVER,UserUtils.FILE_SERVER );
-        RongIMClient.init(getApplication(), UserUtils.APP_KEY, false);
-
+        RongIMClient.setServerInfo(ServerUtils.getNavServer(), UserUtils.FILE_SERVER);
+        RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
     }
 
     /**
@@ -836,87 +947,63 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         if (TextUtils.isEmpty(fpsStr)) {
             fpsStr = "15";
         }
-        if (CR_144x256.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_144P_15f;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_144P_24f;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_144P_30f;
-            }
-        } else if (CR_240x320.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_240P_15f;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_240P_24f;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_240P_30f;
-            }
-        } else if (CR_368x480.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_15f_1;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_24f_1;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_30f_1;
-            }
-        } else if (CR_368x640.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_15f_2;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_24f_2;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_30f_2;
-            }
-        } else if (CR_480x640.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_15f_1;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_24f_1;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_30f_1;
-            }
-        } else if (CR_480x720.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_15f_2;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_24f_2;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_30f_2;
-            }
-        } else if (CR_720x1280.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_720P_15f;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_720P_24f;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_720P_30f;
-            }
-        } else if (CR_1080x1920.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_1080P_15f;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_1080P_24f;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_1080P_30f;
-            }
-        } else if (CR_720x1280.equals(resolutionStr)) {
-            if ("15".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_720P_15f;
-            } else if ("24".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_720P_24f;
-            } else if ("30".equals(fpsStr)) {
-                profile = RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_720P_30f;
-            }
-        }
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("VD_");
+        stringBuffer.append(resolutionStr);
+        stringBuffer.append("_");
+        stringBuffer.append(fpsStr);
+        stringBuffer.append("f");//VD_368x640_30f
+        profile = RongRTCConfig.RongRTCVideoProfile.getRongRTCVideoProfile(stringBuffer.toString());
         return profile;
     }
 
-    private void startVerifyActivity(String phoneNumber){
+    private void startVerifyActivity(String phoneNumber) {
         SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, phoneNumber);
         SessionManager.getInstance(Utils.getContext()).put(isVideoMute_key, isVideoMute);
         SessionManager.getInstance(Utils.getContext()).put(isObserver_key, isObserver);
         Intent intent = new Intent(MainPageActivity.this, VerifyActivity.class);
-        startActivityForResult(intent,REQUEST_CODE_VERIFY);
+        startActivityForResult(intent, REQUEST_CODE_VERIFY);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onBusComplaint(String val) {
+        if (val.equals("ServerConfigActivity")) {
+            RongIMClient.getInstance().switchAppKey(ServerUtils.getAppKey());
+            initSDK();
+            showToast(getString(R.string.update_configuration_successful));
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onKickEvent(KickEvent event) {
+        SessionManager.getInstance(this).put("KICK_TIME", System.currentTimeMillis());
+        SessionManager.getInstance(this).put("KICK_ROOM_ID", event.getRoomId());
+        final PromptDialog dialog = PromptDialog.newInstance(this, getString(R.string.member_operate_kicked));
+        dialog.setPromptButtonClickedListener(new PromptDialog.OnPromptButtonClickedListener() {
+            @Override
+            public void onPositiveButtonClicked() {
+
+            }
+
+            @Override
+            public void onNegativeButtonClicked() {
+
+            }
+        });
+        dialog.disableCancel();
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            LoadDialog.dismiss(MainPageActivity.this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        EventBus.getDefault().removeStickyEvent("ConfigActivity");
+        EventBus.getDefault().unregister(this);
     }
 }

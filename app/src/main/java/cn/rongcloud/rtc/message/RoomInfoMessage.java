@@ -27,12 +27,14 @@ public class RoomInfoMessage extends MessageContent {
     private String userName;
     private @JoinMode int joinMode;
     private long timeStamp;
+    private boolean master;
 
-    public RoomInfoMessage(String userId, String userName, @JoinMode int joinMode, long timeStamp) {
+    public RoomInfoMessage(String userId, String userName, @JoinMode int joinMode, long timeStamp, boolean master) {
         this.userId = userId;
         this.userName = userName;
         this.joinMode = joinMode;
         this.timeStamp = timeStamp;
+        this.master = master;
     }
 
     public void setUserId(String userId) {
@@ -67,6 +69,14 @@ public class RoomInfoMessage extends MessageContent {
         return timeStamp;
     }
 
+    public boolean isMaster() {
+        return master;
+    }
+
+    public void setMaster(boolean master) {
+        this.master = master;
+    }
+
     public RoomInfoMessage(byte[] data) {
         try {
             JSONObject jsonObject = new JSONObject(new String(data));
@@ -75,6 +85,7 @@ public class RoomInfoMessage extends MessageContent {
             userName = valueJson.getString("userName");
             joinMode = valueJson.getInt("joinMode");
             timeStamp = valueJson.getLong("joinTime");
+            master = valueJson.optInt("master") == 1;
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -90,6 +101,7 @@ public class RoomInfoMessage extends MessageContent {
             valueObject.put("userName", userName);
             valueObject.put("joinMode", joinMode);
             valueObject.put("joinTime", timeStamp);
+            valueObject.put("master", master ? 1 : 0);
             jsonObject.put("infoValue", valueObject);
             return jsonObject.toString().getBytes();
         } catch (JSONException e) {
@@ -109,6 +121,7 @@ public class RoomInfoMessage extends MessageContent {
         dest.writeString(userName);
         dest.writeInt(joinMode);
         dest.writeLong(timeStamp);
+        dest.writeInt(master ? 1 : 0);
     }
 
     public RoomInfoMessage(Parcel parcel) {
@@ -116,6 +129,7 @@ public class RoomInfoMessage extends MessageContent {
         userName = parcel.readString();
         joinMode = parcel.readInt();
         timeStamp = parcel.readLong();
+        master = parcel.readInt() == 1;
     }
 
     public static final Creator<RoomInfoMessage> CREATOR = new Creator<RoomInfoMessage>() {

@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
+import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
 import cn.rongcloud.rtc.entity.CountryInfo;
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
@@ -33,6 +35,7 @@ import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.FinLog;
 import io.rong.imlib.common.DeviceUtils;
 
+import static cn.rongcloud.rtc.device.privatecloud.ServerUtils.getAppServer;
 import static cn.rongcloud.rtc.util.UserUtils.*;
 
 public class VerifyActivity extends RongRTCBaseActivity implements DownTimerListener {
@@ -49,6 +52,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
     private TextView mTvCountry;
     private TextView mTvRegion;
     private CountryInfo mCountryInfo;
+    private ImageView img_logo;
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -165,6 +169,14 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
         mTvCountry = (TextView) findViewById(R.id.tv_country);
         mTvCountry.setOnClickListener(onClickListener);
         updateCountry();
+        img_logo = (ImageView)findViewById(R.id.img_logo);
+        if (img_logo != null) {
+            if (ServerUtils.usePrivateCloud()) {
+                img_logo.setImageResource(R.drawable.ic_launcher_privatecloud);
+            } else {
+                img_logo.setImageResource(R.drawable.ic_launcher);
+            }
+        }
     }
 
     @Override
@@ -229,7 +241,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             return;
         }
         Request.Builder request = new Request.Builder();
-        request.url(UserUtils.BASE_URL + UserUtils.URL_SEND_CODE);
+        request.url(UserUtils.getUrl(getAppServer(),UserUtils.URL_SEND_CODE));
         request.method(RequestMethod.POST);
         request.body(json);
         HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {
@@ -290,7 +302,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             return;
         }
         Request.Builder request = new Request.Builder();
-        request.url(UserUtils.BASE_URL + UserUtils.URL_VERIFY_CODE);
+        request.url(UserUtils.getUrl(getAppServer(), UserUtils.URL_VERIFY_CODE));
         request.method(RequestMethod.POST);
         request.body(json);
         HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {

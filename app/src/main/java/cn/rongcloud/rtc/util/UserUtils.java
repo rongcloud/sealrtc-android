@@ -24,6 +24,7 @@ public static final String USERNAME_KEY = "USER_NAME";
     public static final String URL_LOGIN = "user/login";
     public static final String URL_GET_TOKEN = "user/get_token";
     public static final String URL_GET_TOKEN_NEW = "user/get_token_new";
+
     public static final String APP_KEY = "z3v5yqkbv8v30";
     public static final String NAV_SERVER = "nav.cn.ronghub.com";
     public static final String FILE_SERVER = "up.qbox.me";
@@ -40,6 +41,12 @@ public static final String USERNAME_KEY = "USER_NAME";
     private static final String NAMESIZE = "请确保名字长度不超过12个字节！";
 
     public static final String URL_GET_COUNTRY = "http://api.sealtalk.im/user/regionlist";
+
+    /**
+     * 0:公有云
+     * 1:私有云
+     */
+    public static String USE_PRIVATE_CLOUD = "0";
 
     public static boolean isNumber(String string) {
         Pattern p = Pattern.compile("[0-9]*");
@@ -286,5 +293,12 @@ public static final String USERNAME_KEY = "USER_NAME";
             name = "ERROR";
         }
         return name;
+    }
+
+    public static String getUrl(String url, String command) {
+        if (!url.endsWith("/")) {
+            url = url + "/";
+        }
+        return url + command;
     }
 }

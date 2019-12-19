@@ -178,18 +178,21 @@ public class VideoViewManager {
             if (rongRTCRoom != null) {
                 final String lastId = lastSelectedRender.userId;
                 RongRTCRemoteUser remoteUser = rongRTCRoom.getRemoteUser(lastId);
-                //todo 切换小流
-                remoteUser.exchangeStreamToTinyStream(new RongRTCResultUICallBack() { //切换成小流
-                    @Override
-                    public void onUiSuccess() {
-                        FinLog.v(TAG,lastId+" exchangeStreamToTinyStream success !");
-                    }
+                if (remoteUser != null) {
+                    remoteUser.exchangeStreamToTinyStream(new RongRTCResultUICallBack() { //切换成小流
+                        @Override
+                        public void onUiSuccess() {
+                            FinLog.v(TAG, lastId + " exchangeStreamToTinyStream success !");
+                        }
 
-                    @Override
-                    public void onUiFailed(RTCErrorCode errorCode) {
-                        FinLog.e(TAG,lastId+" exchangeStreamToTinyStream failed ! errorCode: "+errorCode);
-                    }
-                });
+                        @Override
+                        public void onUiFailed(RTCErrorCode errorCode) {
+                            FinLog.e(TAG, lastId + " exchangeStreamToTinyStream failed ! errorCode: " + errorCode);
+                        }
+                    });
+                } else {
+                    FinLog.v(TAG, "not get the remote user = " + lastId);
+                }
             }
         }
 
@@ -208,18 +211,21 @@ public class VideoViewManager {
             if (rongRTCRoom != null) {
                 final String targetId = selectedRender.userId;
                 RongRTCRemoteUser remoteUser = rongRTCRoom.getRemoteUser(targetId);
-                //todo 切换大流
-                remoteUser.exchangeStreamToNormalStream(new RongRTCResultUICallBack() { //切换大流
-                    @Override
-                    public void onUiSuccess() {
-                        FinLog.v(TAG,targetId+" exchangeStreamToNormalStream success !");
-                    }
+                if (remoteUser != null) {
+                    remoteUser.exchangeStreamToNormalStream(new RongRTCResultUICallBack() { //切换大流
+                        @Override
+                        public void onUiSuccess() {
+                            FinLog.v(TAG, targetId + " exchangeStreamToNormalStream success !");
+                        }
 
-                    @Override
-                    public void onUiFailed(RTCErrorCode errorCode) {
-                        FinLog.e(TAG,targetId+" exchangeStreamToNormalStream failed ! errorCode: "+errorCode);
-                    }
-                });
+                        @Override
+                        public void onUiFailed(RTCErrorCode errorCode) {
+                            FinLog.e(TAG, targetId + " exchangeStreamToNormalStream failed ! errorCode: " + errorCode);
+                        }
+                    });
+                } else {
+                    FinLog.v(TAG, "not get the remote user = " + targetId);
+                }
             }
         }
         holderBigContainer.addView(selectedRender, screenWidth, screenHeight);
@@ -401,12 +407,12 @@ public class VideoViewManager {
 
         render.setZOrderOnTop(true);
         render.setZOrderMediaOverlay(true);
-        render.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+        render.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
 
         renderHolder.coverView.setRongRTCVideoView(render);
         renderHolder.init(talkType, isSelf);
 
-        if (talkType != RongRTCTalkTypeUtil.C_CAMERA && talkType != RongRTCTalkTypeUtil.C_CM) {
+        if (!TextUtils.equals(talkType,RongRTCTalkTypeUtil.C_CAMERA) && !TextUtils.equals(talkType,RongRTCTalkTypeUtil.C_CM)) {
             renderHolder.coverView.showBlinkVideoView();
         }
 
@@ -443,7 +449,7 @@ public class VideoViewManager {
         renderHolder.init(talkType, isSelf);
         renderHolder.coverView.setRongRTCVideoView(render);
 
-        if (isSelf && talkType == RongRTCTalkTypeUtil.C_CAMERA) {
+        if (isSelf && TextUtils.equals(talkType ,RongRTCTalkTypeUtil.C_CAMERA)) {
             renderHolder.coverView.showUserHeader();
         } else {
             renderHolder.coverView.showBlinkVideoView();
@@ -861,7 +867,7 @@ public class VideoViewManager {
     }
 
     private boolean userIDEndWithScreenSharing(String userID) {
-        return userID.endsWith(SCREEN_SHARING);
+        return !TextUtils.isEmpty(userID) && userID.endsWith(SCREEN_SHARING);
     }
 
     public void setRongRTCRoom(RongRTCRoom rongRTCRoom) {

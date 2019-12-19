@@ -42,7 +42,8 @@ import static java.lang.Math.abs;
 /**
  * Created by wangw on 2019/4/29.
  */
-public abstract class AbstractUsbCameraCapturer implements USBMonitor.OnDeviceConnectListener, SurfaceTextureHelper.OnTextureFrameAvailableListener {
+public abstract class AbstractUsbCameraCapturer implements USBMonitor.OnDeviceConnectListener//, SurfaceTextureHelper.OnTextureFrameAvailableListener
+{
 
     public static final String TAG = "AbstractUsbCameraCapturer";
     public static final int STATE_IDLE = 0;
@@ -229,7 +230,7 @@ public abstract class AbstractUsbCameraCapturer implements USBMonitor.OnDeviceCo
                         mSurfaceTexture.updateTexImage();
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, "updateTexImage Failed: "+e.getMessage() );
+                    FinLog.e(TAG, "updateTexImage Failed: "+e.getMessage() );
                     e.printStackTrace();
                 }
 
@@ -404,7 +405,7 @@ public abstract class AbstractUsbCameraCapturer implements USBMonitor.OnDeviceCo
         return mState.get();
     }
 
-    @Override
+//    @Override
     public final void onTextureFrameAvailable(int oesTextureId, float[] transformMatrix, long timestampNs) {
         onTextureFrameAvailable(oesTextureId,mSelectWidth,mSelectHeight,transformMatrix,timestampNs);
     }

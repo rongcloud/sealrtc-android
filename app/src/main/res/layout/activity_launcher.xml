@@ -12,9 +12,9 @@
         android:layout_marginTop="160dp"
         android:layout_centerHorizontal="true">
         <ImageView
+            android:id="@+id/iv_logo"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:src="@drawable/ic_launcher"
             android:scaleType="centerCrop"
             android:contentDescription="@string/app_name"
             android:layout_centerHorizontal="true"/>

@@ -72,6 +72,14 @@ public class WaterMarkFilter {
 
         GLES20.glViewport(0,0,width,height);
         mFrame.onDraw(textureID);
+        onDrawWater(width, height, isFrontCamera);
+        GLES20.glDisable(GLES20.GL_BLEND);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+    }
+
+    private void onDrawWater(int width, int height, boolean isFrontCamera) {
+        if (isFrontCamera)
+            return;
         if (mDisplay != null && mDisplay.getRotation() != mDisplayRotation){
             mDisplayRotation = mDisplay.getRotation();
             mWaterSign.angleChange(mDisplayRotation,isFrontCamera);
@@ -95,7 +103,6 @@ public class WaterMarkFilter {
 
         GLES20.glViewport(mX,mY, mWaterWidth, mWaterHeight);
         mWaterSign.onDraw(mWaterTexId);
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
     }
 
     public int getTextureID() {

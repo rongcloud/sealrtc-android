@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Simple container that confines the children to a subrectangle specified as percentage shape_corner of
+ * Simple container that confines the children to a subrectangle specified as percentage values of
  * the container size. The children are centered horizontally and vertically inside the confined
  * space.
  */
@@ -74,7 +74,7 @@ public class PercentFrameLayout extends ViewGroup {
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     final int width = right - left;
     final int height = bottom - top;
-    // Sub-rectangle specified by percentage shape_corner.
+    // Sub-rectangle specified by percentage values.
     final int subWidth = width * widthPercent / 100;
     final int subHeight = height * heightPercent / 100;
     final int subLeft = left + width * xPercent / 100;

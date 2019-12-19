@@ -14,6 +14,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import cn.rongcloud.rtc.CenterManager;
 import cn.rongcloud.rtc.VideoViewManager;
 import cn.rongcloud.rtc.utils.FinLog;
@@ -78,7 +80,7 @@ public class CoverView extends RelativeLayout {
 //            textPaint.setFakeBoldText(true);
             iv_Header = (ImageView) findViewById(R.id.iv_bg);
             iv_Audiolevel = (ImageView) findViewById(R.id.iv_audiolevel);
-            iv_Audiolevel.setImageResource(R.drawable.sound);
+            Glide.with(mContext).asGif().load(R.drawable.sound).into(iv_Audiolevel);
 
             mGroupDrawable = (GradientDrawable) iv_Header.getBackground();
 

@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/IMLib/IMLib.iml" filepath="$PROJECT_DIR$/IMLib/IMLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sealrtc-android-demo.iml" filepath="$PROJECT_DIR$/sealrtc-android-demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sealrtc-android.iml" filepath="$PROJECT_DIR$/sealrtc-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/sealrtc-android-app.iml" filepath="$PROJECT_DIR$/app/sealrtc-android-app.iml" />
     </modules>
   </component>
 </project>

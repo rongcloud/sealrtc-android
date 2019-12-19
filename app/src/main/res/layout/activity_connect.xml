@@ -32,8 +32,7 @@
                     android:layout_centerHorizontal="true"
                     android:layout_marginBottom="16dp"
                     android:contentDescription="@string/app_name"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_launcher" />
+                    android:scaleType="centerCrop" />
 
                 <ImageView
                     android:id="@+id/connect_settings"

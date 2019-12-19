@@ -3,10 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="cn.rongcloud.rtc">
 
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="23"
-        tools:overrideLibrary="com.herewhite.sdk" />
+    <uses-sdk tools:overrideLibrary="com.herewhite.sdk" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -27,6 +24,7 @@
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
     <application
         android:name=".RongRTCApplication"
@@ -37,7 +35,7 @@
         tools:replace="android:allowBackup">
         <activity
             android:name=".MediaServerActivity"
-            android:resizeableActivity="true"/>
+            android:resizeableActivity="true" />
         <activity
             android:name=".util.LauncherActivity"
             android:label="@string/app_name"
@@ -79,14 +77,42 @@
             android:name=".VerifyActivity"
             android:label="@string/app_name"
             android:resizeableActivity="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
         <activity
             android:name=".CountryListActivity"
             android:label="@string/app_name"
             android:resizeableActivity="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
+
+        <service android:name=".updateapk.UpdateService"></service>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="cn.rongcloud.rtc.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths">
+
+            </meta-data>
+        </provider>
+
+
+        <activity android:name="cn.rongcloud.rtc.device.DeviceMainActivity">
+            <intent-filter>
+                <action android:name="CN.RONGCLOUD.RTC.DEVICE.OEMMAINACTIVITY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="cn.rongcloud.rtc.device.CodecActivity"></activity>
+        <activity android:name="cn.rongcloud.rtc.device.CodecListActivity" />
+        <activity android:name="cn.rongcloud.rtc.device.CodecColorFormatActivity" />
+        <activity android:name="cn.rongcloud.rtc.device.DeviceBaseActivity" />
+        <activity android:name="cn.rongcloud.rtc.device.camrea.DeviceCameraActivity"></activity>
+        <activity android:name="cn.rongcloud.rtc.device.privatecloud.ServerConfigActivity"></activity>
     </application>
 
 </manifest>

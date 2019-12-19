@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/blink_grey"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/menu_custom_audio_volume_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24dp"
+        android:textColor="@color/blink_black"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:text="@string/volume_settings"/>
+    <LinearLayout
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_below="@+id/menu_custom_audio_volume_title"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/menu_custom_audio_volume_down"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:layout_height="wrap_content"
+            android:text="-"/>
+        <TextView
+            android:id="@+id/menu_custom_audio_volume_index"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="20dp"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/blink_black"
+            android:text="5"/>
+
+        <Button
+            android:id="@+id/menu_custom_audio_volume_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:textSize="24sp"
+            android:text="+"/>
+    </LinearLayout>
+
+</RelativeLayout>

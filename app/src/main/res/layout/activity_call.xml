@@ -103,14 +103,14 @@
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/call_whiteboard_container"
+    <com.herewhite.sdk.WhiteBroadView
+        android:id="@+id/call_whiteboard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="30dp"
-        android:background="@color/colorWhite"
-        android:orientation="vertical"
-        android:visibility="gone"></LinearLayout>
+        android:visibility="gone">
+
+    </com.herewhite.sdk.WhiteBroadView>
 
     <Button
         android:id="@+id/white_board_close"
@@ -143,9 +143,9 @@
         android:background="@drawable/selector_white_board_action_next"
         android:visibility="gone" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/call_more_container"
-        android:layout_width="36dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
@@ -156,6 +156,7 @@
             android:id="@+id/btn_modeSelect"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_alignParentRight="true"
             android:background="@drawable/selector_checkbox_request_changevideomode"
             android:button="@null" />
 
@@ -163,6 +164,8 @@
             android:id="@+id/menu_request_to_normal"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/btn_modeSelect"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_request_to_normal"
             android:button="@null"
@@ -176,6 +179,21 @@
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_custom_audio_stream"
             android:button="@null"
+            android:layout_below="@+id/menu_request_to_normal"
+            android:layout_alignParentRight="true"
+            android:checked="false" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/menu_custom_audio_volume"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/checkbox_spacing"
+            android:background="@drawable/selector_checkbox_custom_audio_volume"
+            android:button="@null"
+            android:visibility="gone"
+            android:layout_toLeftOf="@+id/menu_custom_audio"
+            android:layout_marginRight="10dp"
+            android:layout_below="@+id/menu_request_to_normal"
             android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -184,7 +202,9 @@
             android:layout_height="36dp"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_custom_stream"
+            android:layout_alignParentRight="true"
             android:button="@null"
+            android:layout_below="@+id/menu_custom_audio"
             android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -194,6 +214,8 @@
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_switch_camera"
             android:button="@null"
+            android:layout_below="@+id/menu_custom_stream"
+            android:layout_alignParentRight="true"
             android:checked="false" />
 
 
@@ -204,6 +226,8 @@
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_capture"
             android:button="@null"
+            android:layout_below="@+id/menu_switch"
+            android:layout_alignParentRight="true"
             android:checked="false" />
 
         <ImageButton
@@ -213,6 +237,8 @@
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/img_members"
             android:button="@null"
+            android:layout_below="@+id/menu_mute_speaker"
+            android:layout_alignParentRight="true"
             android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -223,6 +249,8 @@
             android:background="@drawable/selector_checkbox_whiteboard"
             android:button="@null"
             android:checked="false"
+            android:layout_below="@+id/menu_members"
+            android:layout_alignParentRight="true"
             android:visibility="visible" />
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -233,6 +261,8 @@
             android:background="@drawable/selector_checkbox_change_up"
             android:button="@null"
             android:checked="false"
+            android:layout_below="@+id/menu_whiteboard"
+            android:layout_alignParentRight="true"
             android:visibility="gone" />
 
 
@@ -244,8 +274,10 @@
             android:background="@drawable/selector_checkbox_change_down"
             android:button="@null"
             android:checked="false"
+            android:layout_below="@+id/menu_up"
+            android:layout_alignParentRight="true"
             android:visibility="gone" />
-    </LinearLayout>
+    </RelativeLayout>
 
     <include
         layout="@layout/item_white_board_action"

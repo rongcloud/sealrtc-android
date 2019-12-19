@@ -29,4 +29,6 @@
     <color name="white_board_pencil_color_black">#000000</color>
     <color name="white_board_pencil_color_purple">#800080</color>
     <color name="white_board_pencil_color_gray">#808080</color>
+    <color name="color_normal_text">#262626</color>
+    <color name="color_divider_line">#E5E5E5</color>
 </resources>

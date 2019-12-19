@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -16,10 +17,10 @@ import android.widget.Toast;
 
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
+import cn.rongcloud.rtc.device.privatecloud.ServerConfigActivity;
+import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
 import cn.rongcloud.rtc.util.AppRTCUtils;
+import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.utils.FinLog;
 import cn.rongcloud.rtc.entity.CMPAddress;
 import cn.rongcloud.rtc.util.ButtentSolp;
@@ -28,8 +29,9 @@ import cn.rongcloud.rtc.util.Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by suancai on 2016/11/4.
@@ -59,19 +61,25 @@ public class SettingActivity extends RongRTCBaseActivity {
     public static final String IS_AUTO_TEST="AUTOTEST";
     /**水印*/
     public static final String IS_WATER="show_water_mark";
+    public static final String IS_STEREO="is_stereo";
+    public static final String IS_AUDIO_PROCESS ="is_audio_process";
+    public static final String AUDIO_BITRATE ="audio_bitrate";
+    public static final String AUDIO_AGC_LIMITER = "agc_limiter";
+    public static final String AUDIO_AGC_TARGET_DBOV = "agc_target_dbov";
+    public static final String AUDIO_AGC_COMPRESSION = "agc_compression";
+    public static final String AUDIO__NOISE_SUPPRESSION = "noise_suppression";
+    public static final String AUDIO__NOISE_SUPPRESSION_LEVEL = "noise_suppression_level";
+    public static final String AUDIO_ECHO_CANCEL = "echo_cancel";
+    public static final String AUDIO_PREAMPLIFIER = "preamplifier";
+    public static final String AUDIO_PREAMPLIFIER_LEVEL = "preamplifier_level";
 
-
-    public static final String RESOLUTION_LOW = "240x320";
-    public static final String RESOLUTION_MEDIUM = "480x640";
-    public static final String RESOLUTION_HIGH = "720x1280";
-    public static final String RESOLUTION_SUPER = "1080x1920(仅部分手机支持)";
-    private String[] list_resolution = new String[]{RESOLUTION_LOW, RESOLUTION_MEDIUM, RESOLUTION_HIGH};
+    public static final String VD_480x640 = "480x640";
     private String[] list_fps = new String[]{"15", "24", "30"};
-    private String[] list_bitrate_max = new String[]{};
-    private String[] list_bitrate_min = new String[]{};
+    private String[] list_resolution;
+    private String[] list_bitrate = new String[]{};
     private String[] list_connectionMode = new String[]{"Relay", "P2P"};
     private String[] list_format = new String[]{"H264", "VP8", "VP9"};
-    private String[] list_observer,list_gpuImageFilter,list_connectionType,list_streamTiny,list_autotest,list_water;
+    private String[] list_observer,list_gpuImageFilter,list_connectionType,list_streamTiny,list_autotest,list_water, list_stereo,list_audio_process;
 
     private int defaultBitrateMinIndex = 0;
     private int defaultBitrateMaxIndex = 0;
@@ -89,13 +97,16 @@ public class SettingActivity extends RongRTCBaseActivity {
     private static final int REQUEST_CODE_IS_STREAM_TINY = 22;
     private static final int REQUEST_CODE_IS_AUTO_TEST = 23;
     private static final int REQUEST_CODE_IS_WATER = 24;
+    private static final int REQUEST_CODE_IS_STEREO = 25;
+    private static final int REQUEST_CODE_IS_AUDIO_PROCESS = 26;
 
     private int tapStep = 0;
     private long lastClickTime = 0;
     private TextView settingOptionText1, settingOptionText2, settingOptionText3, settingOptionText4, settingOptionText5,
             settingOptionText6, settingOptionText7, settingOptionText8, settingOptionSRTP, settingOptionConnectionType,
-            setting_option_streamTiny,setting_autotest,setting_water, settingOptionMediaUrl;
+            setting_option_streamTiny,setting_autotest,setting_water,settingOptionMediaUrl,setting_stereo,setting_audio_process;
     private LinearLayout settings_Modify;
+    private LinearLayout linear_connection_settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,13 +114,106 @@ public class SettingActivity extends RongRTCBaseActivity {
 
         setContentView(R.layout.activity_settings);
 
+        initVideoProfile();
         initViews();
 
         setupListeners();
 
     }
 
+    private void initVideoProfile() {
+        List<String> videoProfileList = new ArrayList<>();
+        StringBuffer stringBuffer = new StringBuffer();
+
+        if (ServerUtils.usePrivateCloud()) {//私有云显示所有分辨率
+            for (RongRTCConfig.RongRTCVideoProfile profile : RongRTCConfig.RongRTCVideoProfile.values()) {
+                stringBuffer.setLength(0);
+                if (profile.getVideoWidth() != 0) {
+                    stringBuffer.append(profile.getVideoWidth());
+                    stringBuffer.append("x");
+                    stringBuffer.append(profile.getVideoHeight());
+                    if (!videoProfileList.contains(stringBuffer.toString())) {
+                        videoProfileList.add(stringBuffer.toString());
+                    }
+                }
+            }
+        } else {
+            for (VideoProfile profile : VideoProfile.values()) {
+                stringBuffer.setLength(0);
+                if (profile.getVideoWidth() != 0) {
+                    stringBuffer.append(profile.getVideoWidth());
+                    stringBuffer.append("x");
+                    stringBuffer.append(profile.getVideoHeight());
+                    if (!videoProfileList.contains(stringBuffer.toString())) {
+                        videoProfileList.add(stringBuffer.toString());
+                    }
+                }
+            }
+        }
+
+        list_resolution = new String[videoProfileList.size()];
+        videoProfileList.toArray(list_resolution);
+    }
+
+    public enum VideoProfile {
+        /**
+         * 分辨率:240x320,  帧率:15
+         */
+        RONGRTC_VIDEO_PROFILE_240P_15f(240, 320, 15,"VD_240x320_15f"),
+
+        /**
+         * 分辨率:480x640,  帧率:15
+         */
+        RONGRTC_VIDEO_PROFILE_480P_15f_1(480, 640, 15,"VD_480x640_15f"),
+
+        /**
+         * 分辨率:720x1280,  帧率:15
+         */
+        RONGRTC_VIDEO_PROFILE_720P_15f(720, 1280, 15,"VD_720x1280_15f");
+        private int videoWidth;
+        private int videoHeight;
+        private int videoFps;
+        private String lable;
+
+        VideoProfile(int videoWidth, int videoHeight, int videoFps,String lable) {
+            this.videoWidth = videoWidth;
+            this.videoHeight = videoHeight;
+            this.videoFps = videoFps;
+            this.lable=lable;
+        }
+
+        public String getLable() {
+            return lable;
+        }
+
+        public int getVideoHeight() {
+            return videoHeight;
+        }
+
+        public int getVideoFps() {
+            return videoFps;
+        }
+
+        public int getVideoWidth() {
+            return videoWidth;
+        }
+
+        public static VideoProfile getRongRTCVideoProfile(String lable){
+            for (VideoProfile profile:VideoProfile.values()){
+                if(profile.lable.equals(lable)){
+                    return profile;
+                }
+            }
+            return null;
+        }
+    }
+
+
     private void initViews() {
+        linear_connection_settings = (LinearLayout) findViewById(R.id.linear_connection_settings);
+        if (linear_connection_settings != null) {
+            linear_connection_settings.setVisibility(ServerUtils.usePrivateCloud() ? View.VISIBLE : View.GONE);
+        }
         settings_Modify = (LinearLayout) findViewById(R.id.settings_Modify);
 
         list_observer = new String[]{getResources().getString(R.string.settings_text_observer_no), getResources().getString(R.string.settings_text_observer_yes)};
@@ -131,10 +235,18 @@ public class SettingActivity extends RongRTCBaseActivity {
         setting_water = (TextView) findViewById(R.id.tv_setting_option_water);
         setting_water.setText(SessionManager.getInstance(this).getBoolean(IS_WATER) ? list_water[1] : list_water[0]);
 
+        list_stereo= new String[]{getResources().getString(R.string.settings_text_MediaStreamTiny_no), getResources().getString(R.string.settings_text_MediaStreamTiny_yes)};
+        setting_stereo = (TextView) findViewById(R.id.tv_setting_option_stereo);
+        setting_stereo.setText(SessionManager.getInstance(this).getBoolean(IS_STEREO) ? list_stereo[1] : list_stereo[0]);
+
+        list_audio_process= new String[]{getResources().getString(R.string.settings_text_MediaStreamTiny_no), getResources().getString(R.string.settings_text_MediaStreamTiny_yes)};
+        setting_audio_process = (TextView) findViewById(R.id.tv_setting_option_audio_process);
+        setting_audio_process.setText(SessionManager.getInstance(this).getBoolean(IS_AUDIO_PROCESS) ? list_audio_process[1] : list_audio_process[0]);
+
         settingOptionText1 = ((TextView) findViewById(R.id.setting_option_1_txt));
         String resolution = SessionManager.getInstance(this).getString(RESOLUTION);
         if (TextUtils.isEmpty(resolution))
-            resolution = SessionManager.getInstance(this).put(RESOLUTION, list_resolution[1]);
+            resolution = SessionManager.getInstance(this).put(RESOLUTION, VD_480x640);
         settingOptionText1.setText(resolution);
         reInitBitrates(settingOptionText1.getText().toString());
 
@@ -147,7 +259,7 @@ public class SettingActivity extends RongRTCBaseActivity {
         settingOptionText3 = ((TextView) findViewById(R.id.setting_option_3_txt));
         String biterate = SessionManager.getInstance(this).getString(BIT_RATE_MAX);
         if (TextUtils.isEmpty(biterate))
-            biterate = SessionManager.getInstance(this).put(BIT_RATE_MAX, list_bitrate_max[defaultBitrateMaxIndex]);
+            biterate = SessionManager.getInstance(this).put(BIT_RATE_MAX, list_bitrate[defaultBitrateMaxIndex]);
         settingOptionText3.setText(biterate);
 
         settingOptionText4 = ((TextView) findViewById(R.id.setting_option_4_txt));
@@ -165,7 +277,7 @@ public class SettingActivity extends RongRTCBaseActivity {
         settingOptionText6 = ((TextView) findViewById(R.id.setting_option_6_txt));
         String biterateMin = SessionManager.getInstance(this).getString(BIT_RATE_MIN);
         if (TextUtils.isEmpty(biterateMin))
-            biterateMin = SessionManager.getInstance(this).put(BIT_RATE_MIN, list_bitrate_min[defaultBitrateMinIndex]);
+            biterateMin = SessionManager.getInstance(this).put(BIT_RATE_MIN, list_bitrate[defaultBitrateMinIndex]);
         settingOptionText6.setText(biterateMin);
 
         settingOptionText7 = (TextView) findViewById(R.id.setting_option_7_txt);
@@ -192,6 +304,10 @@ public class SettingActivity extends RongRTCBaseActivity {
         settingOptionConnectionType.setText(list_connectionType[isQuic ? 0 : 1]);
 
         settingOptionMediaUrl = (TextView) findViewById(R.id.tv_setting_option_media_url);
+
+//        if (BuildConfig.DEBUG){
+//            findViewById(R.id.setting_layout_mediaserver).setVisibility(View.VISIBLE);
+//        }
     }
 
     @Override
@@ -206,17 +322,75 @@ public class SettingActivity extends RongRTCBaseActivity {
     private void setupListeners() {
         findViewById(R.id.setting_option_1).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_resolution, list_resolution, REQUEST_CODE_RESOLUTION));
         findViewById(R.id.setting_option_2).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_fps, list_fps, REQUEST_CODE_FPS));
-        findViewById(R.id.setting_option_3).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_rate, list_bitrate_max, REQUEST_CODE_BITRATE_MAX));
+        findViewById(R.id.setting_option_3).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_rate, list_bitrate, REQUEST_CODE_BITRATE_MAX));
         findViewById(R.id.setting_option_4).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_connection_mode, list_connectionMode, REQUEST_CODE_MODE));
         findViewById(R.id.setting_option_5).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_coding_mode, list_format, REQUEST_CODE_FORMAT));
-        findViewById(R.id.setting_option_6).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_min_rate, list_bitrate_min, REQUEST_CODE_BITRATE_MIN));
+        findViewById(R.id.setting_option_6).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_min_rate, list_bitrate, REQUEST_CODE_BITRATE_MIN));
         findViewById(R.id.setting_option_7).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_observer, list_observer, REQUEST_CODE_IS_OBSERVER));
         findViewById(R.id.setting_option_8).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_gpufliter, list_gpuImageFilter, REQUEST_CODE_IS_GPUIMAGEFILTER));
         findViewById(R.id.setting_option_9).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_srtp, list_gpuImageFilter, REQUEST_CODE_IS_SRTP));
         findViewById(R.id.setting_option_connectiontype).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_connection, list_connectionType, REQUEST_CODE_IS_CONNECTIONTYPE));
+        findViewById(R.id.setting_option_privateclud_config).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ButtentSolp.check(v.getId(), 1500)) {
+                    FinLog.v("SettingActivity", getString(R.string.btnsolpstr));
+                    return;
+                }
+                Intent intent=new Intent(SettingActivity.this,ServerConfigActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        final EditText audioBitrateEditText = (EditText) findViewById(R.id.tv_setting_option_audio_bitrate);
+        final EditText audioAgcLimiter = (EditText) findViewById(R.id.tv_setting_option_audio_agc_limiter);
+        final EditText audioAgcTargetDBOV = (EditText) findViewById(R.id.tv_setting_option_audio_agc_target_dbov);
+        final EditText audioAgcCompression = (EditText) findViewById(R.id.tv_setting_option_audio_agc_compression);
+
+        final EditText audioNoiseSuppression = (EditText) findViewById(R.id.tv_setting_option_audio_noise_suppression);
+        final EditText audioNoiseSuppressionLevel = (EditText) findViewById(R.id.tv_setting_option_audio_noise_suppression_level);
+        final EditText audioEchoCancel = (EditText) findViewById(R.id.tv_setting_option_audio_echo_cancel);
+        final EditText audioPreAmplifier = (EditText) findViewById(R.id.tv_setting_option_audio_pre_amplifier);
+        final EditText audioPreAmplifierLevel = (EditText) findViewById(R.id.tv_setting_option_audio_pre_amplifier_level);
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String audioBitrate = audioBitrateEditText.getText().toString();
+                Log.d(TAG, "audio bitrate option = " + audioBitrate);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO_BITRATE, audioBitrate);
+
+                String limiter = audioAgcLimiter.getText().toString();
+                Log.d(TAG, "audio agc limiter = " + limiter);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO_AGC_LIMITER, limiter);
+
+                String targetDBOV = audioAgcTargetDBOV.getText().toString();
+                Log.d(TAG, "audio agc target dbov = " + targetDBOV);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO_AGC_TARGET_DBOV, targetDBOV);
+
+                String agcCompression = audioAgcCompression.getText().toString();
+                Log.d(TAG, "audio agc compresssion option = " + agcCompression);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO_AGC_COMPRESSION, agcCompression);
+
+                String noiseSupppression = audioNoiseSuppression.getText().toString();
+                Log.d(TAG, "audio noiseSupppression option = " + noiseSupppression);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO__NOISE_SUPPRESSION, noiseSupppression);
+
+                String noiseSupppressionLevel = audioNoiseSuppressionLevel.getText().toString();
+                Log.d(TAG, "audio noiseSupppression Level option = " + noiseSupppressionLevel);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO__NOISE_SUPPRESSION_LEVEL, noiseSupppressionLevel);
+
+                String echoCancel = audioEchoCancel.getText().toString();
+                Log.d(TAG, "audio echoCancel option = " + echoCancel);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO_ECHO_CANCEL, echoCancel);
+
+                String preAmplifier = audioPreAmplifier.getText().toString();
+                Log.d(TAG, "audio preAmplifier = " + preAmplifier);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO_PREAMPLIFIER, preAmplifier);
+
+                String preAmplifierLevel = audioPreAmplifierLevel.getText().toString();
+                Log.d(TAG, "audio preAmplifierLevel option = " + preAmplifierLevel);
+                SessionManager.getInstance(SettingActivity.this).put(AUDIO_PREAMPLIFIER_LEVEL, preAmplifierLevel);
                 finish();
             }
         });
@@ -224,6 +398,9 @@ public class SettingActivity extends RongRTCBaseActivity {
         findViewById(R.id.setting_option_streamTiny).setOnClickListener(new OnOptionViewClickListener(R.string.Opensizestream,list_streamTiny,REQUEST_CODE_IS_STREAM_TINY));
         findViewById(R.id.setting_option_autotest).setOnClickListener(new OnOptionViewClickListener(R.string.autotest,list_autotest,REQUEST_CODE_IS_AUTO_TEST));
         findViewById(R.id.setting_option_water).setOnClickListener(new OnOptionViewClickListener(R.string.watermark,list_water,REQUEST_CODE_IS_WATER));
+        findViewById(R.id.setting_option_stereo).setOnClickListener(new OnOptionViewClickListener(R.string.stereo,list_stereo,REQUEST_CODE_IS_STEREO));
+        findViewById(R.id.setting_option_audio_process).setOnClickListener(new OnOptionViewClickListener(R.string.audio_process,list_audio_process,REQUEST_CODE_IS_AUDIO_PROCESS));
+
         findViewById(R.id.setting_option_media_url_).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -231,6 +408,8 @@ public class SettingActivity extends RongRTCBaseActivity {
             }
         });
     }
+
+
 
     private class OnOptionViewClickListener implements View.OnClickListener {
         String title;
@@ -269,19 +448,6 @@ public class SettingActivity extends RongRTCBaseActivity {
                     if (BuildConfig.DEBUG) {
                         findViewById(R.id.setting_options_hidden).setVisibility(View.VISIBLE);
                     }
-                    if (null != settings_Modify) {
-                        //settings_Modify.setVisibility(View.VISIBLE);
-                        settings_Modify.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (ButtentSolp.check(v.getId(), 1800)) {
-                                    FinLog.v("SettingActivity", getString(R.string.btnsolpstr));
-                                    return;
-                                }
-                                modifyServerAddress();
-                            }
-                        });
-                    }
                 }
             }
 
@@ -293,42 +459,17 @@ public class SettingActivity extends RongRTCBaseActivity {
         String kbps = "Kbps";
         try {
             //数组长度 間隔  最小
-            int length = 0, parameters = 10, min = 0;//
-            if (!TextUtils.isEmpty(resolution)) {
-                if (RESOLUTION_MEDIUM.equals(resolution)) {
-                    //                min=200;
-                    length = (1000 - min) / parameters;
-                } else if (RESOLUTION_HIGH.equals(resolution)) {
-                    //                min=500;
-                    length = (3000 - min) / parameters;
-                } else if (RESOLUTION_LOW.equals(resolution)) {
-                    //                min=100;
-                    length = (600 - min) / parameters;
-                } else if (RESOLUTION_SUPER.equals(resolution)) {
-                    //                min=1500;
-                    length = (4600 - min) / parameters;
-                }
-            }
-            list_bitrate_max = new String[length + 1];
-            list_bitrate_min = new String[length + 1];
+            int length = 0, parameters = 5, min = 0;//
+            length = (6800 - min) / parameters;
+            list_bitrate = new String[length + 1];
+//            list_bitrate_min = new String[length + 1];
+            StringBuffer stringBuffer=new StringBuffer();
             for (int i = 0; i <= length; i++) {
+                stringBuffer.setLength(0);
                 int bitrate = i * parameters + min;
-                list_bitrate_max[i] = bitrate + kbps;
-                list_bitrate_min[i] = bitrate + kbps;
-            }
-            //設置默認 步长：10
-            if (!TextUtils.isEmpty(resolution) && RESOLUTION_MEDIUM.equals(resolution)) {
-                defaultBitrateMinIndex = 35;//350
-                defaultBitrateMaxIndex = 100;//1000
-            } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_HIGH.equals(resolution)) {
-                defaultBitrateMinIndex = 75;//750
-                defaultBitrateMaxIndex = 250;//2500
-            } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_LOW.equals(resolution)) {
-                defaultBitrateMinIndex = 15;//150
-                defaultBitrateMaxIndex = 50;//500
-            } else if (!TextUtils.isEmpty(resolution) && RESOLUTION_SUPER.equals(resolution)) {
-                defaultBitrateMinIndex = 150;//1500
-                defaultBitrateMaxIndex = 450;//4500
+                stringBuffer.append(bitrate);
+                stringBuffer.append(kbps);
+                list_bitrate[i] = stringBuffer.toString();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -348,7 +489,7 @@ public class SettingActivity extends RongRTCBaseActivity {
             case REQUEST_CODE_RESOLUTION:
                 settingOptionText1.setText(result);
                 SessionManager.getInstance(this).put(RESOLUTION, result);
-                changeBitrateByResolution(result);
+//                changeBitrateByResolution(result);
                 break;
             case REQUEST_CODE_FPS:
                 SessionManager.getInstance(this).put(FPS, result);
@@ -405,6 +546,16 @@ public class SettingActivity extends RongRTCBaseActivity {
                 setting_water.setText(result);
                 SessionManager.getInstance(this).put(IS_WATER,list_water[1].equals(result));
                 break;
+            case REQUEST_CODE_IS_STEREO:
+                setting_stereo.setText(result);
+                SessionManager.getInstance(this).put(IS_STEREO,list_stereo[1].equals(result));
+                Log.d(TAG, "stero option = " + list_stereo[1].equals(result));
+                break;
+            case REQUEST_CODE_IS_AUDIO_PROCESS:
+                setting_audio_process.setText(result);
+                SessionManager.getInstance(this).put(IS_AUDIO_PROCESS,list_audio_process[1].equals(result));
+                Log.d(TAG, "audio process option = " + list_audio_process[1].equals(result));
+                break;
             default:
                 break;
         }
@@ -413,10 +564,10 @@ public class SettingActivity extends RongRTCBaseActivity {
     private void changeBitrateByResolution(String resolution) {
         try {
             reInitBitrates(resolution);
-            settingOptionText3.setText(list_bitrate_max[defaultBitrateMaxIndex]);
-            settingOptionText6.setText(list_bitrate_min[defaultBitrateMinIndex]);
-            SessionManager.getInstance(this).put(BIT_RATE_MIN, list_bitrate_min[defaultBitrateMinIndex]);
-            SessionManager.getInstance(this).put(BIT_RATE_MAX, list_bitrate_max[defaultBitrateMaxIndex]);
+            settingOptionText3.setText(list_bitrate[defaultBitrateMaxIndex]);
+            settingOptionText6.setText(list_bitrate[defaultBitrateMinIndex]);
+            SessionManager.getInstance(this).put(BIT_RATE_MIN, list_bitrate[defaultBitrateMinIndex]);
+            SessionManager.getInstance(this).put(BIT_RATE_MAX, list_bitrate[defaultBitrateMaxIndex]);
             setupListeners();
         } catch (Exception e) {
             e.printStackTrace();

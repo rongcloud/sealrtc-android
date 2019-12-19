@@ -14,6 +14,7 @@ import cn.rongcloud.rtc.user.RongRTCLocalUser;
  */
 public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements UsbCameraCapturer {
 
+    public static final String STREAM_TAG = "USB";
     private RongRTCVideoView mVideoView;
     private RongRTCAVOutputStream mOutputStream;
     private RongRTCLocalUser mLocalUser;
@@ -21,7 +22,7 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
     public UsbCameraCapturerImpl(Context context,RongRTCLocalUser localUser,int width,int height) {
         super(context,width,height);
         mLocalUser = localUser;
-        mOutputStream = new RongRTCAVOutputStream(MediaType.VIDEO,"USB");
+        mOutputStream = new RongRTCAVOutputStream(MediaType.VIDEO,STREAM_TAG);
     }
 
     /**
@@ -93,7 +94,7 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
         log("unPublishVideoStream","");
         if (mLocalUser == null)
             return;
-        mLocalUser.unPublishAVStream(mOutputStream,callBack);
+        mLocalUser.unpublishAVStream(mOutputStream,callBack);
     }
 
     @Override

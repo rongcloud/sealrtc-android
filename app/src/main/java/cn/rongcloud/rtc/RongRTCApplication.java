@@ -1,12 +1,13 @@
 package cn.rongcloud.rtc;
 
-import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.tencent.bugly.crashreport.CrashReport;
 
 import cn.rongcloud.rtc.message.RoomInfoMessage;
+import cn.rongcloud.rtc.message.RoomKickOffMessage;
 import cn.rongcloud.rtc.message.WhiteBoardInfoMessage;
 import cn.rongcloud.rtc.utils.FileLogUtil;
 import cn.rongcloud.rtc.util.Utils;
@@ -18,7 +19,7 @@ import io.rong.imlib.RongIMClient;
  * Created by suancai on 2016/11/22.
  */
 
-public class RongRTCApplication extends Application {
+public class RongRTCApplication extends MultiDexApplication {
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -46,6 +47,7 @@ public class RongRTCApplication extends Application {
         try {
             RongIMClient.registerMessageType(RoomInfoMessage.class);
             RongIMClient.registerMessageType(WhiteBoardInfoMessage.class);
+            RongIMClient.registerMessageType(RoomKickOffMessage.class);
         } catch (AnnotationNotFoundException e) {
             e.printStackTrace();
         }

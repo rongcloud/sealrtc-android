@@ -117,8 +117,8 @@ public class AppRTCAudioManager {
       // Example: user holds his hand over the device (closer than ~5 cm),
       // or removes his hand from the device.
       public void run() {
-          if (isCurrentSpeakerOn && !BluetoothUtil.hasBluetoothA2dpConnected())
-            onProximitySensorChangedState();
+//          if (isCurrentSpeakerOn && !BluetoothUtil.hasBluetoothA2dpConnected())
+//            onProximitySensorChangedState();
       }
     });
     AppRTCUtils.logDeviceInfo(TAG);
@@ -175,6 +175,10 @@ public class AppRTCAudioManager {
     setMicrophoneMute(savedIsMicrophoneMute);
     audioManager.setMode(savedAudioMode);
     audioManager.abandonAudioFocus(null);
+    if (BluetoothUtil.hasBluetoothA2dpConnected()) {
+      audioManager.stopBluetoothSco();
+      audioManager.setBluetoothScoOn(false);
+    }
 
     if (proximitySensor != null) {
       proximitySensor.stop();
@@ -236,6 +240,8 @@ public class AppRTCAudioManager {
 
       @Override
       public void onReceive(Context context, Intent intent) {
+        if (BluetoothUtil.hasBluetoothA2dpConnected())
+          return;
         int state = intent.getIntExtra("state", STATE_UNPLUGGED);
         int microphone = intent.getIntExtra("microphone", HAS_NO_MIC);
         String name = intent.getStringExtra("name");
@@ -275,7 +281,7 @@ public class AppRTCAudioManager {
 
   /** Sets the speaker phone mode. */
   private void setSpeakerphoneOn(boolean on) {
-    boolean wasOn = audioManager.isSpeakerphoneOn();
+     boolean wasOn = audioManager.isSpeakerphoneOn();
     if (wasOn == on) {
       return;
     }

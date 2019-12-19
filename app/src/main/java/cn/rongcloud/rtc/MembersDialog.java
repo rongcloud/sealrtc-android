@@ -19,12 +19,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.rong.imlib.RongIMClient;
+
 public class MembersDialog extends DialogFragment {
 
     private RecyclerView mMembersRecyclerView;
     private TextView titleTextView;
     private MembersAdapter mAdapter;
     private List<ItemModel> modelList = new ArrayList<>();
+    private String adminUserId;
+    private onKickUserListener kickUserListener;
 
     @Nullable
     @Override
@@ -33,9 +37,10 @@ public class MembersDialog extends DialogFragment {
         mMembersRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_members);
         mMembersRecyclerView.setAdapter(mAdapter = new MembersAdapter(getActivity()));
         mMembersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        v.findViewById(R.id.tv_join_mode).setOnClickListener(new View.OnClickListener() {
+        v.findViewById(R.id.tv_member_operate).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                kickUserListener = null;
                 dismiss();
             }
         });
@@ -58,6 +63,17 @@ public class MembersDialog extends DialogFragment {
     }
 
     public void update(List<ItemModel> list) {
+        modelList = list;
+        if (titleTextView != null) {
+            titleTextView.setText(getString(R.string.room_online_members, modelList.size()));
+        }
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void update(List<ItemModel> list, String userId) {
+        adminUserId = userId;
         modelList = list;
         if (titleTextView != null) {
             titleTextView.setText(getString(R.string.room_online_members, modelList.size()));
@@ -107,26 +123,49 @@ public class MembersDialog extends DialogFragment {
 
         @Override
         public int getItemViewType(int position) {
-                return TYPE_ITEM;
+            return TYPE_ITEM;
         }
     }
 
     public class ItemViewHolder extends RecyclerView.ViewHolder {
 
         private TextView nameTextView;
-        private TextView modeTextView;
+        private TextView memberOperateTextView;
 
         protected ItemViewHolder(View itemView) {
             super(itemView);
             nameTextView = (TextView) itemView.findViewById(R.id.tv_name);
-            modeTextView = (TextView) itemView.findViewById(R.id.tv_join_mode);
+            memberOperateTextView = (TextView) itemView.findViewById(R.id.tv_member_operate);
         }
 
-        public void bind(ItemModel model) {
+        public void bind(final ItemModel model) {
             ItemModel itemModel = model;
-            nameTextView.setText(itemModel.name);
-            modeTextView.setText(itemModel.mode);
+            StringBuilder builder = new StringBuilder(itemModel.name).append("（")
+                    .append(itemModel.mode).append("）");
 
+            nameTextView.setText(builder.toString());
+            if (RongIMClient.getInstance().getCurrentUserId().equals(adminUserId)) {
+                if (!itemModel.userId.equals(adminUserId)) {
+                    memberOperateTextView.setText(R.string.member_operate_remove);
+                    memberOperateTextView.setTextColor(getActivity().getResources().getColor(R.color.blink_text_green));
+                    memberOperateTextView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (kickUserListener != null) {
+                                kickUserListener.onKick(model.userId, model.name);
+                            }
+                        }
+                    });
+                }
+            } else {
+                memberOperateTextView.setText(null);
+                memberOperateTextView.setOnClickListener(null);
+            }
+            if (itemModel.userId.equals(adminUserId)) {
+                memberOperateTextView.setText(R.string.member_operate_admin);
+                memberOperateTextView.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                memberOperateTextView.setOnClickListener(null);
+            }
         }
     }
 
@@ -144,5 +183,13 @@ public class MembersDialog extends DialogFragment {
         public ItemModel() {
 
         }
+    }
+
+    public void setKickUserListener(onKickUserListener kickUserListener) {
+        this.kickUserListener = kickUserListener;
+    }
+
+    public interface onKickUserListener {
+        void onKick(String userId, String name);
     }
 }

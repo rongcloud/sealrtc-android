@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_bg"
+    android:gravity="center_vertical"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rl_popup_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/rtc_dimen_size_24"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/popup_dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:paddingLeft="@dimen/rtc_dimen_size_19"
+            android:singleLine="true"
+            android:textColor="#353535"
+            android:textSize="@dimen/rtc_text_size_20" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_popup_dialog_prompt_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/rtc_dimen_size_21"
+        android:paddingTop="@dimen/rtc_dimen_size_24">
+
+        <TextView
+            android:id="@+id/popup_dialog_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingLeft="@dimen/rtc_dimen_size_14"
+            android:paddingRight="@dimen/rtc_dimen_size_14"
+            android:textColor="@color/color_normal_text"
+            android:textSize="@dimen/rtc_text_size_18" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rtc_dimen_size_0.5"
+        android:background="@color/color_divider_line" />
+
+    <LinearLayout
+        android:id="@+id/popup_dialog_prompt_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rtc_dimen_size_48"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/popup_dialog_button_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/rtc_dialog_cancel"
+            android:textColor="@color/color_normal_text"
+            android:textSize="@dimen/rtc_text_size_16" />
+
+        <View
+            android:layout_width="@dimen/rtc_dimen_size_0.5"
+            android:layout_height="match_parent"
+            android:background="@color/color_divider_line" />
+
+        <TextView
+            android:id="@+id/popup_dialog_button_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/rtc_dialog_ok"
+            android:textColor="#3A91F3"
+            android:textSize="@dimen/rtc_text_size_16" />
+    </LinearLayout>
+
+
+</LinearLayout>

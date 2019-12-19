@@ -45,7 +45,7 @@
     <string name="settings_text_fps">FPS</string>
     <string name="settings_text_connectionType_quic">Yes</string>
     <string name="settings_text_connectionType_tcp">No</string>
-    <string name="meeting_control_invite_url">meeting invitation:\n\n Please enter the following conference ID to join the conference \n Conference ID:%1$s \n \nIf you haven't installed the client yet, use Chrome or Safari 11 to open the following address to join the meeting:\nConference address:%2$s</string>
+    <string name="meeting_control_invite_url">meeting invitation:\n\n Please enter the following conference ID to join the conference \n Conference ID:%1$s \n \nIf you haven not installed the client yet, use Chrome or Safari 11 to open the following address to join the meeting:\nConference address:%2$s</string>
     <string name="meeting_control_invite_tips">The meeting address has been copied. Please paste it into any communication tool and send it to the person you want to invite.</string>
     <string name="meeting_control_inviteToOpen_camera">The host invited you to open the camera\nDo you accept it?</string>
     <string name="meeting_control_inviteToOpen_microphone">Moderator invites you to open the microphone \n Accept?</string>
@@ -92,6 +92,8 @@
     <string name="Opensizestream">Size Stream</string>
     <string name="autotest">Auto Test</string>
     <string name="watermark">Water Mark</string>
+    <string name="stereo">stereo</string>
+    <string name="audio_process">audio_process</string>
 
     <string name="get_code">Get Code</string>
     <string name="VerificationCodeError">The verification code is wrong, please re-acquire</string>
@@ -116,7 +118,7 @@
     <string name="room_online_status">Online number</string>
     <string name="room_online_members">Online number（%d）</string>
     <string name="rtc_close">Close</string>
-    <string name="rtc_join_room">join room</string>
+    <string name="rtc_join_room">join in room</string>
     <string name="rtc_quit_room">quit room</string>
     <string name="rtc_user_offline">offline</string>
     <string name="back">back</string>
@@ -141,5 +143,44 @@
     <string name="white_board_room_not_exist">white board room not exist</string>
     <string name="publish_failed">Publish failed</string>
     <string name="publish_disabled">A video file has been posted in the room</string>
+    <string name="join_room_observer_prompt">join_room_observer_prompt</string>
+    <string name="join_room_audio_only_prompt">join_room_audio_only_prompt</string>
+    <string name="rtc_status_im_error">IM disconnected</string>
+    <string name="rtc_dialog_ok">OK</string>
+    <string name="rtc_dialog_cancel">Cancel</string>
+
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">cancel</string>
+    <string name="rtc_unstable_call_connection">Unstable call connection</string>
+    <string name="loacation_download">Local Download</string>
+    <string name="browser_download">Open By Browser</string>
+    <string name="apk_update_title">V%s version detected, update?</string>
+    <string name="downloading_apk">Downloading from backends</string>
+    <string name="update_app_model_prepare">Preparing To Download</string>
+    <string name="update_app_model_progress">Downloading %1$d%2$s is completed</string>
+    <string name="update_app_model_success">Download is successful, click to install</string>
+    <string name="update_app_model_error">Download failed, click to download from browser</string>
+
+    <string name="settings_text_rate_max">Max Rate</string>
+    <string name="connection_settings">Connection Settings</string>
+    <string name="private_navserver_address">Private NavServer address</string>
+    <string name="appsecret">AppSecret</string>
+    <string name="appkey">AppKey</string>
+    <string name="private_address_hint">http(s)://cn.xxx.com or IP + port address</string>
+    <string name="private_server_api_address">Private Server API address</string>
+    <string name="appserver_address_optional">AppServer address(Optional)</string>
+    <string name="save">Save</string>
+    <string name="private_cloud_connection_settings">Connection Settings</string>
+    <string name="update_configuration_successful">Update Configuration Successful!</string>
+    <string name="save_successful">Save Successful！</string>
+    <string name="private_clouconfiguration_cannot_be_empty">Private cloud configuration cannot be empty.</string>
+    <string name="volume_settings">Volume Settings</string>
+
+    <string name="member_operate_remove">Remove</string>
+    <string name="member_operate_admin">Admin</string>
+    <string name="member_operate_kick">Remove %s ?</string>
+    <string name="member_operate_kicked"> You were removed from the room.Try again later.</string>
+    <string name="member_operate_admin_new">becomes new admin</string>
+    <string name="member_operate_admin_me">You become new admin</string>
 
 </resources>
