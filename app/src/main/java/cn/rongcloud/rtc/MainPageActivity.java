@@ -932,7 +932,11 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
     private void initSDK() {
         mStatus = STATE_INIT;
-        RongIMClient.setServerInfo(ServerUtils.getNavServer(), UserUtils.FILE_SERVER);
+        /*
+         * 如果是连接到私有云需要在此配置服务器地址
+         * 如果是公有云则不需要调用此方法
+         */
+        //RongIMClient.setServerInfo(ServerUtils.getNavServer(), UserUtils.FILE_SERVER);
         RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
     }
 
