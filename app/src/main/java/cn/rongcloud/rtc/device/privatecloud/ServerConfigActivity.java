@@ -10,10 +10,10 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import cn.rongcloud.rtc.R;
+import cn.rongcloud.rtc.RongRTCEngine;
 import cn.rongcloud.rtc.SettingActivity;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
-import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.FinLog;
 
 /**
@@ -22,8 +22,8 @@ import cn.rongcloud.rtc.utils.FinLog;
 public class ServerConfigActivity extends Activity {
 
     private static final String TAG = "ServerConfigActivity";
-    private EditText edit_appkey, edit_NavServer, edit_appSecret, edit_apiServer;
-    String appkey = "", navServer = "", appSecret = "", apiServer = "";
+    private EditText edit_appkey, edit_NavServer, edit_appSecret, edit_apiServer, edit_mediaServer;
+    String appkey = "", navServer = "", appSecret = "", apiServer = "", mediaServer = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,7 @@ public class ServerConfigActivity extends Activity {
         edit_NavServer = (EditText) findViewById(R.id.edit_NavServer);
         edit_appSecret = (EditText) findViewById(R.id.edit_appSecret);
         edit_apiServer = (EditText) findViewById(R.id.edit_apiServer);
+        edit_mediaServer = (EditText) findViewById(R.id.edit_media_server);
         findViewById(R.id.settings_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -40,16 +41,18 @@ public class ServerConfigActivity extends Activity {
             }
         });
 
-        SessionManager.getInstance(this).put(SettingActivity.IS_RONGRTC_CONNECTIONMODE, false);
-        appkey = SessionManager.getInstance(Utils.getContext()).getString(ServerUtils.APP_KEY_KEY);
-        navServer = SessionManager.getInstance(Utils.getContext()).getString(ServerUtils.NAV_SERVER_KEY);
-        appSecret = SessionManager.getInstance(Utils.getContext()).getString(ServerUtils.APP_SECRET_KEY);
-        apiServer = SessionManager.getInstance(Utils.getContext()).getString(ServerUtils.API_SERVER_KEY);
+        SessionManager.getInstance().put(SettingActivity.IS_RONGRTC_CONNECTIONMODE, false);
+        appkey = SessionManager.getInstance().getString(ServerUtils.APP_KEY_KEY);
+        navServer = SessionManager.getInstance().getString(ServerUtils.NAV_SERVER_KEY);
+        appSecret = SessionManager.getInstance().getString(ServerUtils.APP_SECRET_KEY);
+        apiServer = SessionManager.getInstance().getString(ServerUtils.API_SERVER_KEY);
+        mediaServer = SessionManager.getInstance().getString(ServerUtils.MEDIA_SERVER_URL_KEY);
 
         edit_appkey.setText(appkey);
         edit_NavServer.setText(navServer);
         edit_appSecret.setText(appSecret);
         edit_apiServer.setText(apiServer);
+        edit_mediaServer.setText(mediaServer);
     }
 
     public void configClick(View view) {
@@ -57,39 +60,49 @@ public class ServerConfigActivity extends Activity {
         navServer = edit_NavServer.getText().toString().trim();
         appSecret = edit_appSecret.getText().toString().trim();
         apiServer = edit_apiServer.getText().toString().trim();
+        mediaServer = edit_mediaServer.getText().toString().trim();
 
         if (!TextUtils.isEmpty(appkey)) {
             ServerUtils.APP_KEY = appkey;
-            SessionManager.getInstance(Utils.getContext()).put(ServerUtils.APP_KEY_KEY, appkey);
+            SessionManager.getInstance().put(ServerUtils.APP_KEY_KEY, appkey);
         } else {
             ServerUtils.APP_KEY = "";
-            SessionManager.getInstance(Utils.getContext()).remove(ServerUtils.APP_KEY_KEY);
+            SessionManager.getInstance().remove(ServerUtils.APP_KEY_KEY);
         }
         if (!TextUtils.isEmpty(navServer)) {
             ServerUtils.NAV_SERVER = navServer;
-            SessionManager.getInstance(Utils.getContext()).put(ServerUtils.NAV_SERVER_KEY, navServer);
+            SessionManager.getInstance().put(ServerUtils.NAV_SERVER_KEY, navServer);
         } else {
             ServerUtils.NAV_SERVER = "";
-            SessionManager.getInstance(Utils.getContext()).remove(ServerUtils.NAV_SERVER_KEY);
+            SessionManager.getInstance().remove(ServerUtils.NAV_SERVER_KEY);
         }
 
         if (!TextUtils.isEmpty(appSecret)) {
             ServerUtils.APP_SECRET = appSecret;
-            SessionManager.getInstance(Utils.getContext()).put(ServerUtils.APP_SECRET_KEY, appSecret);
+            SessionManager.getInstance().put(ServerUtils.APP_SECRET_KEY, appSecret);
         } else {
             ServerUtils.APP_SECRET = "";
-            SessionManager.getInstance(Utils.getContext()).remove(ServerUtils.APP_SECRET_KEY);
+            SessionManager.getInstance().remove(ServerUtils.APP_SECRET_KEY);
         }
 
         if (!TextUtils.isEmpty(apiServer)) {
             ServerUtils.API_SERVER = apiServer;
-            SessionManager.getInstance(Utils.getContext()).put(ServerUtils.API_SERVER_KEY, apiServer);
+            SessionManager.getInstance().put(ServerUtils.API_SERVER_KEY, apiServer);
         } else {
             ServerUtils.API_SERVER = "";
-            SessionManager.getInstance(Utils.getContext()).remove(ServerUtils.API_SERVER_KEY);
+            SessionManager.getInstance().remove(ServerUtils.API_SERVER_KEY);
         }
 
-        SessionManager.getInstance(Utils.getContext()).remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
+        if (!TextUtils.isEmpty(mediaServer)) {
+            ServerUtils.MEDIA_SERVER = mediaServer;
+            SessionManager.getInstance().put(ServerUtils.MEDIA_SERVER_URL_KEY, mediaServer);
+        } else {
+            ServerUtils.MEDIA_SERVER = "";
+            SessionManager.getInstance().remove(ServerUtils.MEDIA_SERVER_URL_KEY);
+        }
+        RongRTCEngine.getInstance().setMediaServerUrl(mediaServer);
+
+        SessionManager.getInstance().remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
 
         Toast.makeText(this, getResources().getString(R.string.save_successful), Toast.LENGTH_SHORT).show();
         String logAppkey = (ServerUtils.APP_KEY.equals(UserUtils.APP_KEY)) ? "---" : ServerUtils.APP_KEY;
@@ -98,6 +111,7 @@ public class ServerConfigActivity extends Activity {
         FinLog.v(TAG, "NAV_SERVER :" + logNavServer);
         FinLog.v(TAG, "appSecret :" + appSecret);
         FinLog.v(TAG, "apiServer :" + apiServer);
+        FinLog.v(TAG, "mediaServer :" + mediaServer);
 
         if(!TextUtils.isEmpty(ServerUtils.APP_KEY) &&
                 !TextUtils.isEmpty(ServerUtils.NAV_SERVER)){

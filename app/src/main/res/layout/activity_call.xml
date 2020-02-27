@@ -8,7 +8,7 @@
         android:id="@+id/call_render_big_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"/>
 
     <LinearLayout
         android:id="@+id/call_layout_title"
@@ -73,6 +73,25 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/layout_network_status_tips"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/shape_wait_tips"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textView_network_status_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:text="@string/waiting_user_join"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/rel_sv"
@@ -118,9 +137,9 @@
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:background="@drawable/ic_white_board_close"
-        android:layout_marginRight="20dp"
         android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/ic_white_board_close"
         android:visibility="gone" />
 
     <Button
@@ -152,6 +171,13 @@
         android:layout_marginRight="18dp"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/btn_mcu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MCU"
+            android:visibility="gone" />
+
         <ImageView
             android:id="@+id/btn_modeSelect"
             android:layout_width="36dp"
@@ -176,46 +202,46 @@
             android:id="@+id/menu_custom_audio"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_request_to_normal"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_custom_audio_stream"
             android:button="@null"
-            android:layout_below="@+id/menu_request_to_normal"
-            android:layout_alignParentRight="true"
             android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_custom_audio_volume"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_request_to_normal"
             android:layout_marginTop="@dimen/checkbox_spacing"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/menu_custom_audio"
             android:background="@drawable/selector_checkbox_custom_audio_volume"
             android:button="@null"
-            android:visibility="gone"
-            android:layout_toLeftOf="@+id/menu_custom_audio"
-            android:layout_marginRight="10dp"
-            android:layout_below="@+id/menu_request_to_normal"
-            android:checked="false" />
+            android:checked="false"
+            android:visibility="gone" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_custom_stream"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_custom_audio"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_custom_stream"
-            android:layout_alignParentRight="true"
             android:button="@null"
-            android:layout_below="@+id/menu_custom_audio"
             android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_switch"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_custom_stream"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_switch_camera"
             android:button="@null"
-            android:layout_below="@+id/menu_custom_stream"
-            android:layout_alignParentRight="true"
             android:checked="false" />
 
 
@@ -223,65 +249,79 @@
             android:id="@+id/menu_mute_speaker"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_switch"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_capture"
             android:button="@null"
-            android:layout_below="@+id/menu_switch"
-            android:layout_alignParentRight="true"
             android:checked="false" />
 
         <ImageButton
             android:id="@+id/menu_members"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_mute_speaker"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/img_members"
             android:button="@null"
-            android:layout_below="@+id/menu_mute_speaker"
-            android:layout_alignParentRight="true"
             android:checked="false" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_whiteboard"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_members"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_whiteboard"
             android:button="@null"
             android:checked="false"
-            android:layout_below="@+id/menu_members"
-            android:layout_alignParentRight="true"
             android:visibility="visible" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_up"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_whiteboard"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_change_up"
             android:button="@null"
             android:checked="false"
-            android:layout_below="@+id/menu_whiteboard"
-            android:layout_alignParentRight="true"
             android:visibility="gone" />
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/menu_btn_call_menu_settings"
+            style="@style/style_call_menu_btn"
+            android:background="@drawable/selector_btn_menu_call_settings"
+            android:visibility="gone"
+            android:layout_below="@id/menu_up" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/menu_switch_speech_music"
+            style="@style/style_call_menu_btn"
+            android:layout_below="@id/menu_btn_call_menu_settings"
+            android:background="@drawable/selector_checkbox_custom_audio_stream"
+            android:checked="false"
+            android:visibility="gone" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/menu_down"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_below="@+id/menu_switch_speech_music"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/checkbox_spacing"
             android:background="@drawable/selector_checkbox_change_down"
             android:button="@null"
             android:checked="false"
-            android:layout_below="@+id/menu_up"
-            android:layout_alignParentRight="true"
             android:visibility="gone" />
     </RelativeLayout>
 
     <include
-        layout="@layout/item_white_board_action"
         android:id="@+id/white_board_action"
+        layout="@layout/item_white_board_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

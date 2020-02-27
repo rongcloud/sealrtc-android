@@ -4,8 +4,7 @@
     android:id="@+id/rl_CoverBase"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blink_black"
-    android:layout_margin="2dp">
+    android:background="@color/blink_black">
 
     <LinearLayout
         android:id="@+id/testLayout"

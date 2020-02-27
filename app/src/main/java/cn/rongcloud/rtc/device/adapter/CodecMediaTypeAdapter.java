@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.utils.OnItemClickListener;
+import cn.rongcloud.rtc.util.ButtentSolp;
 
 public class CodecMediaTypeAdapter extends RecyclerView.Adapter<CodecMediaTypeAdapter.CodecViewHolder> {
 
@@ -43,6 +44,9 @@ public class CodecMediaTypeAdapter extends RecyclerView.Adapter<CodecMediaTypeAd
             @Override
             public void onClick(View v) {
                 if (listener != null) {
+                    if (ButtentSolp.check(v.getId(), 1500)) {
+                        return;
+                    }
                     listener.onClick(position);
                 }
             }

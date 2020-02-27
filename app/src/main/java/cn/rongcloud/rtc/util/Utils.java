@@ -121,7 +121,7 @@ public class Utils {
      */
     public static void resetConnectionMode(boolean val) {
 //        RongRTCEngine.getInstance().setRongRTCConnectionMode(val);
-        SessionManager.getInstance(Utils.getContext()).put(SettingActivity.IS_RONGRTC_CONNECTIONMODE, val ? true : false);
+        SessionManager.getInstance().put(SettingActivity.IS_RONGRTC_CONNECTIONMODE, val ? true : false);
     }
 
     public static String getCurProcessName(Context context) {

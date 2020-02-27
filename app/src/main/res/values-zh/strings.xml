@@ -4,6 +4,10 @@
     <string name="loading">正在加载...</string>
     <string name="setting_title">设置</string>
     <string name="setting_back">返回</string>
+    <string name="setting_reset">重置</string>
+    <string name="setting_done">保存</string>
+    <string name="setting_preview">预览</string>
+    <string name="setting_export">导出</string>
     <string name="room_description">输入以下信息开始会议</string>
     <string name="room_userName">请输入姓名</string>
     <string name="blink_description">欢迎体验实时高质量的音视频会议</string>
@@ -24,6 +28,7 @@
     <string name="network_traffic_receive">接收:</string>
     <string name="network_traffic_send">发送:</string>
     <string name="waiting_user_join">等待好友加入...</string>
+    <string name="network_tip">用户 %s 的网络状况不佳</string>
     <string name="blink_copyright">北京云中融信网络科技有限公司</string>
     <string name="settings_text_gpufliter">开启美颜</string>
     <string name="settings_text_srtp">SRTP</string>
@@ -50,6 +55,8 @@
     <string name="settings_text_APPId">APPID</string>
     <string name="settings_text_confirm">确定</string>
     <string name="settings_text_cancel">取消</string>
+    <string name="settings_text_userid">用户ID（长按可复制到剪切板）</string>
+    <string name="settings_text_copy_userid">用户ID已复制到剪切板</string>
     <string name="btnsolpstr">Please do not click repeatedly</string>
     <string name="meeting_control_invite_url">会议邀请：\n\n 请输入以下会议ID加入会议 \n 会议ID：%1$s \n \n如果您尚未安装客户端，请使用Chrome或Safari 11 打开以下地址加入会议：\n会议地址：%2$s</string>
     <string name="meeting_control_invite_tips">会议地址已经复制，请粘贴至任意沟通工具并发送给您要邀请的人即可。</string>
@@ -93,10 +100,12 @@
     <string name="app_btn_loading">正在初始化</string>
     <string name="autotest">自动化测试</string>
     <string name="watermark">后置摄像头水印</string>
+    <string name="islive">直播模式</string>
     <string name="join_room_observer_prompt">会议室中人数已超过 30 人，你将以旁听者模式加入会议室。</string>
     <string name="join_room_audio_only_prompt">会议室中视频通话人数已经超过 9 人，你将以音频模式加入会议室。</string>
     <string name="rtc_dialog_ok">确定</string>
     <string name="rtc_dialog_cancel">取消</string>
+    <string name="rtc_dialog_kicked_offline">此用户已在其他设备登录，可修改用户名后再尝试登录</string>
 
     <string name="get_code">重新获取验证码</string>
     <string name="VerificationCodeError">验证码错误，请重新获取</string>
@@ -164,6 +173,7 @@
     <string name="appkey">AppKey</string>
     <string name="private_address_hint">http(s)://cn.xxx.com or IP + port address</string>
     <string name="private_server_api_address">私有环境 Server API 地址</string>
+    <string name="private_media_server_address">私有环境 MediaServer 地址（可选）</string>
     <string name="appserver_address_optional">AppServer(可选，未部署 AppServer 可不设置)</string>
     <string name="save">保存</string>
     <string name="private_cloud_connection_settings">私有环境基础设置</string>
@@ -179,4 +189,31 @@
     <string name="member_operate_admin_new">成为新管理员</string>
     <string name="member_operate_admin_me">你成为新管理员</string>
 
+    <string name="rtc_processing">正在处理中</string>
+
+
+
+
+    <string name="encode_type_str">编码方式</string>
+    <string name="encoder_name_str">编码器名称</string>
+    <string name="encoder_color_format_str">编码器颜色空间</string>
+    <string name="decoder_type_str">解码方式</string>
+    <string name="decoder_name_str">解码器名称</string>
+    <string name="decoder_color_format_str">解码器颜色空间</string>
+    <string name="hw_encoder_str">硬编</string>
+    <string name="soft_encoder_str">软编</string>
+    <string name="hw_decoder_str">硬解</string>
+    <string name="soft_decoder_str">软解</string>
+    <string name="capture_type_texture">texture</string>
+    <string name="capture_type_yuv">yuv</string>
+    <string name="capture_type_str">摄像头采集方式</string>
+    <string name="encoder_leval_baseline">baseLine</string>
+    <string name="encoder_leval_hight">hightProfile</string>
+    <string name="encoder_level">编码等级</string>
+
+    <string name="TapToContiueAsVideoCallIsOn">点击此处 返回SealRTC</string>
+
+    <string name="call_settings_audio_mode">音乐模式专用</string>
+    <string name="call_settings_audio_params">音乐模式动态参数</string>
+    <string name="call_setttings_analys">问题分析</string>
 </resources>

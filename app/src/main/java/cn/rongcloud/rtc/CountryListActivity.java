@@ -62,7 +62,7 @@ public class CountryListActivity extends RongRTCBaseActivity implements View.OnC
             public void onItemClick(View v, int originalPosition, int currentPosition, CountryInfo entity) {
                 if (entity == null)
                     return;
-                SessionManager.getInstance(CountryListActivity.this)
+                SessionManager.getInstance()
                         .put(UserUtils.COUNTRY,new Gson().toJson(entity));
                 finish();
             }

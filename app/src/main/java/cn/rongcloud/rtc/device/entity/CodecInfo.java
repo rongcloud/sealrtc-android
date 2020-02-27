@@ -28,6 +28,24 @@ public class CodecInfo implements Parcelable {
         this.mediaTypes = mediaTypes;
     }
 
+    public boolean isAudioCodec() {
+        for (MediaType mediaType : mediaTypes) {
+            if (mediaType.getMimeType().contains("audio")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isVideoCodec() {
+        for (MediaType mediaType : mediaTypes) {
+            if (mediaType.getMimeType().contains("video")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected CodecInfo(Parcel in) {
         codecName = in.readString();
         mediaTypes = in.readArrayList(MediaType.class.getClassLoader());

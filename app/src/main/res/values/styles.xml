@@ -30,8 +30,84 @@
         <!--<item name="android:layout_marginRight">50dp</item>-->
         <!--<item name="android:background">@color/blink_blue2</item>-->
     </style>
+
     <style name="test_activity">
         <item name="android:textSize">10dp</item>
+    </style>
+
+    <style name="NoActionBar" parent="Theme.Design.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="style_call_settings_tab_btn">
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:button">@null</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">@dimen/font_normal_big</item>
+    </style>
+
+    <style name="style_call_setting_title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textSize">@dimen/font_normal_big</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="style_call_setting_line">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:background">@color/colorGray2</item>
+        <item name="android:layout_height">1dp</item>
+    </style>
+
+    <style name="style_switch" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">#00000000</item>
+        <item name="colorSwitchThumbNormal">#00000000</item>
+        <item name="android:colorForeground">#00000000</item>
+    </style>
+
+    <style name="style_call_settings_rl">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@color/colorWhite</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="sytle_call_settings_switch">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:thumb">@drawable/switch_thumb_selector</item>
+        <item name="android:background">@null</item>
+        <item name="android:theme">@style/style_switch</item>
+        <item name="android:layout_gravity">center_vertical|right</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="style_call_setting_lable">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textSize">@dimen/font_normal_big</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="style_call_menu_btn">
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginTop">@dimen/checkbox_spacing</item>
+        <item name="android:button">@null</item>
+        <item name="android:layout_alignParentRight">true</item>
     </style>
 
 </resources>

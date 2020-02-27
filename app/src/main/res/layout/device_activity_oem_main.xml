@@ -11,6 +11,25 @@
         android:layout_height="44dp"
         android:background="#3581F2">
 
+
+        <LinearLayout
+            android:id="@+id/settings_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="backClick"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/setting_back"
+                android:textColor="#ffffff"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,24 +50,21 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/btn_codec"
+                android:id="@+id/btn_codecSettings"
                 android:layout_width="match_parent"
+                android:background="#3581F2"
+                android:textColor="#ffffff"
+                android:layout_marginTop="5dp"
                 android:layout_height="wrap_content"
                 android:onClick="deviceClick"
-                android:text="编解码器设置" />
-
-            <Button
-                android:id="@+id/btn_camera"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="deviceClick"
-                android:text="采集设置" />
+                android:text="去设置" />
 
             <Button
                 android:id="@+id/btn_apply"
                 android:layout_width="match_parent"
                 android:background="#3581F2"
                 android:textColor="#ffffff"
+                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:layout_height="wrap_content"
                 android:onClick="deviceClick"
@@ -62,6 +78,15 @@
                 android:layout_height="wrap_content"
                 android:onClick="deviceClick"
                 android:text="清除全部设置" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textColor="#000"
+                android:layout_margin="3dp"
+                android:textSize="13sp"
+                android:text="已设置列表："
+                android:layout_centerVertical="true"
+                android:layout_height="wrap_content" />
 
             <LinearLayout
                 android:layout_width="match_parent"

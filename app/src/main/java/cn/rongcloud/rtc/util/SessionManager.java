@@ -12,11 +12,16 @@ public class SessionManager {
     private static SharedPreferences sharedPreferences;
     private static SessionManager sessionManager;
     public static final String ROOM_NUM = "room_id";
+    private static Context mContext;
+    public static void initContext(Context context) {
+        mContext = context;
+    }
 
-    public static SessionManager getInstance(Context context) {
+    public static SessionManager getInstance() {
         synchronized (SessionManager.class) {
-            if (sessionManager == null)
-                sessionManager = new SessionManager(context);
+            if (sessionManager == null && mContext != null) {
+                sessionManager = new SessionManager(mContext);
+            }
         }
         return sessionManager;
     }
@@ -35,6 +40,13 @@ public class SessionManager {
     public long put(String key, Long value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong(key, value);
+        editor.commit();
+        return value;
+    }
+
+    public Float put(String key, Float value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(key, value);
         editor.commit();
         return value;
     }
@@ -75,8 +87,16 @@ public class SessionManager {
         return sharedPreferences.getString(key, "");
     }
 
+    public String getString(String key, String defVal){
+        return sharedPreferences.getString(key, defVal);
+    }
+
     public Boolean getBoolean(String key) {
         return sharedPreferences.getBoolean(key, false);
+    }
+
+    public boolean getBoolean(String key, boolean defaultVal){
+        return sharedPreferences.getBoolean(key, defaultVal);
     }
 
     public Boolean getIsSupportTiny(String key){
@@ -88,6 +108,14 @@ public class SessionManager {
     }
     public int getInt(String key) {
         return sharedPreferences.getInt(key,0);
+    }
+
+    public int getInt(String key, int defValue){
+        return sharedPreferences.getInt(key, defValue);
+    }
+
+    public float getFloat(String key, float defValue){
+        return  sharedPreferences.getFloat(key, defValue);
     }
 }
 

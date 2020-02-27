@@ -6,8 +6,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import cn.rongcloud.rtc.VerifyActivity;
-
 public class RongRTCBaseActivity extends Activity {
 
     @Override

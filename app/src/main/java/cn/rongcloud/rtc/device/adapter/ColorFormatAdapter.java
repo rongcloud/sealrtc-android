@@ -13,12 +13,13 @@ import java.util.List;
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.entity.ColorFormat;
 import cn.rongcloud.rtc.device.utils.OnColorFormatItemClickListener;
+import cn.rongcloud.rtc.util.ButtentSolp;
 
 public class ColorFormatAdapter extends RecyclerView.Adapter<ColorFormatAdapter.ColorFormatHolder> {
 
     private List<ColorFormat> colorFormats;
     private String colorFormats_Select = "";
-    private String Alias;
+
     private OnColorFormatItemClickListener listener;
 
     public ColorFormatAdapter(List<ColorFormat> list) {
@@ -37,19 +38,26 @@ public class ColorFormatAdapter extends RecyclerView.Adapter<ColorFormatAdapter.
 
     @Override
     public void onBindViewHolder(final ColorFormatHolder holder, final int position) {
-        Alias = colorFormats.get(position).getAlias();
-        if (!TextUtils.isEmpty(Alias)) {
-            holder.tv_colorFormat.setText(Alias);
+        int colorValue = colorFormats.get(position).getColor();
+        String colorAlias = colorFormats.get(position).getAlias();
+
+        if (!TextUtils.isEmpty(colorAlias) && !colorAlias.startsWith("0x")) {
+            holder.tv_colorFormat.setText("0x" + Integer.toHexString(colorValue) + "\n" + colorAlias);
+        } else {
+            holder.tv_colorFormat.setText(colorAlias);
         }
         holder.iv_select.setImageResource(R.drawable.device_icon_checkbox_checked);
         holder.iv_select.setSelected(false);
-        if (colorFormats_Select.equals(Alias)) {
+        if (colorFormats_Select.equals(colorAlias)) {
             holder.iv_select.setImageResource(R.drawable.device_icon_checkbox_hover);
             holder.iv_select.setSelected(true);
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (ButtentSolp.check(v.getId(), 500)) {
+                    return;
+                }
                 if (holder.iv_select.isSelected()) {
                     holder.iv_select.setImageResource(R.drawable.device_icon_checkbox_checked);
                     holder.iv_select.setSelected(false);

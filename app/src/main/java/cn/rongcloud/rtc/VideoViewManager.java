@@ -77,8 +77,8 @@ public class VideoViewManager {
         int base = screenHeight < screenWidth ? screenHeight : screenWidth;
         remoteLayoutParams = new LinearLayout.LayoutParams(base / 4, base / 3);
 
-        SessionManager.getInstance(Utils.getContext()).put(Utils.KEY_screeHeight, base / 3);
-        SessionManager.getInstance(Utils.getContext()).put(Utils.KEY_screeWidth, base / 4);
+        SessionManager.getInstance().put(Utils.KEY_screeHeight, base / 3);
+        SessionManager.getInstance().put(Utils.KEY_screeWidth, base / 4);
 
         holderContainer = (LinearLayout) ((Activity) context).findViewById(R.id.call_reder_container);
         holderBigContainer = (ContainerLayout) ((Activity) context).findViewById(R.id.call_render_big_container);
@@ -237,7 +237,7 @@ public class VideoViewManager {
         lastSelectedRender.coverView.getRongRTCVideoView().setZOrderMediaOverlay(true);
 
         //防止横竖切换 再 小大切换 导致的小屏尺寸没更新 host——304
-        lastSelectedRender.coverView.getRongRTCVideoView().setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+        lastSelectedRender.coverView.getRongRTCVideoView().setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         //pc分屏时 必须通知videoview listener 去刷新size//手动转屏不需要通知listerer
         holderContainer.addView(lastSelectedRender.containerLayout, index, remoteLayoutParams);
         saveSelectUserId(render);
@@ -449,7 +449,7 @@ public class VideoViewManager {
         renderHolder.init(talkType, isSelf);
         renderHolder.coverView.setRongRTCVideoView(render);
 
-        if (isSelf && TextUtils.equals(talkType ,RongRTCTalkTypeUtil.C_CAMERA)) {
+        if (TextUtils.equals(talkType ,RongRTCTalkTypeUtil.C_CAMERA)) {
             renderHolder.coverView.showUserHeader();
         } else {
             renderHolder.coverView.showBlinkVideoView();
@@ -503,7 +503,7 @@ public class VideoViewManager {
      * @param userID
      */
     public void removeVideoView(String userID) {
-        SessionManager.getInstance(Utils.getContext()).remove("color" + userID);
+        SessionManager.getInstance().remove("color" + userID);
         List<RenderHolder> renderHolderList = getViewHolderByUserId(userID);
         if (renderHolderList.size() > 0) {
             for (RenderHolder renderHolder : renderHolderList) {

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -27,8 +28,11 @@ import cn.rongcloud.rtc.media.http.RequestMethod;
 
 public class UpDateApkHelper {
     private static final String TAG = "UpDateApkHelper";
-    private static final String GET_CLIENT_NEW_VERSION = "https://downloads.rongcloud.cn/configuration.json";
-    private static final String DOWNLOAD_WEBSITE = "https://www.rongcloud.cn/demo/proxy/sealrtc";
+    /**
+     * 检测最新版本SDK的地址
+     */
+    private static final String GET_CLIENT_NEW_VERSION = "";
+    private static final String DOWNLOAD_WEBSITE = "";
     private Activity activity;
 
     public UpDateApkHelper(Activity activity) {
@@ -36,6 +40,9 @@ public class UpDateApkHelper {
     }
 
     public void diffVersionFromServer() {
+        if (TextUtils.isEmpty(GET_CLIENT_NEW_VERSION)){
+            return;
+        }
         final Request request = new Request.Builder().url(GET_CLIENT_NEW_VERSION).method(RequestMethod.GET).build();
         HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
             @Override
@@ -149,13 +156,23 @@ public class UpDateApkHelper {
      * @return
      */
     private boolean needUpDate(String remoteVersion, String localVersion) {
-        int hrv = Integer.parseInt(remoteVersion.substring(0, 1));
-        int hlv = Integer.parseInt(localVersion.substring(0, 1));
-        Log.i(TAG, "hrv = " + hrv + " hlv = " + hlv);
+        try {
+            String[] remoteValues = remoteVersion.split("\\.");
+            String[] localValues = localVersion.split("\\.");
+            int length = remoteValues.length > localValues.length ? remoteValues.length : localValues.length;
+            for (int i = 0; i < length; i++) {
+               int remoteValue = remoteValues.length > i ? Integer.valueOf(remoteValues[i]) : 0;
+               int localValue = localValues.length > i ? Integer.valueOf(localValues[i]) : 0;
+               if (remoteValue > localValue){
+                   return true;
+               }else if (localValue > remoteValue){
+                   return false;
+               }
+            }
 
-        float lrv = Float.parseFloat(remoteVersion.substring(2));
-        float llv = Float.parseFloat(localVersion.substring(2));
-        Log.i(TAG, "lrv = " + lrv + " llv = " + llv);
-        return hrv > hlv || lrv > llv;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  false;
     }
 }

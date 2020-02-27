@@ -53,6 +53,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
     private TextView mTvRegion;
     private CountryInfo mCountryInfo;
     private ImageView img_logo;
+    private String userId = "";
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -154,7 +155,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
 
         reg_getcode.setOnClickListener(onClickListener);
         edit_phone = (EditText) findViewById(R.id.edit_phone);
-        String phone = SessionManager.getInstance(Utils.getContext()).getString(UserUtils.PHONE);
+        String phone = SessionManager.getInstance().getString(UserUtils.PHONE);
         if (!TextUtils.isEmpty(phone)) {
             edit_phone.setText(phone);
             reg_getcode.setClickable(true);
@@ -289,11 +290,9 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
             jsonObject.put(PHONE, mPhone);
             jsonObject.put(REGION, mCountryInfo != null ? mCountryInfo.region : "86");
             jsonObject.put(CODE, edit_verificationCode.getText().toString().trim());
-            jsonObject.put(KEY, mPhone + (DeviceUtils.getDeviceId(Utils.getContext()).length() > 4 ?
-                    DeviceUtils.getDeviceId(Utils.getContext()).substring(0, 4) :
-                    DeviceUtils.getDeviceId(Utils.getContext())));
+            jsonObject.put(KEY, getUserId());
             json = jsonObject.toString();
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         if (TextUtils.isEmpty(json)) {
@@ -336,6 +335,15 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
         });
     }
 
+    private String getUserId() {
+        String deviceId = DeviceUtils.getDeviceId(Utils.getContext());
+        int idLength =deviceId.length();
+        userId = mPhone + "_" + (idLength > 4 ?
+                deviceId.substring(idLength - 4, idLength) :
+                DeviceUtils.getDeviceId(Utils.getContext()))+ "_and";
+        return userId;
+    }
+
     private void getToken(String result) {
         FinLog.v(TAG, "verify result result:" + result);
         try {
@@ -349,8 +357,9 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
                     JSONObject jsonObjectResult = jsonObject.getJSONObject(RESULT);
                     if (jsonObjectResult.has(TOKEN)) {
                         String token = String.valueOf(jsonObjectResult.get(TOKEN));
-                        SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, mPhone);
-                        SessionManager.getInstance(Utils.getContext()).put(mPhone, token);
+                        SessionManager.getInstance().put(UserUtils.PHONE, mPhone);
+                        SessionManager.getInstance().put(mPhone, token);
+                        SessionManager.getInstance().put(USER_ID, userId);
                         LoadDialog.dismiss(VerifyActivity.this);
                         toast(Utils.getContext().getString(R.string.verify_code_success));
                         finish();
@@ -405,7 +414,7 @@ public class VerifyActivity extends RongRTCBaseActivity implements DownTimerList
     }
 
     private void updateCountry() {
-        String json = SessionManager.getInstance(this).getString(UserUtils.COUNTRY);
+        String json = SessionManager.getInstance().getString(UserUtils.COUNTRY);
         if (TextUtils.isEmpty(json)) {
             mCountryInfo = CountryInfo.createDefault();
         } else {

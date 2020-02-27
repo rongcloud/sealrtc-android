@@ -18,13 +18,12 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.util.Log;
 
-import cn.rongcloud.rtc.util.AppRTCUtils;
-import cn.rongcloud.rtc.util.BluetoothUtil;
-import cn.rongcloud.rtc.utils.FinLog;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import cn.rongcloud.rtc.util.AppRTCUtils;
+import cn.rongcloud.rtc.util.BluetoothUtil;
 
 /**
  * AppRTCAudioManager manages all audio related parts of the AppRTC demo.
@@ -275,7 +274,11 @@ public class AppRTCAudioManager {
 
   /** Unregister receiver for broadcasted ACTION_HEADSET_PLUG intent. */
   private void unregisterForWiredHeadsetIntentBroadcast() {
-    apprtcContext.unregisterReceiver(wiredHeadsetReceiver);
+    try {
+      apprtcContext.unregisterReceiver(wiredHeadsetReceiver);
+    }catch (IllegalArgumentException ex){
+      ex.printStackTrace();
+    }
     wiredHeadsetReceiver = null;
   }
 
@@ -311,6 +314,10 @@ public class AppRTCAudioManager {
   private boolean hasEarpiece() {
     return apprtcContext.getPackageManager().hasSystemFeature(
         PackageManager.FEATURE_TELEPHONY);
+  }
+
+  public AudioManager getAudioManager() {
+    return audioManager;
   }
 
   /**

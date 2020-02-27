@@ -32,7 +32,7 @@ public class CoverView extends RelativeLayout {
 
     private static final String TAG = "CoverView";
 
-    public RelativeLayout mRl_Container, rl_CoverBase;
+    public RelativeLayout mRl_Container;
     public TextView tv_userName;
     private GradientDrawable mGroupDrawable;
     public ImageView iv_Header, iv_Audiolevel,ivAudioCover;
@@ -69,7 +69,6 @@ public class CoverView extends RelativeLayout {
             ivAudioCover = (ImageView) findViewById(R.id.iv_audiocover);
             firstFrameTest = findViewById(R.id.auto_test2);
             mRl_Container = (RelativeLayout) findViewById(R.id.relative_cover);
-            rl_CoverBase = (RelativeLayout) findViewById(R.id.rl_CoverBase);
 
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
             tv_userName = (TextView) findViewById(R.id.tv_UserName);
@@ -84,8 +83,8 @@ public class CoverView extends RelativeLayout {
 
             mGroupDrawable = (GradientDrawable) iv_Header.getBackground();
 
-            int Height = SessionManager.getInstance(Utils.getContext()).getInt(Utils.KEY_screeHeight);
-            int width = SessionManager.getInstance(Utils.getContext()).getInt(Utils.KEY_screeWidth);
+            int Height = SessionManager.getInstance().getInt(Utils.KEY_screeHeight);
+            int width = SessionManager.getInstance().getInt(Utils.KEY_screeWidth);
             ViewGroup.LayoutParams para;
             para = iv_Header.getLayoutParams();
             para.height = Height;
@@ -162,8 +161,8 @@ public class CoverView extends RelativeLayout {
                     mRl_Container.removeView(mRl_Container.getChildAt(i));
                 }
             }
-            LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                    LayoutParams.WRAP_CONTENT);
+            LayoutParams p = new LayoutParams(LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT);
             p.addRule(RelativeLayout.CENTER_IN_PARENT);
             mRl_Container.addView(rongRTCVideoView, p);
             tv_userName.bringToFront();

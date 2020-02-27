@@ -9,7 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.AdaptiveIconDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
@@ -17,8 +22,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -35,6 +38,7 @@ import java.net.URL;
 import cn.rongcloud.rtc.BuildConfig;
 import cn.rongcloud.rtc.R;
 import io.rong.common.RLog;
+import io.rong.push.common.PushCacheHelper;
 
 
 public class UpdateService extends Service {
@@ -74,7 +78,6 @@ public class UpdateService extends Service {
     private int downloadErrorNotificationFlag;
     private boolean isSendBroadcast;
     private String channelId = "cn.rongcloud.rtc";
-    Notification notification = null;
 
     private UpdateProgressListener updateProgressListener;
     private LocalBinder localBinder = new LocalBinder();
@@ -96,7 +99,7 @@ public class UpdateService extends Service {
 
     private boolean startDownload;//开始下载
     private int lastProgressNumber;
-    private NotificationCompat.Builder builder;
+    private Notification.Builder builder;
     private NotificationManager manager;
     private int notifyId;
     private String appName;
@@ -262,24 +265,19 @@ public class UpdateService extends Service {
     }
 
     private void buildNotification() {
-
-
-        boolean isLollipop = (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
-        int smallIcon = getResources().getIdentifier("notification_small_icon", "drawable", getPackageName());
-
-        if (smallIcon <= 0 || !isLollipop) {
-            smallIcon = getApplicationInfo().icon;
-        }
-
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        builder = new NotificationCompat.Builder(this);
-        builder.setContentTitle(getString(R.string.update_app_model_prepare))
-                .setWhen(System.currentTimeMillis())
-                .setProgress(100, 1, false)
-                .setSmallIcon(smallIcon)
-                .setLargeIcon(BitmapFactory.decodeResource(
-                        getResources(), icoResId))
-                .setDefaults(downloadNotificationFlag);
+
+        builder = createNotification(this, getString(R.string.update_app_model_prepare), getString(R.string.update_app_model_prepare), downloadNotificationFlag);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel notificationChannel = new NotificationChannel(channelId, getApplicationName(), importance);
+            notificationChannel.enableLights(false);
+            notificationChannel.setLightColor(Color.GREEN);
+            notificationChannel.enableVibration(false);
+            notificationChannel.setSound(null, null);
+            manager.createNotificationChannel(notificationChannel);
+        }
 
         manager.notify(notifyId, builder.build());
     }
@@ -344,6 +342,60 @@ public class UpdateService extends Service {
             updateProgressListener.error();
         }
         stopSelf();
+    }
+
+
+    private static Notification.Builder createNotification(Context context, String title, String content, int flag) {
+        boolean isLollipop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        int smallIcon = context.getResources().getIdentifier("notification_small_icon", "drawable", context.getPackageName());
+
+        if (smallIcon <= 0 || !isLollipop) {
+            smallIcon = context.getApplicationInfo().icon;
+        }
+
+        Drawable loadIcon = context.getApplicationInfo().loadIcon((context.getPackageManager()));
+        Bitmap appIcon = null;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && loadIcon instanceof AdaptiveIconDrawable) {
+                appIcon = Bitmap.createBitmap(loadIcon.getIntrinsicWidth(), loadIcon.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+                final Canvas canvas = new Canvas(appIcon);
+                loadIcon.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                loadIcon.draw(canvas);
+            } else {
+                appIcon = ((BitmapDrawable) loadIcon).getBitmap();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Notification.Builder builder = new Notification.Builder(context);
+        builder.setLargeIcon(appIcon);
+        builder.setSmallIcon(smallIcon);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setCategory(Notification.CATEGORY_PROGRESS);
+        }
+        builder.setProgress(100, 1, false);
+        builder.setTicker(title);
+        if (PushCacheHelper.getInstance().getPushContentShowStatus(context)) {
+            builder.setContentTitle(title);
+            builder.setContentText(content);
+        } else {
+            PackageManager pm = context.getPackageManager();
+            String name;
+            try {
+                name = pm.getApplicationLabel(pm.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA)).toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                name = "";
+            }
+            builder.setContentTitle(name);
+            builder.setContentText(title);
+        }
+        builder.setLights(Color.GREEN, 3000, 3000);
+        builder.setAutoCancel(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setChannelId("rc_notification_id");
+        }
+
+        return builder;
     }
 
     private static class DownloadApk extends AsyncTask<String, Integer, String> {
@@ -414,12 +466,12 @@ public class UpdateService extends Service {
                 byte buffer[] = new byte[4096];
 
                 int readSize = 0;
-                int currentSize = 0;
+                long currentSize = 0;
 
                 while ((readSize = is.read(buffer)) > 0) {
                     fos.write(buffer, 0, readSize);
                     currentSize += readSize;
-                    publishProgress((currentSize * 100 / updateTotalSize));
+                    publishProgress((int) (currentSize * 100 / updateTotalSize));
                 }
                 // download success
             } catch (Exception e) {

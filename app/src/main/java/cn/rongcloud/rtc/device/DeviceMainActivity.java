@@ -10,19 +10,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import cn.rongcloud.rtc.LoadDialog;
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.RongRTCConfig;
-import cn.rongcloud.rtc.device.camrea.DeviceCameraActivity;
 import cn.rongcloud.rtc.device.utils.Consts;
 import cn.rongcloud.rtc.stream.local.RongRTCCapture;
+import cn.rongcloud.rtc.util.ButtentSolp;
 import cn.rongcloud.rtc.util.SessionManager;
-import cn.rongcloud.rtc.util.Utils;
-import cn.rongcloud.rtc.utils.debug.RTCDevice;
-
+import cn.rongcloud.rtc.utils.FinLog;
 import static cn.rongcloud.rtc.device.utils.Consts.codec_info_eventBus;
 import static cn.rongcloud.rtc.device.utils.Consts.device_camera_info_eventBus;
 
@@ -43,60 +38,63 @@ public class DeviceMainActivity extends DeviceBaseActivity {
         tv_encodeInfo = (TextView) findViewById(R.id.tv_encodeInfo);
         tv_decoderInfo = (TextView) findViewById(R.id.tv_decoderInfo);
         tv_cameraInfo = (TextView) findViewById(R.id.tv_cameraInfo);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         initData();
     }
 
     public void deviceClick(View view) {
-        if (view.getId() == R.id.btn_codec) {
-            Intent intent = new Intent(DeviceMainActivity.this, CodecActivity.class);
-            startActivity(intent);
-        } else if (view.getId() == R.id.btn_camera) {
-            Intent intent = new Intent(DeviceMainActivity.this, DeviceCameraActivity.class);
-            startActivity(intent);
-        } else if (view.getId() == R.id.btn_apply) {
+        if (ButtentSolp.check(view.getId(), 1500)) {
+            FinLog.v(TAG, getString(R.string.btnsolpstr));
+            return;
+        }
+        if (view.getId() == R.id.btn_apply) {
             apply();
         }else if(view.getId()==R.id.btn_clear){
             clear();
+        }else if(view.getId()==R.id.btn_codecSettings){
+            Intent intent = new Intent(DeviceMainActivity.this, DeviceSettingsActivity.class);
+            startActivity(intent);
         }
     }
 
     private void clear() {
         LoadDialog.show(DeviceMainActivity.this);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.encoder_colorFormat_alias_key);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.decoder_colorFormat_alias_key);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.colorFormat_val_key);
+        SessionManager.getInstance().remove(Consts.SP_ENCODER_COLOR_FORMAT_ALIAS_KEY);
+        SessionManager.getInstance().remove(Consts.SP_DECODER_COLOR_FORMAT_ALIAS_KEY);
+        SessionManager.getInstance().remove(Consts.SP_DECODER_COLOR_FORMAT_VAL_KEY);
+        SessionManager.getInstance().remove(Consts.SP_ENCODER_COLOR_FORMAT_VAL_KEY);
 
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.encoder_key);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.decoder_key);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.encoderType_key);
-
-
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.decoderType_key);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.encoderLevel_key);
+        SessionManager.getInstance().remove(Consts.SP_ENCODER_NAME_KEY);
+        SessionManager.getInstance().remove(Consts.SP_DECODER_NAME_KEY);
+        SessionManager.getInstance().remove(Consts.SP_ENCODER_TYPE_KEY);
 
 
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.acquisitionMode_key);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.capture_cameraDisplayOrientation_key);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.capture_frameOrientation_key);
+        SessionManager.getInstance().remove(Consts.SP_DECODER_TYPE_KEY);
+        SessionManager.getInstance().remove(Consts.SP_ENCODER_LEVEL_KEY);
 
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.decoder_colorFormat_eventBus);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.encoder_colorFormat_eventBus);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.device_camera_info_eventBus);
-        SessionManager.getInstance(Utils.getContext()).remove(Consts.codec_info_eventBus);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put(RTCDevice.CodecCofig.isTexture, true);
-        map.put(RTCDevice.CodecCofig.hwEncode, true);
-        map.put(RTCDevice.CodecCofig.hwDecode, true);
-        map.put(RTCDevice.CodecCofig.highProfile, true);
-        map.put(RTCDevice.CodecCofig.enCodeColor, 0);
-        map.put(RTCDevice.CodecCofig.deCodeColor, 0);
-        RTCDevice.getInstance().setCodecConfig(map);
+        SessionManager.getInstance().remove(Consts.ACQUISITION_MODE_KEY);
+        SessionManager.getInstance().remove(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY);
+        SessionManager.getInstance().remove(Consts.CAPTURE_FRAME_ORIENTATION_KEY);
 
-        RongRTCConfig.Builder builder = new RongRTCConfig.Builder();
-        builder.setCameraDisplayOrientation(0);
-        builder.setFrameOrientation(-1);
+        SessionManager.getInstance().remove(Consts.decoder_colorFormat_eventBus);
+        SessionManager.getInstance().remove(Consts.encoder_colorFormat_eventBus);
+        SessionManager.getInstance().remove(Consts.device_camera_info_eventBus);
+        SessionManager.getInstance().remove(Consts.codec_info_eventBus);
+
+        RongRTCConfig.Builder builder = new RongRTCConfig.Builder()
+                .setCameraDisplayOrientation(0)
+                .setFrameOrientation(-1)
+                .enableHardWareEncode(true)
+                .enableHardWareDecode(true)
+                .enableHardWareEncodeHighProfile(true)
+                .setHardWareEncodeColor(0)
+                .enableVideoTexture(true)
+                .setHardWareDecodeColor(0);
         RongRTCCapture.getInstance().setRTCConfig(builder.build());
         Toast.makeText(this, "完成", Toast.LENGTH_SHORT).show();
         initData();
@@ -104,23 +102,23 @@ public class DeviceMainActivity extends DeviceBaseActivity {
     }
 
     private void initData() {
-        if (!SessionManager.getInstance(Utils.getContext()).contains(Consts.encoderType_key)) {
-            SessionManager.getInstance(Utils.getContext()).put(Consts.encoderType_key, true);
+        if (!SessionManager.getInstance().contains(Consts.SP_ENCODER_TYPE_KEY)) {
+            SessionManager.getInstance().put(Consts.SP_ENCODER_TYPE_KEY, true);
         }
-        if (!SessionManager.getInstance(Utils.getContext()).contains(Consts.decoderType_key)) {
-            SessionManager.getInstance(Utils.getContext()).put(Consts.decoderType_key, true);
+        if (!SessionManager.getInstance().contains(Consts.SP_DECODER_TYPE_KEY)) {
+            SessionManager.getInstance().put(Consts.SP_DECODER_TYPE_KEY, true);
         }
-        if (!SessionManager.getInstance(Utils.getContext()).contains(Consts.encoderLevel_key)) {
-            SessionManager.getInstance(Utils.getContext()).put(Consts.encoderLevel_key, true);
+        if (!SessionManager.getInstance().contains(Consts.SP_ENCODER_LEVEL_KEY)) {
+            SessionManager.getInstance().put(Consts.SP_ENCODER_LEVEL_KEY, true);
         }
-        if (!SessionManager.getInstance(Utils.getContext()).contains(Consts.acquisitionMode_key)) {
-            SessionManager.getInstance(Utils.getContext()).put(Consts.acquisitionMode_key, true);
+        if (!SessionManager.getInstance().contains(Consts.ACQUISITION_MODE_KEY)) {
+            SessionManager.getInstance().put(Consts.ACQUISITION_MODE_KEY, true);
         }
-        if (!SessionManager.getInstance(Utils.getContext()).contains(Consts.capture_cameraDisplayOrientation_key)) {
-            SessionManager.getInstance(Utils.getContext()).put(Consts.capture_cameraDisplayOrientation_key, 0);
+        if (!SessionManager.getInstance().contains(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY)) {
+            SessionManager.getInstance().put(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY, 0);
         }
-        if (!SessionManager.getInstance(Utils.getContext()).contains(Consts.capture_frameOrientation_key)) {
-            SessionManager.getInstance(Utils.getContext()).put(Consts.capture_frameOrientation_key, -1);
+        if (!SessionManager.getInstance().contains(Consts.CAPTURE_FRAME_ORIENTATION_KEY)) {
+            SessionManager.getInstance().put(Consts.CAPTURE_FRAME_ORIENTATION_KEY, -1);
         }
         initEncodeInfo();
         initDecodeInfo();
@@ -128,14 +126,14 @@ public class DeviceMainActivity extends DeviceBaseActivity {
     }
 
     private void initEncodeInfo() {
-        boolean encoderType = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.encoderType_key);
-        boolean encoderLevel = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.encoderLevel_key);
+        boolean encoderType = SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_TYPE_KEY);
+        boolean encoderLevel = SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_LEVEL_KEY);
         StringBuffer stringBuffer_encoder = new StringBuffer();
         stringBuffer_encoder.append(encoderType ? "硬编" : "软编");
         if (encoderType) {
-            String enCoderName = SessionManager.getInstance(Utils.getContext()).getString(Consts.encoder_key);
-            String enCoderColorName = SessionManager.getInstance(Utils.getContext()).getString(Consts.encoder_colorFormat_alias_key);
-            int colorFormat = SessionManager.getInstance(Utils.getContext()).getInt(Consts.colorFormat_val_key);
+            String enCoderName = SessionManager.getInstance().getString(Consts.SP_ENCODER_NAME_KEY);
+            String enCoderColorName = SessionManager.getInstance().getString(Consts.SP_ENCODER_COLOR_FORMAT_ALIAS_KEY);
+            int colorFormat = SessionManager.getInstance().getInt(Consts.SP_ENCODER_COLOR_FORMAT_VAL_KEY);
             stringBuffer_encoder.append("\n");
             stringBuffer_encoder.append("编码器名称：");
             stringBuffer_encoder.append(enCoderName);
@@ -152,13 +150,13 @@ public class DeviceMainActivity extends DeviceBaseActivity {
     }
 
     private void initDecodeInfo() {
-        boolean decoderType = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.decoderType_key);
+        boolean decoderType = SessionManager.getInstance().getBoolean(Consts.SP_DECODER_TYPE_KEY);
         StringBuffer stringBuffer_decoder = new StringBuffer();
         stringBuffer_decoder.append(decoderType ? "硬解" : "软解");
         if (decoderType) {
-            String deCoderName = SessionManager.getInstance(Utils.getContext()).getString(Consts.decoder_key);
-            String deCoderColorName = SessionManager.getInstance(Utils.getContext()).getString(Consts.decoder_colorFormat_alias_key);
-            int colorFormat = SessionManager.getInstance(Utils.getContext()).getInt(Consts.colorFormat_val_key);
+            String deCoderName = SessionManager.getInstance().getString(Consts.SP_DECODER_NAME_KEY);
+            String deCoderColorName = SessionManager.getInstance().getString(Consts.SP_DECODER_COLOR_FORMAT_ALIAS_KEY);
+            int colorFormat = SessionManager.getInstance().getInt(Consts.SP_DECODER_COLOR_FORMAT_VAL_KEY);
             stringBuffer_decoder.append("\n");
             stringBuffer_decoder.append("解码器名称：");
             stringBuffer_decoder.append(deCoderName);
@@ -173,9 +171,9 @@ public class DeviceMainActivity extends DeviceBaseActivity {
 
     private void initAcquisitionMode() {
         StringBuffer stringBuffer_capture = new StringBuffer();
-        boolean acquisitionMode = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.acquisitionMode_key);
-        int cameraDisplayOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_cameraDisplayOrientation_key);
-        int frameOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_frameOrientation_key);
+        boolean acquisitionMode = SessionManager.getInstance().getBoolean(Consts.ACQUISITION_MODE_KEY);
+        int cameraDisplayOrientation = SessionManager.getInstance().getInt(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY);
+        int frameOrientation = SessionManager.getInstance().getInt(Consts.CAPTURE_FRAME_ORIENTATION_KEY);
         stringBuffer_capture.append("摄像头采集方式：");
         stringBuffer_capture.append(acquisitionMode ? "texture" : "yuv");
         stringBuffer_capture.append("\n");
@@ -208,21 +206,18 @@ public class DeviceMainActivity extends DeviceBaseActivity {
     }
 
     private void apply() {
-        boolean acquisitionMode = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.acquisitionMode_key);
-        boolean encoderLevel_key = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.encoderLevel_key);
-        boolean encoderType = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.encoderType_key);
-        boolean decoderType = SessionManager.getInstance(Utils.getContext()).getBoolean(Consts.decoderType_key);
+        LoadDialog.show(DeviceMainActivity.this);
+        boolean acquisitionMode = SessionManager.getInstance().getBoolean(Consts.ACQUISITION_MODE_KEY);
+        boolean encoderLevel_key = SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_LEVEL_KEY);
+        boolean encoderType = SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_TYPE_KEY);
+        boolean decoderType = SessionManager.getInstance().getBoolean(Consts.SP_DECODER_TYPE_KEY);
         RongRTCConfig.Builder builder = new RongRTCConfig.Builder();
-        Map<String, Object> map = new HashMap<>();
-        map.put(RTCDevice.CodecCofig.isTexture, acquisitionMode);
-        map.put(RTCDevice.CodecCofig.hwEncode, encoderType);
-        map.put(RTCDevice.CodecCofig.hwDecode, decoderType);
-        map.put(RTCDevice.CodecCofig.highProfile, encoderLevel_key);
+        builder.enableVideoTexture(acquisitionMode);
         if (encoderType) {
-            String enCoderName = SessionManager.getInstance(Utils.getContext()).getString(Consts.encoder_key);
-            String enCoderColorName = SessionManager.getInstance(Utils.getContext()).getString(Consts.encoder_colorFormat_alias_key);
-            int colorFormat = SessionManager.getInstance(Utils.getContext()).getInt(Consts.colorFormat_val_key);
-            map.put(RTCDevice.CodecCofig.enCodeColor, colorFormat);
+            String enCoderName = SessionManager.getInstance().getString(Consts.SP_ENCODER_NAME_KEY);
+            String enCoderColorName = SessionManager.getInstance().getString(Consts.SP_ENCODER_COLOR_FORMAT_ALIAS_KEY);
+            int colorFormat = SessionManager.getInstance().getInt(Consts.SP_ENCODER_COLOR_FORMAT_VAL_KEY);
+            builder.setHardWareEncodeColor(colorFormat);
             if (enCoderName.indexOf("h264") != -1) {
                 builder.videoCodecs(RongRTCConfig.RongRTCVideoCodecs.H264);
             } else if (enCoderName.indexOf("vp9") != -1) {
@@ -232,21 +227,28 @@ public class DeviceMainActivity extends DeviceBaseActivity {
             }
         }
         if (decoderType) {
-            String deCoderName = SessionManager.getInstance(Utils.getContext()).getString(Consts.decoder_key);
-            String deCoderColorName = SessionManager.getInstance(Utils.getContext()).getString(Consts.decoder_colorFormat_alias_key);
-            int colorFormat = SessionManager.getInstance(Utils.getContext()).getInt(Consts.colorFormat_val_key);
-            map.put(RTCDevice.CodecCofig.deCodeColor, colorFormat);
+            String deCoderName = SessionManager.getInstance().getString(Consts.SP_DECODER_NAME_KEY);
+            String deCoderColorName = SessionManager.getInstance().getString(Consts.SP_DECODER_COLOR_FORMAT_ALIAS_KEY);
+            int colorFormat = SessionManager.getInstance().getInt(Consts.SP_DECODER_COLOR_FORMAT_VAL_KEY);
+            builder.setHardWareDecodeColor(colorFormat);
         }
-        int cameraDisplayOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_cameraDisplayOrientation_key);
-        int frameOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_frameOrientation_key);
+        int cameraDisplayOrientation = SessionManager.getInstance().getInt(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY);
+        int frameOrientation = SessionManager.getInstance().getInt(Consts.CAPTURE_FRAME_ORIENTATION_KEY);
 
         builder.setCameraDisplayOrientation(cameraDisplayOrientation);
         builder.setFrameOrientation(frameOrientation);
 
+        builder.enableHardWareEncode(encoderType);
+        builder.enableHardWareDecode(decoderType);
+        builder.enableHardWareEncodeHighProfile(encoderLevel_key);
 
-
-        RTCDevice.getInstance().setCodecConfig(map);
         RongRTCCapture.getInstance().setRTCConfig(builder.build());
+
+        LoadDialog.dismiss(DeviceMainActivity.this);
+        Toast.makeText(this, "应用成功", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+    public void backClick(View view){
         finish();
     }
 }

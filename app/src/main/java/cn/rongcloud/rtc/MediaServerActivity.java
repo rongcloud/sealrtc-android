@@ -31,12 +31,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.util.SessionManager;
 
-public class MediaServerActivity extends AppCompatActivity {
+public class MediaServerActivity extends RongRTCBaseActivity {
 
     private static final String MEDIA_CONFIGURATION = "https://sealrtc.rongcloud.cn/user/configuration";
 
@@ -82,8 +83,8 @@ public class MediaServerActivity extends AppCompatActivity {
             }
         });
         mediaUrlTextView = (TextView) findViewById(R.id.tv_setting_option_media_url);
-        String name = SessionManager.getInstance(this).getString("MediaName");
-        String url = SessionManager.getInstance(this).getString("MediaUrl");
+        String name = SessionManager.getInstance().getString("MediaName");
+        String url = SessionManager.getInstance().getString("MediaUrl");
         if (!TextUtils.isEmpty(url)) {
             mediaUrlEditText.setText(url);
             mediaUrlTextView.setText(name);
@@ -109,6 +110,13 @@ public class MediaServerActivity extends AppCompatActivity {
                 });
             }
         });
+
+        findViewById(R.id.option_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -117,8 +125,8 @@ public class MediaServerActivity extends AppCompatActivity {
         String name = mediaUrlTextView.getText().toString();
         String url = mediaUrlEditText.getText().toString();
         if (!TextUtils.isEmpty(url)) {
-            SessionManager.getInstance(this).put("MediaName", name);
-            SessionManager.getInstance(this).put("MediaUrl", url);
+            SessionManager.getInstance().put("MediaName", name);
+            SessionManager.getInstance().put("MediaUrl", url);
             CenterManager.getInstance().setMediaServerUrl(url);
         }
     }

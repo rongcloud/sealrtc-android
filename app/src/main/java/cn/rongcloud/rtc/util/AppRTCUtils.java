@@ -167,7 +167,7 @@ public final class AppRTCUtils {
         }else if(type==1){
           key=CUSTOM_CMPKEY;
         }
-        SessionManager.getInstance(Utils.getContext()).put(key,mJsonArray.toString());
+        SessionManager.getInstance().put(key,mJsonArray.toString());
       } catch (JSONException e) {
         e.printStackTrace();
       }
@@ -181,9 +181,9 @@ public final class AppRTCUtils {
 
   public static CMPAddress getCMPAddress(String key){
     CMPAddress cmpAddress=null;
-    if(SessionManager.getInstance(Utils.getContext()).contains(key)){
+    if(SessionManager.getInstance().contains(key)){
       try {
-        String CMPJson=SessionManager.getInstance(Utils.getContext()).getString(key);
+        String CMPJson=SessionManager.getInstance().getString(key);
         JSONArray jsonArray = new JSONArray(CMPJson);
         for (int i = 0; i < jsonArray.length(); i++) {
           JSONObject obj = (JSONObject) jsonArray.get(i);
@@ -198,16 +198,16 @@ public final class AppRTCUtils {
 
   public static String getAppID(){
     String appid="";
-    appid=SessionManager.getInstance(Utils.getContext()).getString(APPID_KEY);
+    appid=SessionManager.getInstance().getString(APPID_KEY);
     return appid;
   }
 
   public static boolean setAppID(String appID){
     if(TextUtils.isEmpty(appID)){
-      SessionManager.getInstance(Utils.getContext()).remove(APPID_KEY);
+      SessionManager.getInstance().remove(APPID_KEY);
       return true;
     }else{
-      SessionManager.getInstance(Utils.getContext()).put(APPID_KEY,appID);
+      SessionManager.getInstance().put(APPID_KEY,appID);
       return true;
     }
   }

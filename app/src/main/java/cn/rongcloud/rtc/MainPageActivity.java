@@ -40,28 +40,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cn.rongcloud.rtc.base.RongRTCBaseActivity;
-import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
-import cn.rongcloud.rtc.device.utils.Consts;
-import cn.rongcloud.rtc.entity.CountryInfo;
-import cn.rongcloud.rtc.entity.KickEvent;
-import cn.rongcloud.rtc.message.RoomInfoMessage;
-import cn.rongcloud.rtc.updateapk.UpDateApkHelper;
-import cn.rongcloud.rtc.util.PromptDialog;
-import cn.rongcloud.rtc.util.UserUtils;
-import cn.rongcloud.rtc.utils.FinLog;
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
-import cn.rongcloud.rtc.callback.JoinRoomUICallBack;
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
-import cn.rongcloud.rtc.room.RongRTCRoom;
-import cn.rongcloud.rtc.stream.local.RongRTCCapture;
-import cn.rongcloud.rtc.util.SessionManager;
-import cn.rongcloud.rtc.util.Utils;
-import io.rong.imlib.RongIMClient;
-import io.rong.imlib.common.DeviceUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -69,6 +47,33 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.rongcloud.rtc.base.RongRTCBaseActivity;
+import cn.rongcloud.rtc.callback.JoinRoomUICallBack;
+import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
+import cn.rongcloud.rtc.core.rongRTC.DevicesUtils;
+import cn.rongcloud.rtc.device.AVSettingsActivity;
+import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
+import cn.rongcloud.rtc.device.utils.Consts;
+import cn.rongcloud.rtc.entity.CountryInfo;
+import cn.rongcloud.rtc.entity.KickEvent;
+import cn.rongcloud.rtc.entity.KickedOfflineEvent;
+import cn.rongcloud.rtc.message.RoomInfoMessage;
+import cn.rongcloud.rtc.room.RongRTCRoomConfig;
+import cn.rongcloud.rtc.updateapk.UpDateApkHelper;
+import cn.rongcloud.rtc.util.PromptDialog;
+import cn.rongcloud.rtc.util.UserUtils;
+import cn.rongcloud.rtc.utils.FinLog;
+import cn.rongcloud.rtc.media.http.HttpClient;
+import cn.rongcloud.rtc.media.http.Request;
+import cn.rongcloud.rtc.media.http.RequestMethod;
+import cn.rongcloud.rtc.room.RongRTCRoom;
+import cn.rongcloud.rtc.stream.local.RongRTCCapture;
+import cn.rongcloud.rtc.util.SessionManager;
+import cn.rongcloud.rtc.util.Utils;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.common.DeviceUtils;
+
+import static android.media.MediaRecorder.AudioSource.VOICE_COMMUNICATION;
 import static cn.rongcloud.rtc.SettingActivity.IS_AUTO_TEST;
 import static cn.rongcloud.rtc.SettingActivity.IS_WATER;
 import static cn.rongcloud.rtc.util.UserUtils.OBSERVER_MUST;
@@ -80,6 +85,9 @@ import static cn.rongcloud.rtc.util.UserUtils.isVideoMute_key;
  * Handles the initial setup where the user selects which room to join.
  */
 public class MainPageActivity extends RongRTCBaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+
+//    public static final boolean ISLIVE = false;
+
     private static final int CHECK_BUTTON_DELATY = 1100;
     private static final int REQUEST_CODE_SELECT_COUNTRY = 1200;
     private static final int REQUEST_CODE_VERIFY = 1300;
@@ -139,6 +147,8 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     public static final String CR_144x256 = "144x256";
     private int tapStep = 0;
     private long lastClickTime = 0;
+    private View mLiveView;
+    private boolean mIsLive = false;
 
     private boolean TokenIncorrectMark=true;//记录私有云环境请求token失败后，仅重试一次
 
@@ -149,7 +159,9 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         roomId = getIntent().getStringExtra("roomId");
         checkPermissions();
         initViews();
-        new UpDateApkHelper(this).diffVersionFromServer();
+        if (!ServerUtils.usePrivateCloud()){//私有云的安装包不检查升级
+            new UpDateApkHelper(this).diffVersionFromServer();
+        }
 
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -158,12 +170,8 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
     private void initViews() {
         roomEditText = (EditText) findViewById(R.id.room_inputnumber);
-        roomId = SessionManager.getInstance(Utils.getContext()).getString(UserUtils.ROOMID_KEY);
-        String mediaServerUrl = SessionManager.getInstance(this).getString("MediaUrl");
-        //设置media server地址，内部自动化测试使用，开发者一般不需要关心
-        if (!TextUtils.isEmpty(mediaServerUrl)) {
-            RongRTCEngine.getInstance().setMediaServerUrl(mediaServerUrl);
-        }
+        roomId = SessionManager.getInstance().getString(UserUtils.ROOMID_KEY);
+
         if (!TextUtils.isEmpty(roomId)) {
             roomEditText.setText(roomId);
         }
@@ -175,7 +183,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 //        roomEditText.requestFocus();
 
         edit_room_phone = (EditText) findViewById(R.id.room_phone);
-        String phoneNum = SessionManager.getInstance(Utils.getContext()).getString(UserUtils.PHONE);
+        String phoneNum = SessionManager.getInstance().getString(UserUtils.PHONE);
         if (!TextUtils.isEmpty(phoneNum)) {
             edit_room_phone.setText(phoneNum);
         }
@@ -184,7 +192,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         edit_UserName.requestFocus();
         edit_UserName.setText(username);
         userNameEditText = (EditText) findViewById(R.id.tv_user_name);
-        userNameEditText.setText(SessionManager.getInstance(Utils.getContext()).getString(UserUtils.USERNAME_KEY));
+        userNameEditText.setText(SessionManager.getInstance().getString(UserUtils.USERNAME_KEY));
         connectButton = (Button) findViewById(R.id.connect_button);
         connectButton.setText(R.string.room_connect_button);
         if (TextUtils.isEmpty(edit_room_phone.getText().toString().trim()) || TextUtils.isEmpty(roomId)) {
@@ -238,7 +246,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     connectButton.setBackgroundResource(R.drawable.shape_corner_button_blue);
                     connectButton.setClickable(true);
                 } else {
-                    SessionManager.getInstance(Utils.getContext()).remove(UserUtils.ROOMID_KEY);
+                    SessionManager.getInstance().remove(UserUtils.ROOMID_KEY);
                     connectButton.setBackgroundResource(R.drawable.shape_corner_button_blue_invalid);
                     connectButton.setClickable(false);
                 }
@@ -258,7 +266,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     tapStep++;
 //                    if (tapStep == 6) {
                         try {
-                            Intent intent=new Intent("CN.RONGCLOUD.RTC.DEVICE.OEMMAINACTIVITY");
+                            Intent intent=new Intent(MainPageActivity.this, AVSettingsActivity.class);
                             startActivity(intent);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -271,6 +279,28 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         if (ServerUtils.usePrivateCloud() && mTvCountry != null) {
             mTvCountry.setVisibility(View.GONE);
         }
+//        initSDK();        // imInit 多次。会造成im中extension添加多次
+        mLiveView = findViewById(R.id.live_button);
+        mLiveView.setOnClickListener(this);
+        RongIMClient.setConnectionStatusListener(new RongIMClient.ConnectionStatusListener() {
+            @Override
+            public void onChanged(ConnectionStatus connectionStatus) {
+                //点击"开始会议"按钮时，IM为非CONNECTED时会主动connect，如果还是失败，自动化测试case失败
+                //监听IM连接状态，做1次自动加入房间的尝试，开发者可以忽略此修改
+                if (ConnectionStatus.CONNECTED.equals(connectionStatus)) {
+                    if (isDebug && joinRoomWhenConnectedInAutoTest) {
+                        joinRoomWhenConnectedInAutoTest = false;
+                        FinLog.d(TAG, "RongLog IM connected, Join Room");
+                        connectToRoom();
+
+                    }
+                }
+                else if (connectionStatus == RongIMClient.ConnectionStatusListener.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT){
+                    EventBus.getDefault().post(new KickedOfflineEvent());
+                    showDialog();
+                }
+            }
+        });
     }
 
     private void clearCer() {
@@ -294,11 +324,6 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     Toast.makeText(this, getResources().getString(R.string.input_roomId), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (TextUtils.isEmpty(userNameEditText.getText().toString().trim())) {
-                    showToast(R.string.username_empty_hint);
-                    return;
-                }
-
                 final String phoneNumber = edit_room_phone.getText().toString().trim();
                 if (TextUtils.isEmpty(phoneNumber)) {
                     Toast.makeText(this, getResources().getString(R.string.input_room_phoneNum), Toast.LENGTH_SHORT).show();
@@ -309,20 +334,27 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     return;
                 }
 
-                if (ServerUtils.usePrivateCloud() && !phoneNumber.equals(SessionManager.getInstance(Utils.getContext()).getString(UserUtils.PHONE))) {
+                String storedPhone = SessionManager.getInstance().getString(UserUtils.PHONE);
+                if (ServerUtils.usePrivateCloud() && !phoneNumber.equals(storedPhone)) {
                     //私有环境下，手机号发生变化，需要重新取token
-                    SessionManager.getInstance(Utils.getContext()).remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
+                    SessionManager.getInstance().remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
                 }
 
-                SessionManager.getInstance(Utils.getContext()).put(UserUtils.ROOMID_KEY, roomEditText.getText().toString().trim());
-                SessionManager.getInstance(Utils.getContext()).put(UserUtils.USERNAME_KEY, userNameEditText.getText().toString().trim());
-                SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, phoneNumber);
+                SessionManager.getInstance().put(UserUtils.ROOMID_KEY, roomEditText.getText().toString().trim());
+                SessionManager.getInstance().put(UserUtils.USERNAME_KEY, userNameEditText.getText().toString().trim());
+
+                if (!TextUtils.isEmpty(storedPhone) && !storedPhone.equals(phoneNumber)){
+                    //登录手机号发生变化时，删除之前保存的userID 和 token
+                   SessionManager.getInstance().remove(UserUtils.USER_ID);
+                   SessionManager.getInstance().remove(storedPhone);
+                }
+                SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber);
 
                 if (ServerUtils.usePrivateCloud()) {
                     if (ServerUtils.getTokenConnection()) {
                         LoadDialog.show(MainPageActivity.this);
                         FinLog.i(TAG, "-- getTokenConnection --");
-                        connectForXQ();
+                        connectForXQ(mIsLive);
                         return;
                     } else {
                         Toast.makeText(this, getResources().getString(R.string.private_clouconfiguration_cannot_be_empty), Toast.LENGTH_SHORT).show();
@@ -330,11 +362,11 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                     }
                 }
 
-                if (!SessionManager.getInstance(Utils.getContext()).contains(phoneNumber)) {
+                if (!SessionManager.getInstance().contains(phoneNumber) || TextUtils.isEmpty(SessionManager.getInstance().getString(UserUtils.USER_ID))) {
                     startVerifyActivity(phoneNumber);
                 } else {
-                    long kickTime = SessionManager.getInstance(this).getLong("KICK_TIME");
-                    String kickedRoomId = SessionManager.getInstance(this).getString("KICK_ROOM_ID");
+                    long kickTime = SessionManager.getInstance().getLong("KICK_TIME");
+                    String kickedRoomId = SessionManager.getInstance().getString("KICK_ROOM_ID");
                     String roomId = roomEditText.getText().toString();
                     if (kickTime > 0 && (System.currentTimeMillis() - kickTime < KICK_SILENT_PERIOD && roomId.equals(kickedRoomId))) {
                         Toast.makeText(this, R.string.member_operate_kicked, Toast.LENGTH_SHORT).show();
@@ -353,11 +385,11 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                         }
 
                     }
-                    final boolean autoTest = SessionManager.getInstance(this).getBoolean(IS_AUTO_TEST);
+                    final boolean autoTest = SessionManager.getInstance().getBoolean(IS_AUTO_TEST);
                     if (autoTest) {
                         joinRoomWhenConnectedInAutoTest = true;
                     }
-                    String token = SessionManager.getInstance(Utils.getContext()).getString(phoneNumber);
+                    String token = SessionManager.getInstance().getString(phoneNumber);
                     FinLog.v(TAG,"token 存在 ："+token);
                     RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
                         @Override
@@ -374,7 +406,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
 
                         @Override
                         public void onSuccess(String s) {
-                            SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, phoneNumber);
+                            SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber);
                             if (!autoTest) {
                                 connectToRoom();
                             }
@@ -392,6 +424,43 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 Intent intent = new Intent(MainPageActivity.this, CountryListActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_SELECT_COUNTRY);
                 break;
+            case R.id.live_button:
+//                connectForXQ(true);
+                final String phoneNumber2 = edit_room_phone.getText().toString().trim();
+                if (!SessionManager.getInstance().contains(phoneNumber2)) {
+                    startVerifyActivity(phoneNumber2);
+                }else if (RongIMClient.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
+                    jumpLive();
+                } else {
+                    String token = SessionManager.getInstance().getString(phoneNumber2);
+                    FinLog.v(TAG,"token 存在 ："+token);
+                    RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
+                        @Override
+                        public void onTokenIncorrect() {
+                            mStatus = STATE_FAILED;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainPageActivity.this, "Token验证失败，请重新获取！", Toast.LENGTH_SHORT).show();
+                                    startVerifyActivity(phoneNumber2);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onSuccess(String s) {
+                            SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber2);
+                            jumpLive();
+                        }
+
+                        @Override
+                        public void onError(RongIMClient.ErrorCode errorCode) {
+                            mStatus = STATE_FAILED;
+                            FinLog.e(TAG, "RongIMClient connectForXQ errorcode :" + errorCode);
+                        }
+                    });
+                }
+                break;
             default:
                 break;
         }
@@ -402,58 +471,133 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         super.onResume();
         updateCamerCheck();
         updateConfiguration();
-        isDebug = SessionManager.getInstance(this).getBoolean(IS_AUTO_TEST);
+        updateRoomType();
+
+        String mediaServerUrl = SessionManager.getInstance().getString("MediaUrl");
+        //设置media server地址，内部自动化测试使用，开发者一般不需要关心
+        if (!TextUtils.isEmpty(mediaServerUrl) && !ServerUtils.usePrivateCloud()) {
+            RongRTCEngine.getInstance().setMediaServerUrl(mediaServerUrl);
+        }
+
+        isDebug = SessionManager.getInstance().getBoolean(IS_AUTO_TEST);
         if(isDebug){
             connectButton.setBackgroundColor(R.drawable.shape_corner_button_blue);
         }
 
-        String phoneNum = SessionManager.getInstance(Utils.getContext()).getString(UserUtils.PHONE);
+        String phoneNum = SessionManager.getInstance().getString(UserUtils.PHONE);
         if (!TextUtils.isEmpty(phoneNum)) {
             edit_room_phone.setText(phoneNum);
         }
-        RongIMClient.setConnectionStatusListener(new RongIMClient.ConnectionStatusListener() {
-            @Override
-            public void onChanged(ConnectionStatus connectionStatus) {
-                //点击"开始会议"按钮时，IM为非CONNECTED时会主动connect，如果还是失败，自动化测试case失败
-                //监听IM连接状态，做1次自动加入房间的尝试，开发者可以忽略此修改
-                if (ConnectionStatus.CONNECTED.equals(connectionStatus)) {
-                    if (isDebug && joinRoomWhenConnectedInAutoTest) {
-                        joinRoomWhenConnectedInAutoTest = false;
-                        FinLog.d(TAG, "RongLog IM connected, Join Room");
-                        connectToRoom();
-                    }
-                }
-            }
-        });
+    }
+
+    private void updateRoomType() {
+        mIsLive = SessionManager.getInstance().getBoolean(SettingActivity.IS_LIVE, false);
+        mLiveView.setVisibility(mIsLive ? View.VISIBLE : View.GONE);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        RongIMClient.setConnectionStatusListener(null);
     }
 
     private void updateConfiguration() {
+
+        if (!SessionManager.getInstance().getBoolean(getResources().getString(R.string.key_use_av_setting), false)){
+            return;     // 没有进入av setting 界面，不使用本地配置。
+        }
+
         configBuilder = new RongRTCConfig.Builder();
+        boolean isEncoderHardMode = SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_TYPE_KEY, true);
+        String hardEncoderName = SessionManager.getInstance().getString(Consts.SP_ENCODER_NAME_KEY);
+        int encoderColorValue = SessionManager.getInstance().getInt(Consts.SP_ENCODER_COLOR_FORMAT_VAL_KEY, 0);
+        boolean encoderLevel_key = SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_LEVEL_KEY, true);
+        configBuilder.enableHardWareEncode(isEncoderHardMode)
+                .setHardWareEncodeColor(encoderColorValue)
+                .enableHardWareEncodeHighProfile(encoderLevel_key);
+        DevicesUtils.setEnCodeColor(encoderColorValue);
+        DevicesUtils.setHighProfile(encoderLevel_key);
+
+        String encoder_bit_rate_mode_vbr = Utils.getContext().getResources().getString(R.string.encoder_bit_rate_mode_vbr);
+        String encoder_bit_rate_mode_cq = Utils.getContext().getResources().getString(R.string.encoder_bit_rate_mode_cq);
+        String encoder_bit_rate_mode_cbr = Utils.getContext().getResources().getString(R.string.encoder_bit_rate_mode_cbr);
+
+        String encoderBitRateMode = SessionManager.getInstance().getString(Consts.SP_ENCODER_BIT_RATE_MODE, getResources().getString(R.string.def_encoder_bitrate_mode));
+        if (TextUtils.equals(encoderBitRateMode, encoder_bit_rate_mode_vbr)) {
+            configBuilder.setHardWareEncodeBitrateMode(RongRTCConfig.VideoBitrateMode.VBR);
+            DevicesUtils.setEnCodeBitRateMode(RongRTCConfig.VideoBitrateMode.VBR);
+        } else if (TextUtils.equals(encoderBitRateMode, encoder_bit_rate_mode_cbr)) {
+            configBuilder.setHardWareEncodeBitrateMode(RongRTCConfig.VideoBitrateMode.CBR);
+            DevicesUtils.setEnCodeBitRateMode(RongRTCConfig.VideoBitrateMode.CBR);
+        } else if (TextUtils.equals(encoderBitRateMode, encoder_bit_rate_mode_cq)) {
+            configBuilder.setHardWareEncodeBitrateMode(RongRTCConfig.VideoBitrateMode.CQ);
+            DevicesUtils.setEnCodeBitRateMode(RongRTCConfig.VideoBitrateMode.CQ);
+        }
+
+
+        boolean isDecoderHardMode = SessionManager.getInstance().getBoolean(Consts.SP_DECODER_TYPE_KEY, true);
+        String hardDecoderName = SessionManager.getInstance().getString(Consts.SP_DECODER_NAME_KEY);
+        int decoderColorSpace = SessionManager.getInstance().getInt(Consts.SP_DECODER_COLOR_FORMAT_VAL_KEY, 0);
+        configBuilder.enableHardWareDecode(isDecoderHardMode)
+                .setHardWareDecodeColor(decoderColorSpace);
+        DevicesUtils.setDeCodeColor(decoderColorSpace);
+
+        // audio capture config
+        int audioSource = SessionManager.getInstance().getInt(Consts.SP_AUDIO_SOURCE, VOICE_COMMUNICATION);
+        int audioSampleRate = SessionManager.getInstance().getInt(Consts.SP_AUDIO_SAMPLE_RATE, 48000);
+        boolean audioSampleStereo = SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_CHANNEL_STEREO_ENABLE, false);
+        int audioBitRate = SessionManager.getInstance().getInt(Consts.SP_AUDIO_TRANSPORT_BIT_RATE, 30);
+        configBuilder.setAudioSource(audioSource)
+                .setAudioSampleRate(audioSampleRate)
+                .enableStereo(audioSampleStereo)
+                .setAudioBitrate(audioBitRate);
+
+        // audio agc config
+        boolean audioAgcEnable = SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_AGC_CONTROL_ENABLE, true);
+        boolean audioAgcLimiter = SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_AGC_LIMITER_ENABLE, true);
+        int audioAgcTargetDbov = SessionManager.getInstance().getInt(Consts.SP_AUDIO_AGC_TARGET_DBOV, -3);
+        int audioAgcCompression = SessionManager.getInstance().getInt(Consts.SP_AUDIO_AGC_COMPRESSION, 9);
+        boolean audioPreAmplifierEnable = SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_PRE_AMPLIFIER_ENABLE, true);
+        float audioPreAmplifierLevel = SessionManager.getInstance().getFloat(Consts.SP_AUDIO_PRE_AMPLIFIER_LEVEL, 1.0f);
+        configBuilder.enableAGCControl(audioAgcEnable)
+                .enableAGCLimiter(audioAgcLimiter)
+                .setAGCTargetdbov(audioAgcTargetDbov)
+                .setAGCCompression(audioAgcCompression)
+                .enablePreAmplifier(audioPreAmplifierEnable)
+                .setPreAmplifierLevel(audioPreAmplifierLevel);
+
+        // audio noise suppression
+        int audioNoiseSuppressionMode = SessionManager.getInstance().getInt(Consts.SP_AUDIO_NOISE_SUPPRESSION_MODE, getResources().getInteger(R.integer.def_ns_model));
+        int audioNoiseSuppressionLevel = SessionManager.getInstance().getInt(Consts.SP_AUDIO_NOISE_SUPPRESSION_LEVEL, getResources().getInteger(R.integer.def_ns_level));
+        boolean audioNoiseHighPassFilter = SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_NOISE_HIGH_PASS_FILTER, true);
+        configBuilder.setNoiseSuppression(RongRTCConfig.NSMode.parseValue(audioNoiseSuppressionMode))
+                .setNoiseSuppressionLevel(RongRTCConfig.NSLevel.parseValue(audioNoiseSuppressionLevel))
+                .enableHighPassFilter(audioNoiseHighPassFilter);
+
+        // audio echo cancel
+        int audioEchoCancelMode = SessionManager.getInstance().getInt(Consts.SP_AUDIO_ECHO_CANCEL_MODE, 0);
+        boolean audioEchoCancelFilterEnable = SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_ECHO_CANCEL_FILTER_ENABLE, getResources().getBoolean(R.bool.def_echo_filter_enable));
+        configBuilder.setEchoCancel(RongRTCConfig.AECMode.parseValue(audioEchoCancelMode))
+                .enableEchoFilter(audioEchoCancelFilterEnable);
+
         //Set max and min bitrate
-        String minBitRate = SessionManager.getInstance(this).getString(SettingActivity.BIT_RATE_MIN);
+        String minBitRate = SessionManager.getInstance().getString(SettingActivity.BIT_RATE_MIN, getResources().getString(R.string.def_min_bitrate));
         if (!TextUtils.isEmpty(minBitRate) && minBitRate.length() > 4) {
             int bitRateIntvalue = Integer.valueOf(minBitRate.substring(0, minBitRate.length() - 4));
             FinLog.v(TAG, "BIT_RATE_MIN=" + bitRateIntvalue);
             configBuilder.setMinRate(bitRateIntvalue);
         }
-        String maxBitRate = SessionManager.getInstance(this).getString(SettingActivity.BIT_RATE_MAX);
+        String maxBitRate = SessionManager.getInstance().getString(SettingActivity.BIT_RATE_MAX, getResources().getString(R.string.def_max_bitrate));
         if (!TextUtils.isEmpty(maxBitRate) && maxBitRate.length() > 4) {
             int bitRateIntvalue = Integer.valueOf(maxBitRate.substring(0, maxBitRate.length() - 4));
             FinLog.v(TAG, "BIT_RATE_MAX=" + bitRateIntvalue);
             configBuilder.setMaxRate(bitRateIntvalue);
         }
         //set resolution
-        String resolution = SessionManager.getInstance(this).getString(SettingActivity.RESOLUTION);
-        String fps = SessionManager.getInstance(this).getString(SettingActivity.FPS);
+        String resolution = SessionManager.getInstance().getString(SettingActivity.RESOLUTION);
+        String fps = SessionManager.getInstance().getString(SettingActivity.FPS);
         RongRTCConfig.RongRTCVideoProfile videoProfile = selectiveResolution(resolution, fps);
-        configBuilder.videoProfile(videoProfile);
-        String codec = SessionManager.getInstance(this).getString(SettingActivity.CODECS);
+        configBuilder.setVideoProfile(videoProfile);
+        String codec = SessionManager.getInstance().getString(SettingActivity.CODECS);
         if (!TextUtils.isEmpty(codec)) {
             if ("VP8".equals(codec)) {
                 configBuilder.videoCodecs(RongRTCConfig.RongRTCVideoCodecs.VP8);
@@ -461,38 +605,39 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 configBuilder.videoCodecs(RongRTCConfig.RongRTCVideoCodecs.H264);
             }
         }
-        boolean enableTinyStream = SessionManager.getInstance(this).getIsSupportTiny(SettingActivity.IS_STREAM_TINY);
+        boolean enableTinyStream = SessionManager.getInstance().getIsSupportTiny(SettingActivity.IS_STREAM_TINY);
         configBuilder.enableTinyStream(enableTinyStream);
-        configBuilder.enableStereo(SessionManager.getInstance(this).getBoolean(SettingActivity.IS_STEREO));
-        configBuilder.enableAudioProcess(SessionManager.getInstance(this).getBoolean(SettingActivity.IS_AUDIO_PROCESS));
-        configBuilder.setAudioBitrate(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_BITRATE));
-        configBuilder.setAudioAgcLimiter(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_LIMITER));
-        configBuilder.setAudioAgcTargetDBOV(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_TARGET_DBOV));
-        configBuilder.setAudioAgcCompression(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_COMPRESSION));
-        configBuilder.setNoiseSuppression(SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION));
-        configBuilder.setNoiseSuppressionLevel(SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION_LEVEL));
-        configBuilder.setEchoCancel(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_ECHO_CANCEL));
-        configBuilder.setPreAmplifier(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER));
-        configBuilder.setPreAmplifierLevel(SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER_LEVEL));
 
         //在device设置界面设置的屏幕旋转角度 在此在设置一次，防止被覆盖
-        int cameraDisplayOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_cameraDisplayOrientation_key);
-        int frameOrientation = SessionManager.getInstance(Utils.getContext()).getInt(Consts.capture_frameOrientation_key);
+        int cameraDisplayOrientation = SessionManager.getInstance().getInt(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY, 0);
+        int frameOrientation = SessionManager.getInstance().getInt(Consts.CAPTURE_FRAME_ORIENTATION_KEY, -1);
+        boolean acquisitionMode = SessionManager.getInstance().getBoolean(Consts.ACQUISITION_MODE_KEY, true);
+
         configBuilder.setCameraDisplayOrientation(cameraDisplayOrientation);
-        configBuilder.setFrameOrientation(frameOrientation==0?-1:frameOrientation);
+        configBuilder.setFrameOrientation(frameOrientation);
+        configBuilder.enableVideoTexture(acquisitionMode);
+
+        boolean isAudioMode = SessionManager.getInstance().getBoolean(SettingActivity.IS_AUDIO_MUSIC, getResources().getBoolean(R.bool.def_audio_music_mode));
+        if (isAudioMode){
+            configBuilder.buildMusicMode();
+            RongRTCCapture.getInstance().changeAudioScenario(RongRTCConfig.AudioScenario.MUSIC);
+        }else {
+            RongRTCCapture.getInstance().changeAudioScenario(RongRTCConfig.AudioScenario.DEFAULT);
+        }
+
 
         FinLog.v(TAG, "enableTinyStream: " + enableTinyStream);
-        FinLog.v(TAG, "audio option stereo: " + SessionManager.getInstance(this).getBoolean(SettingActivity.IS_STEREO));
-        FinLog.v(TAG, "audio option audioProcess: " + SessionManager.getInstance(this).getBoolean(SettingActivity.IS_AUDIO_PROCESS));
-        FinLog.v(TAG, "audio option audio bitrate: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_BITRATE));
-        FinLog.v(TAG, "audio option audio agc limiter: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_LIMITER));
-        FinLog.v(TAG, "audio option audio agc target dbov: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_TARGET_DBOV));
-        FinLog.v(TAG, "audio option audio agc compression: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_AGC_COMPRESSION));
-        FinLog.v(TAG, "audio option audio noise suppression: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION));
-        FinLog.v(TAG, "audio option audio noise suppression level: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO__NOISE_SUPPRESSION_LEVEL));
-        FinLog.v(TAG, "audio option audio echo cancel: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_ECHO_CANCEL));
-        FinLog.v(TAG, "audio option audio preAmplifier : " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER));
-        FinLog.v(TAG, "audio option audio preAmplifier level: " + SessionManager.getInstance(this).getString(SettingActivity.AUDIO_PREAMPLIFIER_LEVEL));
+        FinLog.v(TAG, "audio option stereo: " + SessionManager.getInstance().getBoolean(SettingActivity.IS_STEREO));
+        FinLog.v(TAG, "audio option audioProcess: " + SessionManager.getInstance().getBoolean(SettingActivity.IS_AUDIO_PROCESS));
+        FinLog.v(TAG, "audio option audio bitrate: " + SessionManager.getInstance().getString(SettingActivity.AUDIO_BITRATE));
+        FinLog.v(TAG, "audio option audio agc limiter: " + SessionManager.getInstance().getString(SettingActivity.AUDIO_AGC_LIMITER));
+        FinLog.v(TAG, "audio option audio agc target dbov: " + SessionManager.getInstance().getString(SettingActivity.AUDIO_AGC_TARGET_DBOV));
+        FinLog.v(TAG, "audio option audio agc compression: " + SessionManager.getInstance().getString(SettingActivity.AUDIO_AGC_COMPRESSION));
+        FinLog.v(TAG, "audio option audio noise suppression: " + SessionManager.getInstance().getString(SettingActivity.AUDIO__NOISE_SUPPRESSION));
+        FinLog.v(TAG, "audio option audio noise suppression level: " + SessionManager.getInstance().getString(SettingActivity.AUDIO__NOISE_SUPPRESSION_LEVEL));
+        FinLog.v(TAG, "audio option audio echo cancel: " + SessionManager.getInstance().getString(SettingActivity.AUDIO_ECHO_CANCEL));
+        FinLog.v(TAG, "audio option audio preAmplifier : " + SessionManager.getInstance().getString(SettingActivity.AUDIO_PREAMPLIFIER));
+        FinLog.v(TAG, "audio option audio preAmplifier level: " + SessionManager.getInstance().getString(SettingActivity.AUDIO_PREAMPLIFIER_LEVEL));
 
         RongRTCCapture.getInstance().setRTCConfig(configBuilder.build());
     }
@@ -523,23 +668,34 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     }
 
     private void startSetting() {
+        if (Utils.isFastDoubleClick()) {
+            return;
+        }
         Intent intent = new Intent(MainPageActivity.this, SettingActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * {\"liveUrl\":\"AB9tZHNydjAxLWtzYmoucm9uZ2Nsb3VkLm5ldDoxMDgwABIxMjAuOTIuMjIuMTQ0Ojc3ODgAIEFBWXhNREF3TURBQUJYQXlNak16QUFWd01qSXpNdz09ABRwMjIzM19Sb25nQ2xvdWRSVENfMQAAAACxVjwFABRwMjIzM19Sb25nQ2xvdWRSVENfMQAAAAAvvMzKABRwMjIzM19Sb25nQ2xvdWRSVENfMAAAAAB8CxTh\"}"}
+     */
     private void connectToRoom() {
         mStatus = STATE_JOINING;
+        updateConfiguration();
         joinRoomWhenConnectedInAutoTest = false;
         if (RongIMClient.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
             LoadDialog.show(this);
             final String roomId = roomEditText.getText().toString();
-            RongRTCEngine.getInstance().joinRoom(roomId, new JoinRoomUICallBack() {
+            RongRTCRoomConfig config = new RongRTCRoomConfig.Builder()
+                    .setRoomType(mIsLive ? RongRTCRoomConfig.RoomType.LIVE : RongRTCRoomConfig.RoomType.NORMAL)
+                    .setLiveType(isVideoMute ? RongRTCRoomConfig.LiveType.AUDIO : RongRTCRoomConfig.LiveType.AUDIO_VIDEO) //直播模式为音视频模式
+                    .build();
+            RongRTCEngine.getInstance().joinRoom(roomId,config, new JoinRoomUICallBack() {
                 @Override
                 protected void onUiSuccess(RongRTCRoom rtcRoom) {
                     LoadDialog.dismiss(MainPageActivity.this);
                     Toast.makeText(MainPageActivity.this, getResources().getString(R.string.join_room_success), Toast.LENGTH_SHORT).show();
                     int userCount = rtcRoom.getRemoteUsers().size();
-                    if (userCount >= OBSERVER_MUST) {
+                    if (userCount >= OBSERVER_MUST && !isObserver) {
                         AlertDialog dialog = new AlertDialog.Builder(MainPageActivity.this)
                                 .setMessage(getResources().getString(R.string.join_room_observer_prompt))
                                 .setNegativeButton(getResources().getString(R.string.rtc_dialog_cancel), new DialogInterface.OnClickListener() {
@@ -560,7 +716,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                                 .create();
                         dialog.setCancelable(false);
                         dialog.show();
-                    } else if (userCount >= VIDEOMUTE_MUST) {
+                    } else if (userCount >= VIDEOMUTE_MUST && !isVideoMute && !isObserver) {
                         AlertDialog dialog = new AlertDialog.Builder(MainPageActivity.this)
                                 .setMessage(getResources().getString(R.string.join_room_audio_only_prompt))
                                 .setNegativeButton(getResources().getString(R.string.rtc_dialog_cancel), new DialogInterface.OnClickListener() {
@@ -609,21 +765,22 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         mStatus = STATE_JOINED;
         Intent intent = new Intent(this, CallActivity.class);
         //加入房间之前 置为默认状态
-        SessionManager.getInstance(Utils.getContext()).put("VideoModeKey", "smooth");
+        SessionManager.getInstance().put("VideoModeKey", "smooth");
         //
         intent.putExtra(CallActivity.EXTRA_ROOMID, roomEditText.getText().toString());
         intent.putExtra(CallActivity.EXTRA_USER_NAME, userNameEditText.getText().toString());
         intent.putExtra(CallActivity.EXTRA_CAMERA, muteVideo);
         intent.putExtra(CallActivity.EXTRA_OBSERVER, observer);
-        intent.putExtra(CallActivity.EXTRA_AUTO_TEST, SessionManager.getInstance(Utils.getContext()).getBoolean(IS_AUTO_TEST));
-        intent.putExtra(CallActivity.EXTRA_WATER, SessionManager.getInstance(Utils.getContext()).getBoolean(IS_WATER));
+        intent.putExtra(CallActivity.EXTRA_AUTO_TEST, SessionManager.getInstance().getBoolean(IS_AUTO_TEST));
+        intent.putExtra(CallActivity.EXTRA_WATER, SessionManager.getInstance().getBoolean(IS_WATER));
+        intent.putExtra(CallActivity.EXTRA_IS_LIVE, mIsLive);
         RongRTCRoom rongRTCRoom = CenterManager.getInstance().getRongRTCRoom();
         int joinMode = RoomInfoMessage.JoinMode.AUDIO_VIDEO;
-        if (observer) {
-            joinMode = RoomInfoMessage.JoinMode.OBSERVER;
-        }
         if (muteVideo) {
             joinMode = RoomInfoMessage.JoinMode.AUDIO;
+        }
+        if (observer) {
+            joinMode = RoomInfoMessage.JoinMode.OBSERVER;
         }
         String userId = rongRTCRoom.getLocalUser().getUserId();
         String userName = userNameEditText.getText().toString();
@@ -672,7 +829,7 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     }
 
     private void updateCountry() {
-        String json = SessionManager.getInstance(this).getString(UserUtils.COUNTRY);
+        String json = SessionManager.getInstance().getString(UserUtils.COUNTRY);
         CountryInfo info;
         if (TextUtils.isEmpty(json)) {
             info = CountryInfo.createDefault();
@@ -688,49 +845,44 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     }
 
     /**
-     * 使用小乔环境 或 私有云环境开始音视频
+     * 使用小乔环境
      */
-    private void connectForXQ() {
-        String token = SessionManager.getInstance(Utils.getContext()).getString(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
+    private void connectForXQ(final boolean isLive) {
+        String token = SessionManager.getInstance().getString(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
         FinLog.i(TAG,"private_Cloud_tokne : "+token);
         if (!TextUtils.isEmpty(token)) {
             RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
                 @Override
                 public void onTokenIncorrect() {
-                    FinLog.e(TAG, "onTokenIncorrect");
-                    if (TokenIncorrectMark) {
-                        postShowToast("Recapturing Token!");
-                        TokenIncorrectMark = false;
-                        getTokenForXQ();
-                    } else {
-                        LoadDialog.dismiss(MainPageActivity.this);
-                        postShowToast("Token不正确");
-                        TokenIncorrectMark = true;
-                    }
+                    getTokenForXQ(isLive);
                 }
 
                 @Override
                 public void onSuccess(String s) {
-                    LoadDialog.dismiss(MainPageActivity.this);
                     FinLog.d(TAG, "IM  connectForXQ success ");
-                    TokenIncorrectMark = true;
-                    connectToRoom();
+                    if (isLive){
+                        jumpLive();
+                    }else {
+                        connectToRoom();
+                    }
                 }
 
                 @Override
                 public void onError(RongIMClient.ErrorCode errorCode) {
-                    LoadDialog.dismiss(MainPageActivity.this);
-                    TokenIncorrectMark = true;
-                    FinLog.e(TAG, "连接IM失败connect ErrorCode :" + errorCode.getValue());
-                    postShowToast("连接IM失败. ErrorCode: " + errorCode.getValue());
+                    Toast.makeText(MainPageActivity.this, "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            getTokenForXQ();
+            getTokenForXQ(isLive);
         }
     }
 
-    private void getTokenForXQ(){
+    private void jumpLive() {
+        Intent liveIntent = new Intent(MainPageActivity.this, LiveListActivity.class);
+        startActivity(liveIntent);
+    }
+
+    private void getTokenForXQ(final boolean isLive){
         StringBuilder params = new StringBuilder();
         params.append("userId=")
                 .append(edit_room_phone.getText().toString().trim() + (DeviceUtils.getDeviceId(Utils.getContext()).length() > 4 ?
@@ -768,8 +920,8 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     if (jsonObject.optInt("code") == 200) {
-                        SessionManager.getInstance(Utils.getContext()).put(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY, jsonObject.optString("token"));
-                        connectForXQ();
+                        SessionManager.getInstance().put(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY, jsonObject.optString("token"));
+                        connectForXQ(isLive);
                     }else{
                         postShowToast("code not 200, code="+jsonObject.optInt("code"));
                     }
@@ -931,13 +1083,21 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     }
 
     private void initSDK() {
-        mStatus = STATE_INIT;
-        /*
-         * 如果是连接到私有云需要在此配置服务器地址
-         * 如果是公有云则不需要调用此方法
-         */
-        //RongIMClient.setServerInfo(ServerUtils.getNavServer(), UserUtils.FILE_SERVER);
-        RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
+        if (mStatus < STATE_INIT) {
+            mStatus = STATE_INIT;
+            /*
+             * 如果是连接到私有云需要在此配置服务器地址
+             * 如果是公有云则不需要调用此方法
+             */
+            RongIMClient.setServerInfo(ServerUtils.getNavServer(), UserUtils.FILE_SERVER);
+            RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
+            /*
+             * 设置建立 Https 连接时，是否使用自签证书。
+             * 公有云用户无需调用此方法，私有云用户使用自签证书时调用此方法设置
+             */
+            /*configBuilder = new RongRTCConfig.Builder();
+            configBuilder.enableHttpsSelfCertificate(true);*/
+        }
     }
 
     /**
@@ -951,20 +1111,21 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         if (TextUtils.isEmpty(fpsStr)) {
             fpsStr = "15";
         }
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("VD_");
-        stringBuffer.append(resolutionStr);
-        stringBuffer.append("_");
-        stringBuffer.append(fpsStr);
-        stringBuffer.append("f");//VD_368x640_30f
-        profile = RongRTCConfig.RongRTCVideoProfile.getRongRTCVideoProfile(stringBuffer.toString());
+
+        if (resolutionStr == null || resolutionStr.equals("")){
+            return RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_15f_1;
+        }
+
+        String[] resolutionArray = resolutionStr.split("x");
+
+        profile = RongRTCConfig.RongRTCVideoProfile.parseVideoProfile(Integer.valueOf(resolutionArray[0]), Integer.valueOf(resolutionArray[1]), Integer.valueOf(fpsStr));
         return profile;
     }
 
     private void startVerifyActivity(String phoneNumber) {
-        SessionManager.getInstance(Utils.getContext()).put(UserUtils.PHONE, phoneNumber);
-        SessionManager.getInstance(Utils.getContext()).put(isVideoMute_key, isVideoMute);
-        SessionManager.getInstance(Utils.getContext()).put(isObserver_key, isObserver);
+        SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber);
+        SessionManager.getInstance().put(isVideoMute_key, isVideoMute);
+        SessionManager.getInstance().put(isObserver_key, isObserver);
         Intent intent = new Intent(MainPageActivity.this, VerifyActivity.class);
         startActivityForResult(intent, REQUEST_CODE_VERIFY);
     }
@@ -973,15 +1134,16 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
     public void onBusComplaint(String val) {
         if (val.equals("ServerConfigActivity")) {
             RongIMClient.getInstance().switchAppKey(ServerUtils.getAppKey());
-            initSDK();
+            RongIMClient.setServerInfo(ServerUtils.getNavServer(), UserUtils.FILE_SERVER);
+            RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
             showToast(getString(R.string.update_configuration_successful));
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onKickEvent(KickEvent event) {
-        SessionManager.getInstance(this).put("KICK_TIME", System.currentTimeMillis());
-        SessionManager.getInstance(this).put("KICK_ROOM_ID", event.getRoomId());
+        SessionManager.getInstance().put("KICK_TIME", System.currentTimeMillis());
+        SessionManager.getInstance().put("KICK_ROOM_ID", event.getRoomId());
         final PromptDialog dialog = PromptDialog.newInstance(this, getString(R.string.member_operate_kicked));
         dialog.setPromptButtonClickedListener(new PromptDialog.OnPromptButtonClickedListener() {
             @Override
@@ -1009,5 +1171,22 @@ public class MainPageActivity extends RongRTCBaseActivity implements View.OnClic
         }
         EventBus.getDefault().removeStickyEvent("ConfigActivity");
         EventBus.getDefault().unregister(this);
+        RongIMClient.setConnectionStatusListener(null);
+    }
+
+    private void showDialog() {
+     runOnUiThread(new Runnable() {
+         @Override
+         public void run() {
+             AlertDialog.Builder builder = new AlertDialog.Builder(MainPageActivity.this).setTitle(getText(R.string.rtc_dialog_kicked_offline))
+                     .setNeutralButton(getText(R.string.rtc_dialog_ok), new DialogInterface.OnClickListener() {
+                         @Override
+                         public void onClick(DialogInterface dialogInterface, int i) {
+
+                         }
+                     });
+             builder.create().show();
+         }
+     });
     }
 }

@@ -12,6 +12,7 @@ public class ServerUtils {
     public static final String NAV_SERVER_KEY = "nav_server_key";
     public static final String APP_SECRET_KEY = "app_secret_key";
     public static final String API_SERVER_KEY = "api_server_key";
+    public static final String MEDIA_SERVER_URL_KEY = "media_server_url_key";
     public static final String TOKEN_PRIVATE_CLOUD_KEY ="token_private_cloud_key";
 
     //记录用户输入的私有云地址
@@ -19,6 +20,7 @@ public class ServerUtils {
     public static String NAV_SERVER = "";
     public static String APP_SECRET = "";
     public static String API_SERVER = "";//和secret请求token
+    public static String MEDIA_SERVER = "";
 
     /**
      * 私有云获取token字段不为空时，执行私有云获取token开始音视频会议

@@ -88,9 +88,9 @@ public class CodecListActivity extends DeviceBaseActivity {
                         }
                     }
                     if(CodecType.equals("1")){
-                        SessionManager.getInstance(Utils.getContext()).put(Consts.decoder_key,name);
+                        SessionManager.getInstance().put(Consts.SP_ENCODER_NAME_KEY,name);
                     }else{
-                        SessionManager.getInstance(Utils.getContext()).put(Consts.encoder_key,name);
+                        SessionManager.getInstance().put(Consts.SP_ENCODER_NAME_KEY,name);
                     }
                     Bundle bundle = new Bundle();
                     bundle.putParcelableArrayList("mediaTypes", mediaTypes);

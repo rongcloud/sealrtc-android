@@ -36,8 +36,8 @@ public class ContainerLayout extends RelativeLayout {
         renderHolder.coverView.getRongRTCVideoView().setOnSizeChangedListener(new RongRTCVideoView.OnSizeChangedListener() {
             @Override
             public void onChanged(RongRTCVideoView.Size size) {
-                FinLog.d(TAG,"得到准确尺寸，重新刷新视图：size= W:" + size.with + " H:" + size.height);
-                if (renderHolder.containerLayout.getParent()!=null && renderHolder.containerLayout.getParent()!=ContainerLayout.this){
+                FinLog.d(TAG, "get video view exact size,refresh view size: W = " + size.with + " ,H = " + size.height);
+                if (renderHolder.containerLayout.getParent() != null && renderHolder.containerLayout.getParent() != ContainerLayout.this) {
                     return;
                 }
                 ContainerLayout.this.removeAllViews();
@@ -68,7 +68,7 @@ public class ContainerLayout extends RelativeLayout {
                 int layoutParamsHeight = (videoView.rotatedFrameHeight == 0 || videoView.rotatedFrameWidth == 0) ? ViewGroup.LayoutParams.WRAP_CONTENT : screenWidth * videoView.rotatedFrameHeight / videoView.rotatedFrameWidth;
                 layoutParams = new LayoutParams(screenWidth, layoutParamsHeight);
             } else {
-                int layoutParamsWidth = (videoView.rotatedFrameHeight == 0 || videoView.rotatedFrameHeight == 0) ? ViewGroup.LayoutParams.WRAP_CONTENT : (screenWidth * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight > screenWidth ? screenWidth : screenHeight * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight);
+                int layoutParamsWidth = (videoView.rotatedFrameHeight == 0 || videoView.rotatedFrameHeight == 0) ? ViewGroup.LayoutParams.WRAP_CONTENT : (screenHeight * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight > screenWidth ? screenWidth : screenHeight * videoView.rotatedFrameWidth / videoView.rotatedFrameHeight);
                 layoutParams = new LayoutParams(layoutParamsWidth, screenHeight);
             }
         }

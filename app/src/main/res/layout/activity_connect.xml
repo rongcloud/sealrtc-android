@@ -232,6 +232,19 @@
                     android:textAllCaps="false"
                     android:textColor="#ffffff"
                     android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/live_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/shape_corner_button_blue"
+                    android:gravity="center"
+                    android:text="观看直播"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff"
+                    android:textSize="18sp" />
             </LinearLayout>
 
         </LinearLayout>

@@ -1,5 +1,6 @@
 package cn.rongcloud.rtc.device;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,16 +23,16 @@ import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.adapter.ColorFormatAdapter;
 import cn.rongcloud.rtc.device.adapter.ItemDecoration;
 import cn.rongcloud.rtc.device.entity.ColorFormat;
+import cn.rongcloud.rtc.device.entity.EventBusInfo;
 import cn.rongcloud.rtc.device.entity.MediaType;
-import cn.rongcloud.rtc.device.utils.Consts;
 import cn.rongcloud.rtc.device.utils.OnColorFormatItemClickListener;
-import cn.rongcloud.rtc.util.SessionManager;
-import cn.rongcloud.rtc.util.UserUtils;
-import cn.rongcloud.rtc.util.Utils;
 
-import static cn.rongcloud.rtc.device.utils.Consts.decoder_colorFormat_eventBus;
-import static cn.rongcloud.rtc.device.utils.Consts.encoder_colorFormat_eventBus;
+import static cn.rongcloud.rtc.device.utils.Consts.REQUEST_CODE_DECODER_COLOR_FORMAT;
+import static cn.rongcloud.rtc.device.utils.Consts.REQUEST_CODE_ENCODER_COLOR_FORMAT;
 
+/**
+ * 编解码颜色空间列表
+ */
 public class CodecColorFormatActivity extends DeviceBaseActivity {
     private RecyclerView recyclerView_colorFormat;
     private ColorFormatAdapter colorFormatAdapter;
@@ -40,6 +41,19 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
     private Map<String, ColorFormat> colorFormats_select = new HashMap<>();
     private String CodecType = "";
     private RelativeLayout rela_error;
+    private static final String EXTRA_KEY_MEDIATYPES = "EXTRA_KEY_MEDIATYPES";
+    private static final String EXTRA_KEY_CODEC_NAME = "EXTRA_KEY_CODEC_NAME";
+    private static final String EXTRA_KEY_CODEC_TYPE = "EXTRA_KEY_CODEC_TYPE";
+
+    public static void startActivity(Context context, ArrayList<MediaType> list, String codecType, String codecName) {
+        Bundle bundle = new Bundle();
+        Intent intent = new Intent(context, CodecColorFormatActivity.class);
+        bundle.putParcelableArrayList(EXTRA_KEY_MEDIATYPES, list);
+        bundle.putString(EXTRA_KEY_CODEC_NAME, codecName);
+        bundle.putString(EXTRA_KEY_CODEC_TYPE, codecType);
+        intent.putExtras(bundle);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +66,14 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
         try {
             Intent intent = getIntent();
             Bundle bundle = intent.getExtras();
-            if (!TextUtils.isEmpty(bundle.getString("CodecName"))) {
-                tc_codecName.setText(bundle.getString("CodecName"));
+            if (!TextUtils.isEmpty(bundle.getString(EXTRA_KEY_CODEC_NAME))) {
+                tc_codecName.setText(bundle.getString(EXTRA_KEY_CODEC_NAME));
             } else {
-                tc_codecName.setText("NULL");
+                tc_codecName.setText("");
             }
-            CodecType = bundle.getString("CodecType");
-            if (bundle.getParcelableArrayList("mediaTypes") != null) {
-                mediaTypes = bundle.getParcelableArrayList("mediaTypes");
+            CodecType = bundle.getString(EXTRA_KEY_CODEC_TYPE);
+            if (bundle.getParcelableArrayList(EXTRA_KEY_MEDIATYPES) != null) {
+                mediaTypes = bundle.getParcelableArrayList(EXTRA_KEY_MEDIATYPES);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,11 +117,16 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
         LoadDialog.dismiss(CodecColorFormatActivity.this);
     }
 
+    public void onNavBackClick(View view) {
+        finish();
+    }
+
     public void colorFormatClick(View view) {
         try {
             if (colorFormats_select == null || colorFormats_select.size() == 0) {
                 Toast.makeText(this, "没有选择颜色空间！", Toast.LENGTH_SHORT).show();
                 finish();
+                return;
             }
             if (colorFormats_select.size() > 1) {
                 Toast.makeText(this, "只能选择一个！", Toast.LENGTH_SHORT).show();
@@ -120,9 +139,8 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
                     alias = val.getKey();
                     color = val.getValue().getColor();
                 }
-                SessionManager.getInstance(Utils.getContext()).put(Consts.decoder_colorFormat_alias_key, alias);
-                SessionManager.getInstance(Utils.getContext()).put(Consts.colorFormat_val_key, color);
-                EventBus.getDefault().post(decoder_colorFormat_eventBus);
+                EventBusInfo info = new EventBusInfo(REQUEST_CODE_DECODER_COLOR_FORMAT, alias, color);
+                EventBus.getDefault().post(info);
             } else if (CodecType.equals("0")) {
                 String alias = "";
                 int color = 0;
@@ -130,9 +148,8 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
                     alias = val.getKey();
                     color = val.getValue().getColor();
                 }
-                SessionManager.getInstance(Utils.getContext()).put(Consts.encoder_colorFormat_alias_key, alias);
-                SessionManager.getInstance(Utils.getContext()).put(Consts.colorFormat_val_key, color);
-                EventBus.getDefault().post(encoder_colorFormat_eventBus);
+                EventBusInfo info = new EventBusInfo(REQUEST_CODE_ENCODER_COLOR_FORMAT, alias, color);
+                EventBus.getDefault().post(info);
             } else {
                 Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
                 return;

@@ -673,6 +673,49 @@
                     android:layout_height="0.5dp"
                     android:background="#dddddd"></LinearLayout>
 
+                <!--isLive-->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginLeft="12dp"
+                        android:text="@string/islive"
+                        android:textColor="#aaaaaa" />
+                </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#dddddd"/>
+                <RelativeLayout
+                    android:id="@+id/setting_option_islive"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="#ffffff">
+
+                    <TextView
+                        android:id="@+id/tv_setting_option_islive"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="12dp"
+                        android:text="@string/settings_text_observer_no"
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="12dp"
+                        android:src="@drawable/list_arrow" />
+                </RelativeLayout>
+
             </LinearLayout>
 
             <LinearLayout
@@ -694,6 +737,7 @@
                     android:text="@string/autotest"
                     android:textColor="#aaaaaa" />
             </RelativeLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
@@ -723,10 +767,24 @@
                     android:layout_marginRight="12dp"
                     android:src="@drawable/list_arrow" />
             </RelativeLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#dddddd"/>
+
+            <include
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:visibility="gone"
+                layout="@layout/layout_call_settings_pager_audio"/>
+
+            <include
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                layout="@layout/layout_call_settings_pager_other"/>
 
             <!--水印-->
             <RelativeLayout
@@ -770,6 +828,11 @@
                     android:layout_marginRight="12dp"
                     android:src="@drawable/list_arrow" />
             </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#dddddd"/>
 
             <LinearLayout
                 android:id="@+id/setting_layout_mediaserver"
@@ -1030,6 +1093,51 @@
                     android:id="@+id/tv_setting_option_audio_pre_amplifier_level"
                     android:textColor="#aaaaaa" />
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#dddddd"/>
+
+            <!--用户ID-->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginLeft="12dp"
+                    android:text="@string/settings_text_userid"
+                    android:textColor="#aaaaaa" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#dddddd"/>
+            <RelativeLayout
+                android:id="@+id/setting_option_userId"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="#ffffff">
+
+                <TextView
+                    android:id="@+id/tv_setting_option_userId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="12dp"
+                    android:textColor="#000000"
+                    android:textSize="20sp" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#dddddd"/>
         </LinearLayout>
 
     </ScrollView>

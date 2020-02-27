@@ -1,9 +1,7 @@
 package cn.rongcloud.rtc.util;
 
-import android.content.Context;
 import android.text.TextUtils;
 
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,15 +15,15 @@ public class UserUtils {
     public static final String REGION = "region";
     public static final String CODE = "code";
     public static final String COUNTRY = "country";
+    public static final String USER_ID = "user_id";
 
 //    public static final String TOKNE_KEY = "TOKEN_KEY";
 public static final String USERNAME_KEY = "USER_NAME";
-    public static final String BASE_URL = "https://sealrtc.rongcloud.cn/";
+    public static final String BASE_URL = "";
     public static final String URL_LOGIN = "user/login";
     public static final String URL_GET_TOKEN = "user/get_token";
     public static final String URL_GET_TOKEN_NEW = "user/get_token_new";
-
-    public static final String APP_KEY = "z3v5yqkbv8v30";
+    public static final String APP_KEY = "请通过开发者后台申请";
     public static final String NAV_SERVER = "nav.cn.ronghub.com";
     public static final String FILE_SERVER = "up.qbox.me";
 
