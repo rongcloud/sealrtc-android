@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite"
+    android:paddingLeft="15dp"
+    android:paddingRight="15sp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/iv_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_white_board_close"
+        android:layout_alignParentRight="true"
+        android:padding="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="McuConfig"
+            android:layout_centerInParent="true"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mode"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="15dp"/>
+
+        <RadioGroup
+            android:id="@+id/rg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_mode_01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blink_black"
+                android:text="悬浮(1)"
+                android:checked="true"
+                />
+
+            <RadioButton
+                android:id="@+id/rb_mode_02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blink_black"
+                android:text="自适应(2)"
+                />
+
+            <RadioButton
+                android:id="@+id/rb_mode_03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blink_black"
+                android:text="自定义(3)"
+                />
+        </RadioGroup>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Output"
+        android:textStyle="bold"
+        android:layout_marginRight="15dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="VideoWidth"
+            android:layout_marginRight="15dp"/>
+
+        <EditText
+            android:id="@+id/ev_w"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="640"
+            android:inputType="number"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="VideoHeight"
+            android:layout_marginRight="15dp"/>
+
+        <EditText
+            android:id="@+id/ev_h"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="480"
+            android:inputType="number"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exparams"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="15dp"/>
+
+        <RadioGroup
+            android:id="@+id/rg_ex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_exparams_01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blink_black"
+                android:text="Crop(1)"
+                android:checked="true"
+                />
+
+            <RadioButton
+                android:id="@+id/rb_exparams_02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blink_black"
+                android:text="Whole(2)"
+                />
+        </RadioGroup>
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/btn_sub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rs_select_btn_blue"
+        android:textColor="@color/colorWhite"
+        android:padding="8dp"
+        android:text="Submit"/>
+
+
+
+
+
+</LinearLayout>

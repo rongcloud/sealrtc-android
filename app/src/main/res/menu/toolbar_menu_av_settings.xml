@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <item android:id="@+id/setting_menu_reset"
+        android:title="@string/setting_reset"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/setting_menu_preview"
+        android:title="@string/setting_preview"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/setting_menu_export"
+        android:title="@string/setting_export"
+        app:showAsAction="never"/>
+</menu>

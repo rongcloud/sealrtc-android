@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#3581F2"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="@string/setting_title"
+        app:titleTextColor="#ffffff"
+        app:navigationIcon="@drawable/icon_back"/>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tablayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp">
+
+        <TextView
+            android:id="@+id/textView_sys_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_alignParentBottom="true"
+            android:text="@string/setting_title"
+            android:textColor="@color/blink_launcher_grey"
+            android:textSize="15dp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/linear_videoLayout"
+                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:text="编码器"
+                    android:id="@+id/btn_encoder"
+                    android:layout_width="wrap_content"
+                    android:onClick="click"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:text="解码器"
+                    android:id="@+id/btn_decoder"
+                    android:onClick="click"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:text="摄像采集"
+                    android:id="@+id/btn_capture"
+                    android:onClick="click"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linear_audioLayout"
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:text="音频采集"
+                    android:id="@+id/btn_audio_capture"
+                    android:layout_width="wrap_content"
+                    android:onClick="click"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:text="增益设置"
+                    android:id="@+id/btn_audio_agc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="click"/>
+
+                <Button
+                    android:text="噪声抑制"
+                    android:id="@+id/btn_audio_noise_suppression"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="click"/>
+
+                <Button
+                    android:text="回声消除"
+                    android:id="@+id/btn_audio_echo_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="click"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_marginRight="10dp"
+            android:layout_height="match_parent">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </LinearLayout>
+
+</LinearLayout>

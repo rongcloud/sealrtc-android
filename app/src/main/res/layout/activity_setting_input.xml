@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <!-- header view -->
+    <RelativeLayout
+        android:id="@+id/settings_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#3581F2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/setting_title"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:id="@+id/settings_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="settingInputClick"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/setting_back"
+                android:textColor="#ffffff"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linear_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:onClick="settingInputClick"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/save"
+                android:textColor="#ffffff"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!--    cameraDisplayOrientation-->
+    <LinearLayout
+        android:id="@+id/linear_cameraDisplayOrientation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_cameraDisplayOrientation_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="CameraDisplayOrientation(清空输入框并保存则会使用默认值)"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_cameraDisplayOrientation"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_frameOrientation_Tag"
+            android:hint="默认0, [0,90,180,270]"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLines="1"
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <!--    frameOrientation-->
+    <LinearLayout
+        android:id="@+id/linear_frameOrientation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_frameOrientation_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="FrameOrientation(清空输入框并保存则会使用默认值)"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_frameOrientation"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_frameOrientation_Tag"
+            android:hint="默认-1, [-1,0,90,180,270]"
+            android:imeOptions="actionDone"
+            android:inputType="number|numberSigned"
+            android:maxLines="1"
+
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <!-- audioSource -->
+    <LinearLayout
+        android:id="@+id/linear_audio_source"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_audio_source_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="AudioSource"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_audio_source"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_audio_source_Tag"
+            android:hint="0 DEFAULT, 1 MIC, 5 CAMCORDER, 6 VOICE_RECOGNITION, 7 VOICE_COMMUNICATION"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLines="1"
+
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- audio sample rate -->
+    <LinearLayout
+        android:id="@+id/linear_audio_sample_rate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_audio_sample_rate_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="Audio Sample Rate"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_audio_sample_rate"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_audio_sample_rate_Tag"
+            android:hint="8000, 16000, 32000, 44100, 48000"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLines="1"
+
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- audio bit rate -->
+    <LinearLayout
+        android:id="@+id/linear_audio_bit_rate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_audio_bit_rate_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="Audio Sample Rate"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_audio_bit_rate"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_audio_bit_rate_Tag"
+            android:hint="0 &lt; x &lt; 200"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLines="1"
+
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- audio targetDBOV -->
+    <LinearLayout
+        android:id="@+id/linear_audio_targetDBOV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_audio_targetDBOV_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="targetDBOV"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_audio_targetDBOV"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_audio_targetDBOV_Tag"
+            android:hint="默认值，-3 [-31, 0]"
+            android:imeOptions="actionDone"
+            android:inputType="numberSigned"
+            android:maxLines="1"
+
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- audio compression level -->
+    <LinearLayout
+        android:id="@+id/linear_audio_compress_level"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_audio_compress_level_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="compression Level"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_audio_compress_level"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_audio_compress_level_Tag"
+            android:hint="默认值，9 [0, 90]"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLines="1"
+
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- audio amplifier level -->
+    <LinearLayout
+        android:id="@+id/linear_audio_amplifier_level"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_audio_amplifier_level_Tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_centerVertical="true"
+            android:text="扬声器增益级别"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/edit_audio_amplifier_level"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_audio_amplifier_level_Tag"
+            android:hint="默认值，1.0"
+            android:imeOptions="actionDone"
+            android:inputType="numberDecimal"
+            android:maxLines="1"
+
+            android:paddingLeft="5dp"
+            android:singleLine="true"
+            android:textColor="#333333"
+            android:textColorHint="#8C8C8C"
+            android:textSize="15sp" />
+    </LinearLayout>
+</LinearLayout>

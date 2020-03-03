@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/live_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name:"
+        android:textColor="@color/blink_launcher_grey" />
+
+    <TextView
+        android:id="@+id/live_roomid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RoomId:"
+        android:textColor="@color/blink_launcher_grey" />
+
+    <TextView
+        android:id="@+id/live_url"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:text="liveUrl:"
+        android:textColor="@color/blink_launcher_grey" />
+</LinearLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <bool name="def_echo_filter_enable">false</bool>
+    <integer name="def_ns_model">0</integer>
+    <integer name="def_ns_level">1</integer>
+    <string name="def_min_bitrate">350Kbps</string>
+    <string name="def_max_bitrate">500Kbps</string>
+    <string name="def_encoder_bitrate_mode">CBR</string>
+
+    <bool name="def_audio_music_mode">false</bool>
+
+</resources>
