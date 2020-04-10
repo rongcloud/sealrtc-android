@@ -69,7 +69,6 @@ import com.herewhite.sdk.domain.RoomState;
 import com.herewhite.sdk.domain.SDKError;
 import com.herewhite.sdk.domain.Scene;
 import com.herewhite.sdk.domain.SceneState;
-import com.herewhite.sdk.domain.UpdateCursor;
 import com.herewhite.sdk.domain.UrlInterrupter;
 
 import org.greenrobot.eventbus.EventBus;
@@ -3025,11 +3024,6 @@ public class CallActivity extends RongRTCBaseActivity implements View.OnClickLis
             @Override
             public void onCatchErrorWhenAppendFrame(long userId, Exception error) {
                 RLog.d(TAG, "here white AbstractRoomCallbacks onCatchErrorWhenAppendFrame userId = "+userId+" ，error = "+error.getMessage());
-            }
-
-            @Override
-            public void onCursorViewsUpdate(UpdateCursor updateCursor) {
-                RLog.d(TAG, "here white AbstractRoomCallbacks onCursorViewsUpdate");
             }
 
             @Override
