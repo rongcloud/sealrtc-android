@@ -35,8 +35,9 @@
 6、如果不需要发布自定义音频/视频功能，请删除assets文件夹下的mp3和mp4文件，以减少项目的体积。
 
 7、如果不需要USB Camera功能，可以删除UVCCamera相关类库和代码
->app\libs下只保留RongRTCLib_xx.jar和各个架构文件夹中的lib_RongRTC_so.so即可，并且删除源码usbcamera文件夹
+>app\libs下libuvccamera.jar和各个架构文件夹中的libjpeg-turbo1500.so、libusb100.so、libuvc.so和libUVCCamera.so删除即可，并且删除源码usbcamera文件夹
 
 8、美颜功能代码请参考faceunity目录,faceunity/authpack.java 是相芯SDK鉴权类，请参考相芯文档说明
+>app\libs下nama.jar和各个架构文件夹中的libfuai.so和libnama.so属于相芯SDK引入文件
 
 更多详细的集成步骤和API接口介绍，请参考[音视频 SDK 文档](https://www.rongcloud.cn/docs/android_rtclib.html)
