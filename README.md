@@ -13,7 +13,9 @@
 
 5、发布USB摄像头视频，基于UVCCamera实现。
 
-6、美颜/水印功能，基于GPUImage方式实现。
+6、水印功能。
+
+7、美颜功能，基于相芯科技美颜SDK。
 
 
 ## 项目集成说明
@@ -34,5 +36,7 @@
 
 7、如果不需要USB Camera功能，可以删除UVCCamera相关类库和代码
 >app\libs下只保留RongRTCLib_xx.jar和各个架构文件夹中的lib_RongRTC_so.so即可，并且删除源码usbcamera文件夹
+
+8、美颜功能代码请参考faceunity目录,faceunity/authpack.java 是相芯SDK鉴权类，请参考相芯文档说明
 
 更多详细的集成步骤和API接口介绍，请参考[音视频 SDK 文档](https://www.rongcloud.cn/docs/android_rtclib.html)
