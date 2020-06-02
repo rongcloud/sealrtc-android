@@ -1,23 +1,21 @@
 package cn.rongcloud.rtc;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
-
 import cn.rongcloud.rtc.engine.view.RongRTCGestureDetector;
 import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
 import io.rong.common.RLog;
 
-public class VideoContainerLayout extends RelativeLayout implements RongRTCGestureDetector.RongRTCGestureLayoutEvents {
+public class VideoContainerLayout extends RelativeLayout
+        implements RongRTCGestureDetector.RongRTCGestureLayoutEvents {
 
     private RongRTCGestureDetector gestureDetector;
     private Rect layoutRect = new Rect();
@@ -27,25 +25,27 @@ public class VideoContainerLayout extends RelativeLayout implements RongRTCGestu
         super(context);
         gestureDetector = new RongRTCGestureDetector(context, null);
         gestureDetector.setLayoutEvents(this);
-
     }
 
     public VideoContainerLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         gestureDetector = new RongRTCGestureDetector(context, null);
         gestureDetector.setLayoutEvents(this);
-
     }
 
-    public VideoContainerLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public VideoContainerLayout(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         gestureDetector = new RongRTCGestureDetector(context, null);
         gestureDetector.setLayoutEvents(this);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public VideoContainerLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public VideoContainerLayout(
+            @NonNull Context context,
+            @Nullable AttributeSet attrs,
+            int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         gestureDetector = new RongRTCGestureDetector(context, null);
         gestureDetector.setLayoutEvents(this);
@@ -66,7 +66,7 @@ public class VideoContainerLayout extends RelativeLayout implements RongRTCGestu
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
-//        RLog.d(TAG, "onTouchEvent: ");
+        //        RLog.d(TAG, "onTouchEvent: ");
         return super.onTouchEvent(event);
     }
 
@@ -82,7 +82,6 @@ public class VideoContainerLayout extends RelativeLayout implements RongRTCGestu
                 gestureDetector.setLayoutSize(width, height);
             }
         }
-
     }
 
     @Override
@@ -95,19 +94,19 @@ public class VideoContainerLayout extends RelativeLayout implements RongRTCGestu
                 gestureDetector.requestSize();
             }
         }
-
     }
 
-    private void gestureVideoView(int left, int top, int right, int bottom){
+    private void gestureVideoView(int left, int top, int right, int bottom) {
         for (int i = 0; i < getChildCount(); i++) {
             View childView = getChildAt(i);
             if (childView instanceof RongRTCVideoView) {
 
-                float childWidth = right-left;
-                float childHeight = bottom - top;
-                int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec((int) childWidth, MeasureSpec.EXACTLY);
-                int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec((int) childHeight, MeasureSpec
-                        .EXACTLY);
+                int childWidth = right - left;
+                int childHeight = bottom - top;
+                int childWidthMeasureSpec =
+                        MeasureSpec.makeMeasureSpec((int) childWidth, MeasureSpec.EXACTLY);
+                int childHeightMeasureSpec =
+                        MeasureSpec.makeMeasureSpec((int) childHeight, MeasureSpec.EXACTLY);
 
                 childView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
@@ -115,7 +114,7 @@ public class VideoContainerLayout extends RelativeLayout implements RongRTCGestu
                 childView.invalidate();
             }
         }
-//        invalidate();
+        //        invalidate();
 
     }
 

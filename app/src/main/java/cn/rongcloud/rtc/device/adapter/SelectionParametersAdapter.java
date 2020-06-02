@@ -6,14 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import java.util.List;
-
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.utils.OnItemClickListener;
 import cn.rongcloud.rtc.util.ButtentSolp;
+import java.util.List;
 
-public class SelectionParametersAdapter extends RecyclerView.Adapter<SelectionParametersAdapter.CodecViewHolder> {
+public class SelectionParametersAdapter
+        extends RecyclerView.Adapter<SelectionParametersAdapter.CodecViewHolder> {
 
     private List<String> data;
     private OnItemClickListener listener;
@@ -24,7 +23,9 @@ public class SelectionParametersAdapter extends RecyclerView.Adapter<SelectionPa
 
     @Override
     public CodecViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_selection_parameters, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.layout_selection_parameters, parent, false);
         return new CodecViewHolder(view);
     }
 
@@ -34,17 +35,18 @@ public class SelectionParametersAdapter extends RecyclerView.Adapter<SelectionPa
             return;
         }
         holder.tv_itemTitle.setText(data.get(position));
-        holder.linear_select_parameter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ButtentSolp.check(v.getId(), 1500)) {
-                    return;
-                }
-                if (listener != null) {
-                    listener.onClick(position);
-                }
-            }
-        });
+        holder.linear_select_parameter.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (ButtentSolp.check(v.getId(), 1500)) {
+                            return;
+                        }
+                        if (listener != null) {
+                            listener.onClick(position);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -60,7 +62,7 @@ public class SelectionParametersAdapter extends RecyclerView.Adapter<SelectionPa
         public CodecViewHolder(View itemView) {
             super(itemView);
             tv_itemTitle = (TextView) itemView.findViewById(R.id.tv_item);
-            linear_select_parameter=itemView.findViewById(R.id.linear_select_parameter);
+            linear_select_parameter = itemView.findViewById(R.id.linear_select_parameter);
         }
     }
 

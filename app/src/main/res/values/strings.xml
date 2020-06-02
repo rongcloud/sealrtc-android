@@ -12,12 +12,6 @@
     <string name="room_userName">please enter user name</string>
     <string name="blink_description">Welcome to SealRTC Audio/Video Meeting</string>
     <string name="blink_description_version">SealRTC V</string>
-    <string name="debug_select_dialog_message">Select a network</string>
-    <string name="debug_select_dialog_exbutton">Prod</string>
-    <string name="debug_select_dialog_innerbutton">Dev</string>
-    <string name="debug_select_dialog_testbutton">Test</string>
-    <string name="debug_select_dialog_oraclebutton">Oracle</string>
-    <string name="debug_select_dialog_shanchatbutton">Tulin</string>
     <string name="room_input_hint">Room ID</string>
     <string name="room_input_hint_username">User Name</string>
     <string name="room_connect_button">Join Room</string>
@@ -44,22 +38,14 @@
     <string name="settings_text_rate">Rate</string>
     <string name="settings_text_connection_mode">Connection Mode</string>
     <string name="settings_text_connection_mode_relay">Relay</string>
-    <string name="settings_text_connection_mode_P2P">P2P</string>
     <string name="settings_text_coding_mode">Coding Mode</string>
     <string name="settings_text_resolution">Resolution Ratio</string>
     <string name="settings_text_fps">FPS</string>
     <string name="settings_text_connectionType_quic">Yes</string>
     <string name="settings_text_connectionType_tcp">No</string>
     <string name="settings_text_userid">User ID (long press to copy to clipboard)</string>
+    <string name="settings_mirror">远端镜像开启</string>
     <string name="settings_text_copy_userid">User ID copied to clipboard</string>
-    <string name="meeting_control_invite_url">meeting invitation:\n\n Please enter the following conference ID to join the conference \n Conference ID:%1$s \n \nIf you haven not installed the client yet, use Chrome or Safari 11 to open the following address to join the meeting:\nConference address:%2$s</string>
-    <string name="meeting_control_invite_tips">The meeting address has been copied. Please paste it into any communication tool and send it to the person you want to invite.</string>
-    <string name="meeting_control_inviteToOpen_camera">The host invited you to open the camera\nDo you accept it?</string>
-    <string name="meeting_control_inviteToOpen_microphone">Moderator invites you to open the microphone \n Accept?</string>
-    <string name="meeting_control_inviteToUpgrade">The host invites you to participate in the discussion\nDo you accept it?</string>
-    <string name="meeting_control_destroy_whiteBoard">Whiteboard will be destroyed after exiting\nDo you want to exit?</string>
-    <string name="meeting_control_no_whiteBoard">There is currently no whiteboard to view, please wait for others to create a whiteboard</string>
-    <string name="meeting_control_OpenWiteBoard">Recommended horizontal screen, can see more clearly</string>
     <string name="settings_text_serverConfig">Server Settings</string>
     <string name="settings_text_serverCMP">Server CMP address</string>
     <string name="settings_text_serverURL_TOKEN">Server Token address</string>
@@ -68,32 +54,13 @@
     <string name="settings_text_cancel">cancel</string>
     <string name="btnsolpstr">Please do not click repeatedly</string>
     <string name="saveSuccess">Saved successfully!</string>
-    <string name="app_btn_loading">initializing</string>
-    <string name="Waitingforinput">Please enter the conference room name and user name!</string>
     <string name="Thecurrentnetworkisnotavailable">The current network is unavailable!</string>
     <string name="serverCMPToast">Please enter the format of the server CMP address!</string>
     <string name="serverCMPcannotbeempty">Server CMP address cannot be empty!</string>
     <string name="serverTOKENcannotbeempty">The server Token address cannot be empty!</string>
     <string name="tokenAddressisINcorrect">The server Token address is incorrect!</string>
-    <string name="pleasetryagain">Failed to get token/deviceID. Please try again!</string>
-    <string name="Createdawhiteboard">Created a whiteboard!</string>
-    <string name="resolutionmunimum">Resolution has been reduced to a minimum!</string>
-    <string name="resolutionhighest">Resolution has risen to the highest!</string>
     <string name="plsopenit">Has been banned, please open it manually!</string>
     <string name="PermissionStr">Permission :</string>
-    <string name="Requestsentsuccessfully">Request sent successfully！</string>
-    <string name="Requestfailedtosend">Request failed to send！Code=</string>
-    <string name="Failedtogetinvitationlink">Failed to get invitation link！</string>
-    <string name="Youbecomethehostofthemeeting">You become the host of the meeting</string>
-    <string name="removedfromthecoversation">You have been removed from the conversation by the host！</string>
-    <string name="plscalllater">The host is busy, please call later</string>
-    <string name="downgradedtoanobserver">You have been downgraded to an observer by the moderator</string>
-    <string name="userdowngradedtoanobserver">has been downgraded to observer by the moderator</string>
-    <string name="userstr">User:</string>
-    <string name="becomesthemeetinghost">becomes the meeting host</string>
-    <string name="Agree">Agree</string>
-    <string name="Refuse">Refuse</string>
-    <string name="Upgradetonormaluser">Upgrade to normal user</string>
     <string name="settings_text_MediaStreamTiny_yes">Yes</string>
     <string name="settings_text_MediaStreamTiny_no">No</string>
     <string name="Opensizestream">Size Stream</string>
@@ -138,6 +105,7 @@
     <string name="mode_observer">Observer mode</string>
     <string name="verify_code_invalid">Invalid verification code</string>
     <string name="user_video_custom">Customize video</string>
+    <string name="user_shared_screen">Shared screen</string>
     <string name="username_empty_hint">User name cannot be empty</string>
 
     <string name="white_board_service_error">white board service error,please try again later</string>
@@ -151,19 +119,18 @@
     <string name="white_board_room_not_exist">white board room not exist</string>
     <string name="publish_failed">Publish failed</string>
     <string name="publish_disabled">A video file has been posted in the room</string>
+    <string name="screen_cast_disabled">While others are sharing the screen, you cannot share the screen</string>
     <string name="join_room_observer_prompt">join_room_observer_prompt</string>
     <string name="join_room_audio_only_prompt">join_room_audio_only_prompt</string>
     <string name="rtc_status_im_error">IM disconnected</string>
     <string name="rtc_dialog_ok">OK</string>
     <string name="rtc_dialog_cancel">Cancel</string>
     <string name="rtc_dialog_kicked_offline">Your account logged in the other device ，please change your account to try later</string>
+    <string name="rtc_dialog_kicked_by_server">You have been removed from the room！</string>
+    <string name="rtc_dialog_forbidden_by_server">You are not allowed to join the room！</string>
 
 
-    <string name="dialog_ok">OK</string>
-    <string name="dialog_cancel">cancel</string>
     <string name="rtc_unstable_call_connection">Unstable call connection</string>
-    <string name="loacation_download">Local Download</string>
-    <string name="browser_download">Open By Browser</string>
     <string name="apk_update_title">V%s version detected, update?</string>
     <string name="downloading_apk">Downloading from backends</string>
     <string name="update_app_model_prepare">Preparing To Download</string>
@@ -179,7 +146,6 @@
     <string name="private_address_hint">http(s)://cn.xxx.com or IP + port address</string>
     <string name="private_server_api_address">Private Server API address</string>
     <string name="private_media_server_address">Private MediaServer address(Optional)</string>
-    <string name="appserver_address_optional">AppServer address(Optional)</string>
     <string name="save">Save</string>
     <string name="private_cloud_connection_settings">Connection Settings</string>
     <string name="update_configuration_successful">Update Configuration Successful!</string>
@@ -233,7 +199,6 @@
         CBR : 码率基本恒定，保证实时性，复杂内容质量较差，适合流式播放方案;
     </string>
 
-    <string name="audio_sample_use_audio_recorder">使用 AudioRecorder 采集</string>
     <string name="audio_audio_source">AudioSource</string>
     <string name="audio_sample_rate">采样率（Hz）</string>
     <string name="audio_channel_stereo">立体声采集</string>
@@ -245,7 +210,6 @@
     <string name="audio_agc_targetDBOV_remark">目标峰值增益，-3 就是最大峰值减弱3分贝</string>
     <string name="audio_agc_compression">Compression Level</string>
     <string name="audio_agc_compression_remark">压缩最大增益，0 不压缩 </string>
-    <string name="audio_agc_limiter_enable">增益限制开关</string>
     <string name="key_use_av_setting">key_use_av_setting</string>
     <string name="audio_agc_limiter_enable_remark">
         True : 严格遵守目标峰值增益限制\n
@@ -288,4 +252,16 @@
     <string name="call_settings_audio_mode">音乐模式专用</string>
     <string name="call_settings_audio_params">音乐模式动态参数</string>
     <string name="call_setttings_analys">问题分析</string>
+
+    <string name="mix_audio_mix_control">Audio mixer control</string>
+    <string name="mix_select_audio_file">Audio Files</string>
+    <string name="mix_local_volume">Local Volume</string>
+    <string name="mix_remote_volume">Remote Volume</string>
+    <string name="mix_mic_volume">Mic Volume</string>
+    <string name="mix_mix_mode">Modes</string>
+    <string name="mix_mode_play_mix">Playing and mixing</string>
+    <string name="mix_mode_mix_only">Only mixing</string>
+    <string name="mix_mode_play_only">Only Playing</string>
+    <string name="mix_mode_replace">Playing and mixing, disable mic</string>
+    <string name="mix_file_not_support">This data cannot be played or mixed. Please change other data and try again.</string>
 </resources>

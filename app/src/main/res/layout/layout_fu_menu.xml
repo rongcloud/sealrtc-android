@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="124dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/blink_transparent"
+    android:padding="8dp"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <cn.rongcloud.rtc.faceunity.ui.widget.CustomButton
+        android:id="@+id/fu_beauty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:icon="@drawable/icon_beauty"
+        app:text="@string/home_function_name_beauty"/>
+
+    <cn.rongcloud.rtc.faceunity.ui.widget.CustomButton
+        android:id="@+id/fu_effect"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:icon="@drawable/icon_effect"
+        app:text="@string/home_function_name_normal"/>
+
+    <cn.rongcloud.rtc.faceunity.ui.widget.CustomButton
+        android:id="@+id/fu_makeup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:icon="@drawable/icon_makeup"
+        app:text="@string/home_function_name_light_makeup"/>
+
+
+
+</LinearLayout>

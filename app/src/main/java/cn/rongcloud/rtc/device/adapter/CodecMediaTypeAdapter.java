@@ -6,14 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.utils.OnItemClickListener;
 import cn.rongcloud.rtc.util.ButtentSolp;
+import java.util.ArrayList;
 
-public class CodecMediaTypeAdapter extends RecyclerView.Adapter<CodecMediaTypeAdapter.CodecViewHolder> {
+public class CodecMediaTypeAdapter
+        extends RecyclerView.Adapter<CodecMediaTypeAdapter.CodecViewHolder> {
 
     private ArrayList<String> codecInfoList;
     private String codecName = "";
@@ -25,7 +24,9 @@ public class CodecMediaTypeAdapter extends RecyclerView.Adapter<CodecMediaTypeAd
 
     @Override
     public CodecViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.device_layout_codec_item, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.device_layout_codec_item, parent, false);
         return new CodecViewHolder(view);
     }
 
@@ -40,17 +41,18 @@ public class CodecMediaTypeAdapter extends RecyclerView.Adapter<CodecMediaTypeAd
                 holder.tv_codecName.setText(codecName);
             }
         }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    if (ButtentSolp.check(v.getId(), 1500)) {
-                        return;
+        holder.itemView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (listener != null) {
+                            if (ButtentSolp.check(v.getId(), 1500)) {
+                                return;
+                            }
+                            listener.onClick(position);
+                        }
                     }
-                    listener.onClick(position);
-                }
-            }
-        });
+                });
     }
 
     @Override

@@ -1,5 +1,8 @@
 package cn.rongcloud.rtc.device;
 
+import static cn.rongcloud.rtc.device.utils.Consts.REQUEST_CODE_DECODER_COLOR_FORMAT;
+import static cn.rongcloud.rtc.device.utils.Consts.REQUEST_CODE_ENCODER_COLOR_FORMAT;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,13 +14,6 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.greenrobot.eventbus.EventBus;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import cn.rongcloud.rtc.LoadDialog;
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.adapter.ColorFormatAdapter;
@@ -26,13 +22,12 @@ import cn.rongcloud.rtc.device.entity.ColorFormat;
 import cn.rongcloud.rtc.device.entity.EventBusInfo;
 import cn.rongcloud.rtc.device.entity.MediaType;
 import cn.rongcloud.rtc.device.utils.OnColorFormatItemClickListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import org.greenrobot.eventbus.EventBus;
 
-import static cn.rongcloud.rtc.device.utils.Consts.REQUEST_CODE_DECODER_COLOR_FORMAT;
-import static cn.rongcloud.rtc.device.utils.Consts.REQUEST_CODE_ENCODER_COLOR_FORMAT;
-
-/**
- * 编解码颜色空间列表
- */
+/** 编解码颜色空间列表 */
 public class CodecColorFormatActivity extends DeviceBaseActivity {
     private RecyclerView recyclerView_colorFormat;
     private ColorFormatAdapter colorFormatAdapter;
@@ -45,7 +40,8 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
     private static final String EXTRA_KEY_CODEC_NAME = "EXTRA_KEY_CODEC_NAME";
     private static final String EXTRA_KEY_CODEC_TYPE = "EXTRA_KEY_CODEC_TYPE";
 
-    public static void startActivity(Context context, ArrayList<MediaType> list, String codecType, String codecName) {
+    public static void startActivity(
+            Context context, ArrayList<MediaType> list, String codecType, String codecName) {
         Bundle bundle = new Bundle();
         Intent intent = new Intent(context, CodecColorFormatActivity.class);
         bundle.putParcelableArrayList(EXTRA_KEY_MEDIATYPES, list);
@@ -95,25 +91,29 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
             rela_error.setVisibility(View.GONE);
         }
         LoadDialog.show(CodecColorFormatActivity.this);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CodecColorFormatActivity.this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager =
+                new LinearLayoutManager(
+                        CodecColorFormatActivity.this, LinearLayoutManager.VERTICAL, false);
         recyclerView_colorFormat.setLayoutManager(linearLayoutManager);
         colorFormatAdapter = new ColorFormatAdapter(colorFormats);
         recyclerView_colorFormat.setAdapter(colorFormatAdapter);
         recyclerView_colorFormat.setFocusableInTouchMode(false);
         recyclerView_colorFormat.requestFocus();
-        recyclerView_colorFormat.addItemDecoration(new ItemDecoration(CodecColorFormatActivity.this, 1));
-        colorFormatAdapter.setOnItemClickListener(new OnColorFormatItemClickListener() {
-            @Override
-            public void onClick(int position, String alias, int colorFormat) {
-                ColorFormat colorFormat1 = new ColorFormat(colorFormat, alias);
-                if (colorFormats_select.containsKey(alias)) {
-                    colorFormats_select.remove(alias);
-                } else {
-                    colorFormats_select.put(alias, colorFormat1);
-                }
-                Log.i("colorFormatAdapter", "colorFormat :" + alias);
-            }
-        });
+        recyclerView_colorFormat.addItemDecoration(
+                new ItemDecoration(CodecColorFormatActivity.this, 1));
+        colorFormatAdapter.setOnItemClickListener(
+                new OnColorFormatItemClickListener() {
+                    @Override
+                    public void onClick(int position, String alias, int colorFormat) {
+                        ColorFormat colorFormat1 = new ColorFormat(colorFormat, alias);
+                        if (colorFormats_select.containsKey(alias)) {
+                            colorFormats_select.remove(alias);
+                        } else {
+                            colorFormats_select.put(alias, colorFormat1);
+                        }
+                        Log.i("colorFormatAdapter", "colorFormat :" + alias);
+                    }
+                });
         LoadDialog.dismiss(CodecColorFormatActivity.this);
     }
 
@@ -139,7 +139,8 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
                     alias = val.getKey();
                     color = val.getValue().getColor();
                 }
-                EventBusInfo info = new EventBusInfo(REQUEST_CODE_DECODER_COLOR_FORMAT, alias, color);
+                EventBusInfo info =
+                        new EventBusInfo(REQUEST_CODE_DECODER_COLOR_FORMAT, alias, color);
                 EventBus.getDefault().post(info);
             } else if (CodecType.equals("0")) {
                 String alias = "";
@@ -148,7 +149,8 @@ public class CodecColorFormatActivity extends DeviceBaseActivity {
                     alias = val.getKey();
                     color = val.getValue().getColor();
                 }
-                EventBusInfo info = new EventBusInfo(REQUEST_CODE_ENCODER_COLOR_FORMAT, alias, color);
+                EventBusInfo info =
+                        new EventBusInfo(REQUEST_CODE_ENCODER_COLOR_FORMAT, alias, color);
                 EventBus.getDefault().post(info);
             } else {
                 Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();

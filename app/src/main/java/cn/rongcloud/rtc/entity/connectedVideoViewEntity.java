@@ -2,19 +2,16 @@ package cn.rongcloud.rtc.entity;
 
 import cn.rongcloud.rtc.VideoViewManager;
 
-/**
- * Created by dengxudong on 2018/7/26.
- */
-
+/** Created by dengxudong on 2018/7/26. */
 public class connectedVideoViewEntity {
     private VideoViewManager.RenderHolder renderHolder;
     private String userId;
     private String tag;
 
-    public connectedVideoViewEntity() {
-    }
+    public connectedVideoViewEntity() {}
 
-    public connectedVideoViewEntity(VideoViewManager.RenderHolder renderHolder, String userId, String tag) {
+    public connectedVideoViewEntity(
+            VideoViewManager.RenderHolder renderHolder, String userId, String tag) {
         this.renderHolder = renderHolder;
         this.userId = userId;
         this.tag = tag;

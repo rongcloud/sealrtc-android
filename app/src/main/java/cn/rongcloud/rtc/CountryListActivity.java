@@ -1,6 +1,5 @@
 package cn.rongcloud.rtc;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,18 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.entity.CountryInfo;
 import cn.rongcloud.rtc.media.http.HttpClient;
@@ -32,12 +19,16 @@ import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import me.yokeyword.indexablerv.IndexableAdapter;
 import me.yokeyword.indexablerv.IndexableLayout;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-/**
- * Created by wangw on 2019/4/8.
- */
+/** Created by wangw on 2019/4/8. */
 public class CountryListActivity extends RongRTCBaseActivity implements View.OnClickListener {
 
     private EditText mEdSearch;
@@ -52,102 +43,107 @@ public class CountryListActivity extends RongRTCBaseActivity implements View.OnC
         initViews();
         getCountryList();
     }
+
     private void initViews() {
         mEdSearch = (EditText) findViewById(R.id.et_search);
         mIndexableLayout = (IndexableLayout) findViewById(R.id.countrylist);
         mIndexableLayout.setOverlayStyle_Center();
         mAdapter = new CountryAdapter();
-        mAdapter.setOnItemContentClickListener(new IndexableAdapter.OnItemContentClickListener<CountryInfo>() {
-            @Override
-            public void onItemClick(View v, int originalPosition, int currentPosition, CountryInfo entity) {
-                if (entity == null)
-                    return;
-                SessionManager.getInstance()
-                        .put(UserUtils.COUNTRY,new Gson().toJson(entity));
-                finish();
-            }
-        });
+        mAdapter.setOnItemContentClickListener(
+                new IndexableAdapter.OnItemContentClickListener<CountryInfo>() {
+                    @Override
+                    public void onItemClick(
+                            View v, int originalPosition, int currentPosition, CountryInfo entity) {
+                        if (entity == null) return;
+                        SessionManager.getInstance()
+                                .put(UserUtils.COUNTRY, new Gson().toJson(entity));
+                        finish();
+                    }
+                });
         mIndexableLayout.setLayoutManager(new LinearLayoutManager(this));
         mIndexableLayout.setAdapter(mAdapter);
         findViewById(R.id.tv_back).setOnClickListener(this);
-        mEdSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+        mEdSearch.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(
+                            CharSequence s, int start, int count, int after) {}
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                onSearch(mEdSearch.getText().toString().trim());
-            }
-        });
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        onSearch(mEdSearch.getText().toString().trim());
+                    }
+                });
     }
 
     private void onSearch(String str) {
-        if (TextUtils.isEmpty(str)){
+        if (TextUtils.isEmpty(str)) {
             setData(mCountrys);
             return;
         }
-        if (mCountrys == null || mCountrys.isEmpty())
-            return;
+        if (mCountrys == null || mCountrys.isEmpty()) return;
         ArrayList<CountryInfo> list = new ArrayList<>();
         for (CountryInfo country : mCountrys) {
             String field = country.getFieldIndexBy();
-            if (TextUtils.isEmpty(field))
-                continue;
-            if (field.contains(str) || (!TextUtils.isEmpty(country.pinyin) && country.pinyin.contains(str)))
+            if (TextUtils.isEmpty(field)) continue;
+            if (field.contains(str)
+                    || (!TextUtils.isEmpty(country.pinyin) && country.pinyin.contains(str)))
                 list.add(country);
         }
         setData(list);
     }
 
-    /**
-     * 获取国家地区数据
-     */
+    /** 获取国家地区数据 */
     private void getCountryList() {
         Request.Builder request = new Request.Builder();
         request.url(UserUtils.URL_GET_COUNTRY);
         request.method(RequestMethod.GET);
-        HttpClient.getDefault().request(request.build(), new HttpClient.ResultCallback() {
-            @Override
-            public void onResponse(String result) {
-                mCountrys = onParseData(result);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mIndexableLayout != null && !isFinishing() && !isDestroyed()) {
-                            setData(mCountrys);
-                        }
-                    }
-                });
-            }
+        HttpClient.getDefault()
+                .request(
+                        request.build(),
+                        new HttpClient.ResultCallback() {
+                            @Override
+                            public void onResponse(String result) {
+                                mCountrys = onParseData(result);
+                                runOnUiThread(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (mIndexableLayout != null
+                                                        && !isFinishing()
+                                                        && !isDestroyed()) {
+                                                    setData(mCountrys);
+                                                }
+                                            }
+                                        });
+                            }
 
-            @Override
-            public void onFailure(int errorCode) {
-                postShowToast("onFailure:"+errorCode);
-            }
+                            @Override
+                            public void onFailure(int errorCode) {
+                                postShowToast("onFailure:" + errorCode);
+                            }
 
-            @Override
-            public void onError(IOException exception) {
-                exception.printStackTrace();
-                postShowToast("onError:"+exception.getMessage());
-            }
-        });
+                            @Override
+                            public void onError(IOException exception) {
+                                exception.printStackTrace();
+                                postShowToast("onError:" + exception.getMessage());
+                            }
+                        });
     }
 
     private void setData(List<CountryInfo> countrys) {
         if (countrys == null) {
             mAdapter.setDatas(new ArrayList<CountryInfo>());
-        }else {
+        } else {
             mAdapter.setDatas(countrys);
         }
     }
 
     private List<CountryInfo> onParseData(String json) {
-        if (TextUtils.isEmpty(json)){
+        if (TextUtils.isEmpty(json)) {
             showToast("json is Null");
             return null;
         }
@@ -161,8 +157,7 @@ public class CountryListActivity extends RongRTCBaseActivity implements View.OnC
                 JSONObject obj = result.getJSONObject(i);
                 CountryInfo country = new CountryInfo(obj.optString("region"));
                 JSONObject locale = obj.optJSONObject("locale");
-                if (locale == null || TextUtils.isEmpty(country.region))
-                    continue;
+                if (locale == null || TextUtils.isEmpty(country.region)) continue;
                 country.en = locale.optString("en");
                 country.zh = locale.optString("zh");
                 countrys.add(country);
@@ -173,29 +168,29 @@ public class CountryListActivity extends RongRTCBaseActivity implements View.OnC
         return countrys;
     }
 
-
-
-
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.tv_back:
                 finish();
                 break;
         }
     }
 
-
-    class CountryAdapter extends IndexableAdapter<CountryInfo>{
+    class CountryAdapter extends IndexableAdapter<CountryInfo> {
 
         @Override
         public RecyclerView.ViewHolder onCreateTitleViewHolder(ViewGroup parent) {
-            return new TitleVH(LayoutInflater.from(CountryListActivity.this).inflate(R.layout.item_country_title, parent, false));
+            return new TitleVH(
+                    LayoutInflater.from(CountryListActivity.this)
+                            .inflate(R.layout.item_country_title, parent, false));
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateContentViewHolder(ViewGroup parent) {
-            return new ContentVH(LayoutInflater.from(CountryListActivity.this).inflate(R.layout.item_country_content, parent, false));
+            return new ContentVH(
+                    LayoutInflater.from(CountryListActivity.this)
+                            .inflate(R.layout.item_country_content, parent, false));
         }
 
         @Override
@@ -207,7 +202,7 @@ public class CountryListActivity extends RongRTCBaseActivity implements View.OnC
         public void onBindContentViewHolder(RecyclerView.ViewHolder holder, CountryInfo entity) {
             ContentVH vh = (ContentVH) holder;
             vh.mTvName.setText(entity.getFieldIndexBy());
-            vh.mTvRegion.setText("+"+entity.region);
+            vh.mTvRegion.setText("+" + entity.region);
         }
     }
 
@@ -222,7 +217,6 @@ public class CountryListActivity extends RongRTCBaseActivity implements View.OnC
             mTvRegion = (TextView) itemView.findViewById(R.id.tv_region);
         }
     }
-
 
     static class TitleVH extends RecyclerView.ViewHolder {
 

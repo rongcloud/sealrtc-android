@@ -1,16 +1,13 @@
 package cn.rongcloud.rtc;
 
-/**
- * Created by dengxudong on 2017/12/27.
- */
-
+/** Created by dengxudong on 2017/12/27. */
 public class ActionState {
 
     private int type;
     private String hostUid;
     private String userid;
 
-    public ActionState(){}
+    public ActionState() {}
 
     public ActionState(int type, String hostUid, String userid) {
         this.type = type;
@@ -41,5 +38,4 @@ public class ActionState {
     public void setUserid(String userid) {
         this.userid = userid;
     }
-
 }

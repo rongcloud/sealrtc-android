@@ -2,15 +2,14 @@ package cn.rongcloud.rtc.device.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import java.util.ArrayList;
 
 public class MediaType implements Parcelable {
 
     private String mimeType;
-    private ArrayList<ColorFormat> colorFormats=new ArrayList<>();
+    private ArrayList<ColorFormat> colorFormats = new ArrayList<>();
 
-    public MediaType(){}
+    public MediaType() {}
 
     public String getMimeType() {
         return mimeType;
@@ -33,17 +32,18 @@ public class MediaType implements Parcelable {
         colorFormats = in.readArrayList(ColorFormat.class.getClassLoader());
     }
 
-    public static final Creator<MediaType> CREATOR = new Creator<MediaType>() {
-        @Override
-        public MediaType createFromParcel(Parcel in) {
-            return new MediaType(in);
-        }
+    public static final Creator<MediaType> CREATOR =
+            new Creator<MediaType>() {
+                @Override
+                public MediaType createFromParcel(Parcel in) {
+                    return new MediaType(in);
+                }
 
-        @Override
-        public MediaType[] newArray(int size) {
-            return new MediaType[size];
-        }
-    };
+                @Override
+                public MediaType[] newArray(int size) {
+                    return new MediaType[size];
+                }
+            };
 
     @Override
     public int describeContents() {

@@ -9,8 +9,7 @@ public class WhiteBoardRoomInfo {
         this.roomToken = roomToken;
     }
 
-    public WhiteBoardRoomInfo() {
-    }
+    public WhiteBoardRoomInfo() {}
 
     public String getUuid() {
         return uuid;

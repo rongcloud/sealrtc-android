@@ -1,19 +1,16 @@
 package cn.rongcloud.rtc.device.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.List;
-
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.entity.AudioSourceInfo;
 import cn.rongcloud.rtc.device.utils.OnColorFormatItemClickListener;
 import cn.rongcloud.rtc.util.ButtentSolp;
+import java.util.List;
 
 public class AudioSourceAdapter extends RecyclerView.Adapter<AudioSourceAdapter.ColorFormatHolder> {
 
@@ -31,12 +28,15 @@ public class AudioSourceAdapter extends RecyclerView.Adapter<AudioSourceAdapter.
 
     @Override
     public AudioSourceAdapter.ColorFormatHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.device_layout_colorformat_item, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.device_layout_colorformat_item, parent, false);
         return new AudioSourceAdapter.ColorFormatHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final AudioSourceAdapter.ColorFormatHolder holder, final int position) {
+    public void onBindViewHolder(
+            final AudioSourceAdapter.ColorFormatHolder holder, final int position) {
         String currentName = audioSourceInfos.get(position).getName();
         int currentCode = audioSourceInfos.get(position).getCode();
 
@@ -49,21 +49,25 @@ public class AudioSourceAdapter extends RecyclerView.Adapter<AudioSourceAdapter.
             holder.iv_select.setSelected(false);
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ButtentSolp.check(v.getId(), 500)) {
-                    return;
-                }
+        holder.itemView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (ButtentSolp.check(v.getId(), 500)) {
+                            return;
+                        }
 
-                audioSourceSelected = audioSourceInfos.get(position).getCode();
-                notifyDataSetChanged();
+                        audioSourceSelected = audioSourceInfos.get(position).getCode();
+                        notifyDataSetChanged();
 
-                if (listener != null) {
-                    listener.onClick(position, audioSourceInfos.get(position).getName(), audioSourceInfos.get(position).getCode());
-                }
-            }
-        });
+                        if (listener != null) {
+                            listener.onClick(
+                                    position,
+                                    audioSourceInfos.get(position).getName(),
+                                    audioSourceInfos.get(position).getCode());
+                        }
+                    }
+                });
     }
 
     @Override

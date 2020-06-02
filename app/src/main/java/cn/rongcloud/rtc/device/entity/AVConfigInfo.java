@@ -33,17 +33,18 @@ public class AVConfigInfo implements Parcelable {
         mItemRealValue = in.readInt();
     }
 
-    public static final Creator<AVConfigInfo> CREATOR = new Creator<AVConfigInfo>() {
-        @Override
-        public AVConfigInfo createFromParcel(Parcel in) {
-            return new AVConfigInfo(in);
-        }
+    public static final Creator<AVConfigInfo> CREATOR =
+            new Creator<AVConfigInfo>() {
+                @Override
+                public AVConfigInfo createFromParcel(Parcel in) {
+                    return new AVConfigInfo(in);
+                }
 
-        @Override
-        public AVConfigInfo[] newArray(int size) {
-            return new AVConfigInfo[size];
-        }
-    };
+                @Override
+                public AVConfigInfo[] newArray(int size) {
+                    return new AVConfigInfo[size];
+                }
+            };
 
     @Override
     public int describeContents() {
@@ -67,8 +68,7 @@ public class AVConfigInfo implements Parcelable {
     }
 
     public String getItemValue() {
-        if (!TextUtils.isEmpty(this.mItemValueNew))
-            return this.mItemValueNew;
+        if (!TextUtils.isEmpty(this.mItemValueNew)) return this.mItemValueNew;
         return mItemValue;
     }
 

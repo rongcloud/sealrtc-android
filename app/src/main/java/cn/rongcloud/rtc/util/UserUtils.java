@@ -44,7 +44,7 @@ public static final String USERNAME_KEY = "USER_NAME";
      * 0:公有云
      * 1:私有云
      */
-    public static String USE_PRIVATE_CLOUD = "0";
+    public static int USE_PRIVATE_CLOUD = 0;
 
     public static boolean isNumber(String string) {
         Pattern p = Pattern.compile("[0-9]*");

@@ -1,12 +1,8 @@
 package cn.rongcloud.rtc.util;
 
-/**
- * app server 错误码
- */
+/** app server 错误码 */
 public enum SealErrorCode {
-    /**
-     * 未知错误。
-     */
+    /** 未知错误。 */
     UNKNOWN(-1, "unknown"),
     PARAMETER_ERROR(4000, "parameter error"),
     REQUEST_FREQUENCY(4001, "request frequency"),
@@ -22,7 +18,7 @@ public enum SealErrorCode {
      * 构造函数。
      *
      * @param code 错误代码。
-     * @param msg  错误消息。
+     * @param msg 错误消息。
      */
     SealErrorCode(int code, String msg) {
         this.code = code;
@@ -73,9 +69,6 @@ public enum SealErrorCode {
 
     @Override
     public String toString() {
-        return "SealErrorCode{" +
-                "code=" + code +
-                ", msg='" + msg + '\'' +
-                '}';
+        return "SealErrorCode{" + "code=" + code + ", msg='" + msg + '\'' + '}';
     }
 }

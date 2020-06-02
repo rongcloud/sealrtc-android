@@ -17,17 +17,18 @@ public class ColorFormat implements Parcelable {
         alias = in.readString();
     }
 
-    public static final Creator<ColorFormat> CREATOR = new Creator<ColorFormat>() {
-        @Override
-        public ColorFormat createFromParcel(Parcel in) {
-            return new ColorFormat(in);
-        }
+    public static final Creator<ColorFormat> CREATOR =
+            new Creator<ColorFormat>() {
+                @Override
+                public ColorFormat createFromParcel(Parcel in) {
+                    return new ColorFormat(in);
+                }
 
-        @Override
-        public ColorFormat[] newArray(int size) {
-            return new ColorFormat[size];
-        }
-    };
+                @Override
+                public ColorFormat[] newArray(int size) {
+                    return new ColorFormat[size];
+                }
+            };
 
     @Override
     public int describeContents() {

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:background="#BD050F14"
+    android:layout_height="wrap_content">
+
+    <cn.rongcloud.rtc.faceunity.ui.widget.seekbar.DiscreteSeekBar
+        android:id="@+id/seek_bar_light_makeup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/rv_light_makeup"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:dsb_indicatorColor="@color/main_color"
+        app:dsb_indicatorElevation="0dp"
+        app:dsb_indicatorPopupEnabled="true"
+        app:dsb_max="100"
+        app:dsb_min="0"
+        app:dsb_progressColor="@color/main_color"
+        app:dsb_rippleColor="@color/main_color"
+        app:dsb_scrubberHeight="2dp"
+        app:dsb_thumbSize="16dp"
+        app:dsb_trackBaseHeight="8dp"
+        app:dsb_trackColor="@color/colorWhite"
+        app:dsb_value="0" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_light_makeup"
+        android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

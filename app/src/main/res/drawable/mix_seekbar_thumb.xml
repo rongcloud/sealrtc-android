@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
+    <item android:state_pressed="false">
+        <aapt:attr name="android:drawable">
+            <shape android:shape="oval" >
+                <size android:height="16dp" android:width="16dp"/>
+                <solid android:color="@color/blink_blue"/>
+            </shape>
+        </aapt:attr>
+    </item>
+
+    <item android:state_pressed="true">
+        <aapt:attr name="android:drawable">
+            <shape android:shape="oval">
+                <size android:height="16dp" android:width="16dp"/>
+                <solid android:color="@color/blink_blue"/>
+            </shape>
+        </aapt:attr>
+    </item>
+</selector>

@@ -15,11 +15,9 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
-
+import io.rong.imlib.RongIMClient;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.rong.imlib.RongIMClient;
 
 public class MembersDialog extends DialogFragment {
 
@@ -32,18 +30,23 @@ public class MembersDialog extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.dialog_show_member, container, false);
         mMembersRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_members);
         mMembersRecyclerView.setAdapter(mAdapter = new MembersAdapter(getActivity()));
         mMembersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        v.findViewById(R.id.tv_member_operate).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                kickUserListener = null;
-                dismiss();
-            }
-        });
+        v.findViewById(R.id.tv_member_operate)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                kickUserListener = null;
+                                dismiss();
+                            }
+                        });
         titleTextView = (TextView) v.findViewById(R.id.tv_name);
         titleTextView.setText(getString(R.string.room_online_members, modelList.size()));
         mAdapter.setData(modelList);
@@ -101,7 +104,8 @@ public class MembersDialog extends DialogFragment {
 
         @Override
         public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(mContext).inflate(R.layout.item_member, parent, false);
+            View itemView =
+                    LayoutInflater.from(mContext).inflate(R.layout.item_member, parent, false);
             if (viewType == TYPE_ITEM) {
                 return new ItemViewHolder(itemView);
             }
@@ -115,10 +119,8 @@ public class MembersDialog extends DialogFragment {
 
         @Override
         public int getItemCount() {
-            if (mDataList != null)
-                return mDataList.size();
-            else
-                return 0;
+            if (mDataList != null) return mDataList.size();
+            else return 0;
         }
 
         @Override
@@ -140,22 +142,27 @@ public class MembersDialog extends DialogFragment {
 
         public void bind(final ItemModel model) {
             ItemModel itemModel = model;
-            StringBuilder builder = new StringBuilder(itemModel.name).append("（")
-                    .append(itemModel.mode).append("）");
+            StringBuilder builder =
+                    new StringBuilder(itemModel.name)
+                            .append("（")
+                            .append(itemModel.mode)
+                            .append("）");
 
             nameTextView.setText(builder.toString());
             if (RongIMClient.getInstance().getCurrentUserId().equals(adminUserId)) {
                 if (!itemModel.userId.equals(adminUserId)) {
                     memberOperateTextView.setText(R.string.member_operate_remove);
-                    memberOperateTextView.setTextColor(getActivity().getResources().getColor(R.color.blink_text_green));
-                    memberOperateTextView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (kickUserListener != null) {
-                                kickUserListener.onKick(model.userId, model.name);
-                            }
-                        }
-                    });
+                    memberOperateTextView.setTextColor(
+                            getActivity().getResources().getColor(R.color.blink_text_green));
+                    memberOperateTextView.setOnClickListener(
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (kickUserListener != null) {
+                                        kickUserListener.onKick(model.userId, model.name);
+                                    }
+                                }
+                            });
                 }
             } else {
                 memberOperateTextView.setText(null);
@@ -163,7 +170,8 @@ public class MembersDialog extends DialogFragment {
             }
             if (itemModel.userId.equals(adminUserId)) {
                 memberOperateTextView.setText(R.string.member_operate_admin);
-                memberOperateTextView.setTextColor(getActivity().getResources().getColor(R.color.colorWhite));
+                memberOperateTextView.setTextColor(
+                        getActivity().getResources().getColor(R.color.colorWhite));
                 memberOperateTextView.setOnClickListener(null);
             }
         }
@@ -180,9 +188,7 @@ public class MembersDialog extends DialogFragment {
             this.mode = mode;
         }
 
-        public ItemModel() {
-
-        }
+        public ItemModel() {}
     }
 
     public void setKickUserListener(onKickUserListener kickUserListener) {

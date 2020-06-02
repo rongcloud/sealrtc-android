@@ -7,21 +7,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
+import cn.rongcloud.rtc.engine.report.StatusBean;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.rongcloud.rtc.engine.report.StatusBean;
-
-/**
- * Created by RongCloud on 2017/11/30.
- */
-
+/** Created by RongCloud on 2017/11/30. */
 public class DebugInfoAdapter extends BaseAdapter {
     private Context context;
     private List<StatusBean> statusBeanList = new ArrayList<>();
 
-    private static final String INVALID="--";
+    private static final String INVALID = "--";
 
     public DebugInfoAdapter(Context context) {
         this.context = context;
@@ -29,7 +24,7 @@ public class DebugInfoAdapter extends BaseAdapter {
 
     public void setStatusBeanList(List<StatusBean> statusBeanList) {
         this.statusBeanList = statusBeanList;
-//        this.notifyDataSetChanged();
+        //        this.notifyDataSetChanged();
     }
 
     @Override
@@ -80,26 +75,33 @@ public class DebugInfoAdapter extends BaseAdapter {
             StatusBean statusBean = getItem(position);
             if (statusBean != null) {
                 holder.userIdView.setText(statusBean.isSend ? "本地" : statusBean.id);
-                if(!TextUtils.isEmpty(statusBean.mediaType)){
-                    holder.mediaTypeView.setText((statusBean.mediaType.equals("video") ? "视频" : "音频") + ((statusBean.isSend ? "发送" : "接收")));
+                if (!TextUtils.isEmpty(statusBean.mediaType)) {
+                    holder.mediaTypeView.setText(
+                            (statusBean.mediaType.equals("video") ? "视频" : "音频")
+                                    + ((statusBean.isSend ? "发送" : "接收")));
                 }
 
-                if(!TextUtils.isEmpty(statusBean.codecName)){
+                if (!TextUtils.isEmpty(statusBean.codecName)) {
                     holder.codecView.setText(statusBean.codecName);
-                }else{
+                } else {
                     holder.codecView.setText(INVALID);
                 }
 
-                if(!TextUtils.isEmpty(statusBean.mediaType)){
-                    if(0==statusBean.frameHeight && 0==statusBean.frameWidth || !"video".equals(statusBean.mediaType)){
+                if (!TextUtils.isEmpty(statusBean.mediaType)) {
+                    if (0 == statusBean.frameHeight && 0 == statusBean.frameWidth
+                            || !"video".equals(statusBean.mediaType)) {
                         holder.resolutionView.setText(INVALID);
-                    }else{
-                        holder.resolutionView.setText((statusBean.frameHeight + "x" + statusBean.frameWidth));
+                    } else {
+                        holder.resolutionView.setText(
+                                (statusBean.frameHeight + "x" + statusBean.frameWidth));
                     }
                 }
 
-                if(!TextUtils.isEmpty(statusBean.mediaType)){
-                    holder.fpsView.setText("video".equals(statusBean.mediaType) ? statusBean.frameRate + "" : "--");
+                if (!TextUtils.isEmpty(statusBean.mediaType)) {
+                    holder.fpsView.setText(
+                            "video".equals(statusBean.mediaType)
+                                    ? statusBean.frameRate + ""
+                                    : "--");
                 }
 
                 holder.bitrateView.setText(statusBean.bitRate + "");
@@ -108,7 +110,6 @@ public class DebugInfoAdapter extends BaseAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public static class ViewHolder {

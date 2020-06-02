@@ -1,5 +1,7 @@
 package cn.rongcloud.rtc.device;
 
+import static cn.rongcloud.rtc.device.utils.Consts.*;
+
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,24 +19,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.rongcloud.rtc.CenterManager;
 import cn.rongcloud.rtc.LoadDialog;
 import cn.rongcloud.rtc.R;
-import cn.rongcloud.rtc.config.RongCenterConfig;
 import cn.rongcloud.rtc.device.adapter.AVSettingsDataSource;
 import cn.rongcloud.rtc.device.adapter.AVSettingsParameterAdapter;
 import cn.rongcloud.rtc.device.adapter.ItemDecoration;
@@ -44,15 +31,20 @@ import cn.rongcloud.rtc.device.entity.EventBusInfo;
 import cn.rongcloud.rtc.device.entity.MediaType;
 import cn.rongcloud.rtc.device.utils.FileUtils;
 import cn.rongcloud.rtc.device.utils.OnItemClickListener;
-import cn.rongcloud.rtc.stream.local.RongRTCLocalSourceManager;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.BuildVersion;
 import cn.rongcloud.rtc.utils.FinLog;
-import cn.rongcloud.rtc.utils.RongRTCSessionManager;
 import cn.rongcloud.rtc.utils.debug.RTCCodecInfo;
-
-import static cn.rongcloud.rtc.device.utils.Consts.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
+import java.util.List;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class AVSettingsActivity extends AppCompatActivity implements OnItemClickListener {
     private static final String TAG = "AVSettingsActivity";
@@ -85,35 +77,35 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
 
         LoadDialog.show(AVSettingsActivity.this);
         initView();
-        mTableLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (mCurrentTabLayout.equals(tab.getText())) {
-                    return;
-                }
-                mCurrentTabLayout = tab.getText().toString();
-                boolean isCurrentVideoTab = mCurrentTabLayout.equals(TABLAYOUT_TEXT_VIDEO);
-                showTabLayout(isCurrentVideoTab);
-                if (isCurrentVideoTab) {
-                    initEncoderDataList();
-                } else {
-                    initAudioCaptureDataList();
-                }
-            }
+        mTableLayout.addOnTabSelectedListener(
+                new TabLayout.OnTabSelectedListener() {
+                    @Override
+                    public void onTabSelected(TabLayout.Tab tab) {
+                        if (mCurrentTabLayout.equals(tab.getText())) {
+                            return;
+                        }
+                        mCurrentTabLayout = tab.getText().toString();
+                        boolean isCurrentVideoTab = mCurrentTabLayout.equals(TABLAYOUT_TEXT_VIDEO);
+                        showTabLayout(isCurrentVideoTab);
+                        if (isCurrentVideoTab) {
+                            initEncoderDataList();
+                        } else {
+                            initAudioCaptureDataList();
+                        }
+                    }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+                    @Override
+                    public void onTabUnselected(TabLayout.Tab tab) {}
 
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
+                    @Override
+                    public void onTabReselected(TabLayout.Tab tab) {}
+                });
         LoadDialog.dismiss(AVSettingsActivity.this);
 
-        SessionManager.getInstance().put(getResources().getString(R.string.key_use_av_setting), true);      // 进入setting页使用本地设置参数
+        SessionManager.getInstance()
+                .put(
+                        getResources().getString(R.string.key_use_av_setting),
+                        true); // 进入setting页使用本地设置参数
     }
 
     @Override
@@ -150,7 +142,6 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
                 AVSettingsDataSource.getInstance().reloadConfig();
                 finish();
                 break;
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -199,8 +190,8 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
 
         if (!TextUtils.isEmpty(codecInfoJson)) {
             Gson gson = new Gson();
-            List<CodecInfo> codecInfoList = gson.fromJson(codecInfoJson, new TypeToken<List<CodecInfo>>() {
-            }.getType());
+            List<CodecInfo> codecInfoList =
+                    gson.fromJson(codecInfoJson, new TypeToken<List<CodecInfo>>() {}.getType());
             for (int i = 0; i < codecInfoList.size(); i++) {
                 if (codecInfoList.get(i).getCodecName().indexOf("decoder") != -1) {
                     mDecoderInfoList.add(codecInfoList.get(i));
@@ -211,7 +202,13 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
         }
 
         TextView textViewSysInfo = (TextView) findViewById(R.id.textView_sys_info);
-        textViewSysInfo.setText("model-" + Build.MODEL + " sdk-" + Build.VERSION.SDK_INT + " rtcLib-" + BuildVersion.SDK_VERSION);
+        textViewSysInfo.setText(
+                "model-"
+                        + Build.MODEL
+                        + " sdk-"
+                        + Build.VERSION.SDK_INT
+                        + " rtcLib-"
+                        + BuildVersion.SDK_VERSION);
     }
 
     public void click(View view) {
@@ -246,25 +243,21 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode== REQUEST_CODE_SETTING_PREVIEW) {
+        if (requestCode == REQUEST_CODE_SETTING_PREVIEW) {
             if (resultCode == RESULT_OK) {
                 this.finish();
             }
         }
     }
 
-    /**
-     * 初始化编码器选项列表
-     */
+    /** 初始化编码器选项列表 */
     private void initEncoderDataList() {
         avConfigInfoList.clear();
         avConfigInfoList.addAll(AVSettingsDataSource.getInstance().getVideoEncoderConfig());
         mAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * 初始化解码器选项列表
-     */
+    /** 初始化解码器选项列表 */
     private void initDecoderDataList() {
         avConfigInfoList.clear();
         avConfigInfoList.addAll(AVSettingsDataSource.getInstance().getVideoDecoderConfig());
@@ -349,53 +342,67 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
             return;
         }
 
-        if (info.getRequestCode() == REQUEST_CODE_CAMERA_DISPLAY_ORIENTATION ||
-                info.getRequestCode() == REQUEST_CODE_FRAME_ORIENTATION ||
-                info.getRequestCode() == REQUEST_CODE_AUDIO_SAMPLE_RATE ||
-                info.getRequestCode() == REQUEST_AUDIO_TRANSPORT_BIT_RATE ||
-                info.getRequestCode() == REQUEST_AUDIO_AGC_TARGET_DBOV ||
-                info.getRequestCode() == REQUEST_AUDIO_AGC_COMPRESSION_LEVEL ||
-                info.getRequestCode() == REQUEST_AUDIO_PRE_AMPLIFIER_LEVEL) {//摄像头采集角度设置，跳转输入界面
+        if (info.getRequestCode() == REQUEST_CODE_CAMERA_DISPLAY_ORIENTATION
+                || info.getRequestCode() == REQUEST_CODE_FRAME_ORIENTATION
+                || info.getRequestCode() == REQUEST_CODE_AUDIO_SAMPLE_RATE
+                || info.getRequestCode() == REQUEST_AUDIO_TRANSPORT_BIT_RATE
+                || info.getRequestCode() == REQUEST_AUDIO_AGC_TARGET_DBOV
+                || info.getRequestCode() == REQUEST_AUDIO_AGC_COMPRESSION_LEVEL
+                || info.getRequestCode() == REQUEST_AUDIO_PRE_AMPLIFIER_LEVEL) { // 摄像头采集角度设置，跳转输入界面
             SettingInputActivity.startActivity(AVSettingsActivity.this, info.getRequestCode());
             return;
         }
 
-        //仅硬编设置颜色空间
-        if (info.getRequestCode() == REQUEST_CODE_ENCODER_NAME && !AVSettingsDataSource.getInstance().isEncoderHardMode()) {
+        // 仅硬编设置颜色空间
+        if (info.getRequestCode() == REQUEST_CODE_ENCODER_NAME
+                && !AVSettingsDataSource.getInstance().isEncoderHardMode()) {
             Toast.makeText(AVSettingsActivity.this, "软编暂不支持选择编码器！", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (info.getRequestCode() == REQUEST_CODE_ENCODER_COLOR_FORMAT && !AVSettingsDataSource.getInstance().isEncoderHardMode()) {
+        if (info.getRequestCode() == REQUEST_CODE_ENCODER_COLOR_FORMAT
+                && !AVSettingsDataSource.getInstance().isEncoderHardMode()) {
             Toast.makeText(AVSettingsActivity.this, "软编暂不支持选择颜色空间！", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        //仅硬解设置颜色空间
-        if (info.getRequestCode() == REQUEST_CODE_DECODER_NAME && !AVSettingsDataSource.getInstance().isDecoderHardMode()) {
+        // 仅硬解设置颜色空间
+        if (info.getRequestCode() == REQUEST_CODE_DECODER_NAME
+                && !AVSettingsDataSource.getInstance().isDecoderHardMode()) {
             Toast.makeText(AVSettingsActivity.this, "软解暂不支持选择解码器！", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (info.getRequestCode() == REQUEST_CODE_DECODER_COLOR_FORMAT && !AVSettingsDataSource.getInstance().isDecoderHardMode()) {
+        if (info.getRequestCode() == REQUEST_CODE_DECODER_COLOR_FORMAT
+                && !AVSettingsDataSource.getInstance().isDecoderHardMode()) {
             Toast.makeText(AVSettingsActivity.this, "软解暂不支持选择颜色空间！", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String enCodecName = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.VideoEncoder, REQUEST_CODE_ENCODER_NAME);
-        if (info.getRequestCode() == REQUEST_CODE_ENCODER_COLOR_FORMAT && TextUtils.isEmpty(enCodecName)) {
+        String enCodecName =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.VideoEncoder,
+                                REQUEST_CODE_ENCODER_NAME);
+        if (info.getRequestCode() == REQUEST_CODE_ENCODER_COLOR_FORMAT
+                && TextUtils.isEmpty(enCodecName)) {
             Toast.makeText(AVSettingsActivity.this, "请先选择编码器!", Toast.LENGTH_SHORT).show();
             return;
         }
-        String deCodecName = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.VideoDecoder, REQUEST_CODE_DECODER_NAME);
-        if (info.getRequestCode() == REQUEST_CODE_DECODER_COLOR_FORMAT && TextUtils.isEmpty(deCodecName)) {
+        String deCodecName =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.VideoDecoder,
+                                REQUEST_CODE_DECODER_NAME);
+        if (info.getRequestCode() == REQUEST_CODE_DECODER_COLOR_FORMAT
+                && TextUtils.isEmpty(deCodecName)) {
             Toast.makeText(AVSettingsActivity.this, "请先选择解码器!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (info.getRequestCode() == REQUEST_CODE_ENCODER_COLOR_FORMAT ||
-                info.getRequestCode() == REQUEST_CODE_DECODER_COLOR_FORMAT) {
-            //颜色空间跳转颜色空间列表页面
-            //编码、解码标识符 ，CodecType.equals("1")?"解码器列表":"编码器列表"
+        if (info.getRequestCode() == REQUEST_CODE_ENCODER_COLOR_FORMAT
+                || info.getRequestCode() == REQUEST_CODE_DECODER_COLOR_FORMAT) {
+            // 颜色空间跳转颜色空间列表页面
+            // 编码、解码标识符 ，CodecType.equals("1")?"解码器列表":"编码器列表"
             String codecType = "";
             String codecName = "";
             ArrayList<MediaType> mediaTypeArrayList = null;
@@ -408,10 +415,11 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
                 codecType = "1";
                 codecName = deCodecName;
             }
-            CodecColorFormatActivity.startActivity(AVSettingsActivity.this, mediaTypeArrayList, codecType, codecName);
+            CodecColorFormatActivity.startActivity(
+                    AVSettingsActivity.this, mediaTypeArrayList, codecType, codecName);
             return;
         }
-        if(info.getRequestCode() == REQUEST_CODE_AUDIO_SOURCE){
+        if (info.getRequestCode() == REQUEST_CODE_AUDIO_SOURCE) {
             AudioSourceSelectActivity.startActivity(this, info.getItemRealValue());
         }
     }
@@ -431,14 +439,17 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
 
         AVConfigInfo findConfigItem = getAvConfigInfo(requestCode);
 
-        if (findConfigItem != null && !TextUtils.equals(findConfigItem.getItemValue(), info.getContent())) {
+        if (findConfigItem != null
+                && !TextUtils.equals(findConfigItem.getItemValue(), info.getContent())) {
 
             findConfigItem.setItemValue(content);
             findConfigItem.setItemRealValue(info.getRealyValue());
             mAdapter.notifyItemChanged(avConfigInfoList.indexOf(findConfigItem));
 
-            String sw_encoder = Utils.getContext().getResources().getString(R.string.soft_encoder_str);
-            String sw_decoder = Utils.getContext().getResources().getString(R.string.soft_decoder_str);
+            String sw_encoder =
+                    Utils.getContext().getResources().getString(R.string.soft_encoder_str);
+            String sw_decoder =
+                    Utils.getContext().getResources().getString(R.string.soft_decoder_str);
             if (requestCode == REQUEST_CODE_ENCODER_TYPE && TextUtils.equals(sw_encoder, content)) {
                 resetConfigItem(REQUEST_CODE_ENCODER_COLOR_FORMAT);
             }
@@ -447,7 +458,8 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
             }
 
             // 视频编码器 名称-颜色空间需要联动设置
-            if (requestCode == REQUEST_CODE_ENCODER_NAME && TextUtils.equals(mCurrentTabLayout, TABLAYOUT_TEXT_VIDEO)) {
+            if (requestCode == REQUEST_CODE_ENCODER_NAME
+                    && TextUtils.equals(mCurrentTabLayout, TABLAYOUT_TEXT_VIDEO)) {
                 resetConfigItem(REQUEST_CODE_ENCODER_COLOR_FORMAT);
             }
         } else {

@@ -5,11 +5,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.Handler;
 
-/**
- * @Author dengxudong.
- * @Time 2018/1/15.
- * @Description:
- */
+/** @Author dengxudong. @Time 2018/1/15. @Description: */
 public class OrientationSensorListener implements SensorEventListener {
 
     private static final int _DATA_X = 0;
@@ -19,7 +15,6 @@ public class OrientationSensorListener implements SensorEventListener {
     public static final int ORIENTATION_UNKNOWN = -1;
 
     private Handler rotateHandler;
-
 
     public OrientationSensorListener(Handler handler) {
         rotateHandler = handler;
@@ -50,11 +45,8 @@ public class OrientationSensorListener implements SensorEventListener {
         if (rotateHandler != null) {
             rotateHandler.obtainMessage(888, orientation, 0).sendToTarget();
         }
-
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 }

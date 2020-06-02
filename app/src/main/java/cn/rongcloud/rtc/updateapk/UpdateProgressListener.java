@@ -1,25 +1,19 @@
 package cn.rongcloud.rtc.updateapk;
 
-
 public interface UpdateProgressListener {
-    /**
-     * download start
-     */
+    /** download start */
     void start();
 
     /**
      * update download progress
+     *
      * @param progress
      */
     void update(int progress);
 
-    /**
-     * download success
-     */
+    /** download success */
     void success();
 
-    /**
-     * download error
-     */
+    /** download error */
     void error();
 }

@@ -3,21 +3,14 @@ package cn.rongcloud.rtc.watersign;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
-import android.util.Log;
 import android.view.Display;
-import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.WindowManager;
-
 import cn.rongcloud.rtc.GlTextureFrameBuffer;
 import cn.rongcloud.rtc.GlUtil;
-import cn.rongcloud.rtc.util.Utils;
 
-/**
- * Created by wangw on 2019/5/8.
- */
+/** Created by wangw on 2019/5/8. */
 public class WaterMarkFilter {
-
 
     private static final String TAG = "WaterMarkFilter";
     private CommonFilter mFrame;
@@ -42,35 +35,34 @@ public class WaterMarkFilter {
         mWaterWidth = waterBmp.getWidth();
         mWaterHeight = waterBmp.getHeight();
         mWaterTexId = TextureHelper.loadTexture(waterBmp);
-        mDisplay = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        mDisplay =
+                ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
+                        .getDefaultDisplay();
         angleChange(isFrontCamera);
-
     }
 
     public void angleChange(boolean frontCamera) {
-//        mDisplayRotation =  ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+        //        mDisplayRotation =
+        // ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
         if (mWaterSign != null && mDisplay != null)
-            mWaterSign.angleChange(mDisplay.getRotation(),frontCamera);
+            mWaterSign.angleChange(mDisplay.getRotation(), frontCamera);
     }
 
     public void release() {
-        if (mWaterSign != null)
-            mWaterSign.release();
-        if (mFrame != null)
-            mFrame.release();
-        if (mTextureFilter != null)
-            mTextureFilter.release();
+        if (mWaterSign != null) mWaterSign.release();
+        if (mFrame != null) mFrame.release();
+        if (mTextureFilter != null) mTextureFilter.release();
         mDisplay = null;
     }
 
-    public void drawFrame(int width, int height, int textureID,boolean isFrontCamera) {
+    public void drawFrame(int width, int height, int textureID, boolean isFrontCamera) {
         mTextureFilter.setSize(width, height);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mTextureFilter.getFrameBufferId());
         GlUtil.checkNoGLES2Error("glBindFramebuffer");
         GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_ONE,GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
-        GLES20.glViewport(0,0,width,height);
+        GLES20.glViewport(0, 0, width, height);
         mFrame.onDraw(textureID);
         onDrawWater(width, height, isFrontCamera);
         GLES20.glDisable(GLES20.GL_BLEND);
@@ -78,11 +70,12 @@ public class WaterMarkFilter {
     }
 
     private void onDrawWater(int width, int height, boolean isFrontCamera) {
-        if (isFrontCamera)
+        if (isFrontCamera) {
             return;
-        if (mDisplay != null && mDisplay.getRotation() != mDisplayRotation){
+        }
+        if (mDisplay != null && mDisplay.getRotation() != mDisplayRotation) {
             mDisplayRotation = mDisplay.getRotation();
-            mWaterSign.angleChange(mDisplayRotation,isFrontCamera);
+            mWaterSign.angleChange(mDisplayRotation, isFrontCamera);
         }
         switch (mDisplayRotation) {
             case Surface.ROTATION_90:
@@ -96,12 +89,12 @@ public class WaterMarkFilter {
             case Surface.ROTATION_180:
             case Surface.ROTATION_0:
             default:
-                mX = isFrontCamera ? width - mWaterWidth : 0;
-                mY = isFrontCamera ? 0: height - mWaterHeight;
+                mX = 0;
+                mY = height - mWaterHeight;
                 break;
         }
 
-        GLES20.glViewport(mX,mY, mWaterWidth, mWaterHeight);
+        GLES20.glViewport(mX, mY, mWaterWidth, mWaterHeight);
         mWaterSign.onDraw(mWaterTexId);
     }
 

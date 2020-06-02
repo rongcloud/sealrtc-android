@@ -1,18 +1,13 @@
 package cn.rongcloud.rtc;
 
-
-import org.json.JSONObject;
-
-import java.io.IOException;
-
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.utils.FinLog;
+import java.io.IOException;
+import org.json.JSONObject;
 
-/**
- * http://10.12.8.82:8888/
- */
+/** http://10.12.8.82:8888/ */
 public class LiveDataOperator {
     private static final LiveDataOperator instance = new LiveDataOperator();
     private final String address = "https://imqa.rongcloud.net/seallive-online-app-server/";
@@ -30,95 +25,103 @@ public class LiveDataOperator {
     }
 
     public void query(final OnResultCallBack onResultCallBack) {
-        Request request = new Request.Builder()
-                .url(address + QUERY)
-                .method(RequestMethod.POST)
-                .body(new JSONObject().toString())
-                .build();
-        HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
-            @Override
-            public void onResponse(String result) {
-                FinLog.d(TAG, "query result:: " + result);
-                if (onResultCallBack != null)
-                    onResultCallBack.onSuccess(result);
-            }
+        Request request =
+                new Request.Builder()
+                        .url(address + QUERY)
+                        .method(RequestMethod.POST)
+                        .body(new JSONObject().toString())
+                        .build();
+        HttpClient.getDefault()
+                .request(
+                        request,
+                        new HttpClient.ResultCallback() {
+                            @Override
+                            public void onResponse(String result) {
+                                FinLog.d(TAG, "query result:: " + result);
+                                if (onResultCallBack != null) onResultCallBack.onSuccess(result);
+                            }
 
-            @Override
-            public void onFailure(int errorCode) {
-                FinLog.e(TAG, "query errorCode:: " + errorCode);
-                if (onResultCallBack != null)
-                    onResultCallBack.onFailed(String.valueOf(errorCode));
-            }
+                            @Override
+                            public void onFailure(int errorCode) {
+                                FinLog.e(TAG, "query errorCode:: " + errorCode);
+                                if (onResultCallBack != null)
+                                    onResultCallBack.onFailed(String.valueOf(errorCode));
+                            }
 
-            @Override
-            public void onError(IOException exception) {
-                FinLog.e(TAG, "query exception:: " + exception.getMessage());
-                if (onResultCallBack != null)
-                    onResultCallBack.onFailed(exception.getMessage());
-            }
-        });
+                            @Override
+                            public void onError(IOException exception) {
+                                FinLog.e(TAG, "query exception:: " + exception.getMessage());
+                                if (onResultCallBack != null)
+                                    onResultCallBack.onFailed(exception.getMessage());
+                            }
+                        });
     }
 
     public void publish(String data, final OnResultCallBack onResultCallBack) {
-        Request request = new Request.Builder()
-                .url(address + PUBLISH)
-                .method(RequestMethod.POST)
-                .body(data)
-                .build();
-        HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
-            @Override
-            public void onResponse(String result) {
-                if (onResultCallBack != null)
-                    onResultCallBack.onSuccess(result);
-                FinLog.d(TAG, "publish result:: " + result);
-            }
+        Request request =
+                new Request.Builder()
+                        .url(address + PUBLISH)
+                        .method(RequestMethod.POST)
+                        .body(data)
+                        .build();
+        HttpClient.getDefault()
+                .request(
+                        request,
+                        new HttpClient.ResultCallback() {
+                            @Override
+                            public void onResponse(String result) {
+                                if (onResultCallBack != null) onResultCallBack.onSuccess(result);
+                                FinLog.d(TAG, "publish result:: " + result);
+                            }
 
-            @Override
-            public void onFailure(int errorCode) {
-                FinLog.e(TAG, "publish errorCode:: " + errorCode);
-                if (onResultCallBack != null)
-                    onResultCallBack.onFailed(String.valueOf(errorCode));
-            }
+                            @Override
+                            public void onFailure(int errorCode) {
+                                FinLog.e(TAG, "publish errorCode:: " + errorCode);
+                                if (onResultCallBack != null)
+                                    onResultCallBack.onFailed(String.valueOf(errorCode));
+                            }
 
-            @Override
-            public void onError(IOException exception) {
-                FinLog.e(TAG, "publish exception:: " + exception.getMessage());
-                if (onResultCallBack != null)
-                    onResultCallBack.onFailed(exception.getMessage());
-            }
-        });
+                            @Override
+                            public void onError(IOException exception) {
+                                FinLog.e(TAG, "publish exception:: " + exception.getMessage());
+                                if (onResultCallBack != null)
+                                    onResultCallBack.onFailed(exception.getMessage());
+                            }
+                        });
     }
 
     public void unpublish(String data, final OnResultCallBack onResultCallBack) {
-        Request request = new Request.Builder()
-                .url(address + UNPUBLISH)
-                .method(RequestMethod.POST)
-                .body(data)
-                .build();
-        HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
-            @Override
-            public void onResponse(String result) {
-                FinLog.d(TAG, "unpublish result:: " + result);
-                if (onResultCallBack != null)
-                    onResultCallBack.onSuccess(result);
-            }
+        Request request =
+                new Request.Builder()
+                        .url(address + UNPUBLISH)
+                        .method(RequestMethod.POST)
+                        .body(data)
+                        .build();
+        HttpClient.getDefault()
+                .request(
+                        request,
+                        new HttpClient.ResultCallback() {
+                            @Override
+                            public void onResponse(String result) {
+                                FinLog.d(TAG, "unpublish result:: " + result);
+                                if (onResultCallBack != null) onResultCallBack.onSuccess(result);
+                            }
 
-            @Override
-            public void onFailure(int errorCode) {
-                FinLog.e(TAG, "unpublish errorCode:: " + errorCode);
-                if (onResultCallBack != null)
-                    onResultCallBack.onFailed(String.valueOf(errorCode));
-            }
+                            @Override
+                            public void onFailure(int errorCode) {
+                                FinLog.e(TAG, "unpublish errorCode:: " + errorCode);
+                                if (onResultCallBack != null)
+                                    onResultCallBack.onFailed(String.valueOf(errorCode));
+                            }
 
-            @Override
-            public void onError(IOException exception) {
-                FinLog.e(TAG, "unpublish exception:: " + exception.getMessage());
-                if (onResultCallBack != null)
-                    onResultCallBack.onFailed(exception.getMessage());
-            }
-        });
+                            @Override
+                            public void onError(IOException exception) {
+                                FinLog.e(TAG, "unpublish exception:: " + exception.getMessage());
+                                if (onResultCallBack != null)
+                                    onResultCallBack.onFailed(exception.getMessage());
+                            }
+                        });
     }
-
 
     public interface OnResultCallBack {
         void onSuccess(String result);

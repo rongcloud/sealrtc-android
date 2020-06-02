@@ -1,5 +1,7 @@
 package cn.rongcloud.rtc.device;
 
+import static cn.rongcloud.rtc.device.utils.Consts.*;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,22 +10,31 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-
-import org.greenrobot.eventbus.EventBus;
-
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.adapter.AVSettingsDataSource;
 import cn.rongcloud.rtc.device.entity.EventBusInfo;
 import cn.rongcloud.rtc.device.utils.Consts;
 import cn.rongcloud.rtc.util.SessionManager;
-
-import static android.media.MediaRecorder.AudioSource.VOICE_COMMUNICATION;
-import static cn.rongcloud.rtc.device.utils.Consts.*;
+import org.greenrobot.eventbus.EventBus;
 
 public class SettingInputActivity extends DeviceBaseActivity {
     private static final String TAG = "SettingInputActivity";
-    private LinearLayout linear_cameraDisplayOrientation, linear_frameOrientation, linear_audioSource, linear_audioSampleRate, linear_audioBitRate, linear_targetDBOV, linear_compressionLevel, linear_ampliferLevel;
-    private EditText edit_cameraDisplayOrientation, edit_frameOrientation, edit_audioSource, edit_audioSampleRate, edit_audioBitRate, edit_targetDBOV, edit_compressionLevel, edit_ampliferLevel;
+    private LinearLayout linear_cameraDisplayOrientation,
+            linear_frameOrientation,
+            linear_audioSource,
+            linear_audioSampleRate,
+            linear_audioBitRate,
+            linear_targetDBOV,
+            linear_compressionLevel,
+            linear_ampliferLevel;
+    private EditText edit_cameraDisplayOrientation,
+            edit_frameOrientation,
+            edit_audioSource,
+            edit_audioSampleRate,
+            edit_audioBitRate,
+            edit_targetDBOV,
+            edit_compressionLevel,
+            edit_ampliferLevel;
     private int requestCode = -1;
 
     public static void startActivity(Context context, int requestCode) {
@@ -77,35 +88,67 @@ public class SettingInputActivity extends DeviceBaseActivity {
             linear_ampliferLevel.setVisibility(View.VISIBLE);
         }
 
-        String cameraDisplayOrientation = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.VideoCamera, REQUEST_CODE_CAMERA_DISPLAY_ORIENTATION);
+        String cameraDisplayOrientation =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.VideoCamera,
+                                REQUEST_CODE_CAMERA_DISPLAY_ORIENTATION);
         edit_cameraDisplayOrientation.setText(cameraDisplayOrientation);
         edit_cameraDisplayOrientation.setSelection(getStringLength(cameraDisplayOrientation));
 
-        String frameOrientation = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.VideoCamera, REQUEST_CODE_FRAME_ORIENTATION);
+        String frameOrientation =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.VideoCamera,
+                                REQUEST_CODE_FRAME_ORIENTATION);
         edit_frameOrientation.setText(frameOrientation);
         edit_frameOrientation.setSelection(getStringLength(frameOrientation));
 
-        String audioSource = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.AudioCapture, REQUEST_CODE_AUDIO_SOURCE);
+        String audioSource =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.AudioCapture,
+                                REQUEST_CODE_AUDIO_SOURCE);
         edit_audioSource.setText(audioSource);
         edit_audioSource.setSelection(getStringLength(audioSource));
 
-        String audioSampleRate = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.AudioCapture, REQUEST_CODE_AUDIO_SAMPLE_RATE);
+        String audioSampleRate =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.AudioCapture,
+                                REQUEST_CODE_AUDIO_SAMPLE_RATE);
         edit_audioSampleRate.setText(audioSampleRate);
         edit_audioSampleRate.setSelection(getStringLength(audioSampleRate));
 
-        String audioBitRate = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.AudioCapture, REQUEST_AUDIO_TRANSPORT_BIT_RATE);
+        String audioBitRate =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.AudioCapture,
+                                REQUEST_AUDIO_TRANSPORT_BIT_RATE);
         edit_audioBitRate.setText(audioBitRate);
         edit_audioBitRate.setSelection(getStringLength(audioBitRate));
 
-        String audioAgcTargetDbov = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.AudioAGC, REQUEST_AUDIO_AGC_TARGET_DBOV);
+        String audioAgcTargetDbov =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.AudioAGC,
+                                REQUEST_AUDIO_AGC_TARGET_DBOV);
         edit_targetDBOV.setText(audioAgcTargetDbov);
         edit_targetDBOV.setSelection(getStringLength(audioAgcTargetDbov));
 
-        String audioAgcCompression = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.AudioAGC, REQUEST_AUDIO_AGC_COMPRESSION_LEVEL);
+        String audioAgcCompression =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.AudioAGC,
+                                REQUEST_AUDIO_AGC_COMPRESSION_LEVEL);
         edit_compressionLevel.setText(audioAgcCompression);
         edit_compressionLevel.setSelection(getStringLength(audioAgcCompression));
 
-        String audioPreAmplifierLevel = AVSettingsDataSource.getInstance().getItemConfig(AVSettingsDataSource.SettingCategory.AudioAGC, REQUEST_AUDIO_PRE_AMPLIFIER_LEVEL);
+        String audioPreAmplifierLevel =
+                AVSettingsDataSource.getInstance()
+                        .getItemConfig(
+                                AVSettingsDataSource.SettingCategory.AudioAGC,
+                                REQUEST_AUDIO_PRE_AMPLIFIER_LEVEL);
         edit_ampliferLevel.setText(audioPreAmplifierLevel);
         edit_ampliferLevel.setSelection(getStringLength(audioPreAmplifierLevel));
     }
@@ -129,7 +172,8 @@ public class SettingInputActivity extends DeviceBaseActivity {
                 e.printStackTrace();
                 Log.e(TAG, "Consts.capture_cameraDisplayOrientation_key , e: " + e.getMessage());
             }
-            SessionManager.getInstance().put(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY, cameraDisplayOrientation);
+            SessionManager.getInstance()
+                    .put(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY, cameraDisplayOrientation);
         } else if (requestCode == REQUEST_CODE_FRAME_ORIENTATION) {
             int frameOrientation = -1;
             try {
@@ -139,7 +183,8 @@ public class SettingInputActivity extends DeviceBaseActivity {
                 e.printStackTrace();
                 Log.e(TAG, "Consts.capture_frameOrientation_key , e: " + e.getMessage());
             }
-            SessionManager.getInstance().put(Consts.CAPTURE_FRAME_ORIENTATION_KEY, frameOrientation);
+            SessionManager.getInstance()
+                    .put(Consts.CAPTURE_FRAME_ORIENTATION_KEY, frameOrientation);
         } else if (requestCode == REQUEST_CODE_AUDIO_SOURCE) {
             try {
                 int audioSource = Integer.valueOf(edit_audioSource.getText().toString().trim());
@@ -151,7 +196,8 @@ public class SettingInputActivity extends DeviceBaseActivity {
             content = edit_audioSource.getText().toString().trim();
         } else if (requestCode == REQUEST_CODE_AUDIO_SAMPLE_RATE) {
             try {
-                int audioSampleRate = Integer.valueOf(edit_audioSampleRate.getText().toString().trim());
+                int audioSampleRate =
+                        Integer.valueOf(edit_audioSampleRate.getText().toString().trim());
             } catch (Exception ex) {
                 ex.printStackTrace();
                 Log.e(TAG, "Consts.edit_audioSampleRate , e: " + ex.getMessage());
@@ -178,7 +224,8 @@ public class SettingInputActivity extends DeviceBaseActivity {
             content = edit_targetDBOV.getText().toString().trim();
         } else if (requestCode == REQUEST_AUDIO_AGC_COMPRESSION_LEVEL) {
             try {
-                int compressionLevel = Integer.valueOf(edit_compressionLevel.getText().toString().trim());
+                int compressionLevel =
+                        Integer.valueOf(edit_compressionLevel.getText().toString().trim());
             } catch (Exception ex) {
                 ex.printStackTrace();
                 Log.e(TAG, "Consts.compressionLevel , e: " + ex.getMessage());

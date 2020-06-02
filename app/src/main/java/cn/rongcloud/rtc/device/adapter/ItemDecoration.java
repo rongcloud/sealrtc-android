@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-
 import cn.rongcloud.rtc.R;
 
 public class ItemDecoration extends RecyclerView.ItemDecoration {
@@ -35,7 +34,7 @@ public class ItemDecoration extends RecyclerView.ItemDecoration {
 
     /**
      * @param context
-     * @param divider       分割线Drawable
+     * @param divider 分割线Drawable
      * @param dividerHeight 分割线高度
      */
     public ItemDecoration(Context context, Drawable divider, int dividerHeight) {
@@ -47,10 +46,10 @@ public class ItemDecoration extends RecyclerView.ItemDecoration {
         mDividerHeight = dividerHeight;
     }
 
-
-    //获取分割线尺寸
+    // 获取分割线尺寸
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    public void getItemOffsets(
+            Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         super.getItemOffsets(outRect, view, parent, state);
         outRect.set(0, 0, 0, mDividerHeight);
     }
@@ -61,12 +60,12 @@ public class ItemDecoration extends RecyclerView.ItemDecoration {
         int right = parent.getWidth() - parent.getPaddingRight();
 
         int childCount = parent.getChildCount();
-        //最后一个item不画分割线
+        // 最后一个item不画分割线
         for (int i = 0; i < childCount - 1; i++) {
             View child = parent.getChildAt(i);
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
             int top = child.getBottom() + params.bottomMargin;
-//            int bottom = top + mDividerHeight;
+            //            int bottom = top + mDividerHeight;
             int bottom = top + mDivider.getIntrinsicHeight();
             if (inset > 0) {
                 mDivider.setBounds(left + inset, top, right - inset, bottom);

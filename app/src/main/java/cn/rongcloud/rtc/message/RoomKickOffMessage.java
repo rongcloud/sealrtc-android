@@ -1,12 +1,10 @@
 package cn.rongcloud.rtc.message;
 
 import android.os.Parcel;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @MessageTag(value = "SealRTC:KickOff", flag = MessageTag.STATUS)
 public class RoomKickOffMessage extends MessageContent {
@@ -24,7 +22,6 @@ public class RoomKickOffMessage extends MessageContent {
     public String getUserId() {
         return userId;
     }
-
 
     public RoomKickOffMessage(byte[] data) {
         try {
@@ -61,15 +58,16 @@ public class RoomKickOffMessage extends MessageContent {
         userId = parcel.readString();
     }
 
-    public static final Creator<RoomKickOffMessage> CREATOR = new Creator<RoomKickOffMessage>() {
-        @Override
-        public RoomKickOffMessage createFromParcel(Parcel source) {
-            return new RoomKickOffMessage(source);
-        }
+    public static final Creator<RoomKickOffMessage> CREATOR =
+            new Creator<RoomKickOffMessage>() {
+                @Override
+                public RoomKickOffMessage createFromParcel(Parcel source) {
+                    return new RoomKickOffMessage(source);
+                }
 
-        @Override
-        public RoomKickOffMessage[] newArray(int size) {
-            return new RoomKickOffMessage[size];
-        }
-    };
+                @Override
+                public RoomKickOffMessage[] newArray(int size) {
+                    return new RoomKickOffMessage[size];
+                }
+            };
 }

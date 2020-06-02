@@ -11,17 +11,13 @@
 package cn.rongcloud.rtc;
 
 import android.opengl.GLES20;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-/**
- * Some OpenGL static utility functions.
- */
+/** Some OpenGL static utility functions. */
 public class GlUtil {
-    private GlUtil() {
-    }
+    private GlUtil() {}
 
     // Assert that no OpenGL ES 2.0 error has been raised.
     public static void checkNoGLES2Error(String msg) {
@@ -41,9 +37,7 @@ public class GlUtil {
         return fb;
     }
 
-    /**
-     * Generate texture with standard parameters.
-     */
+    /** Generate texture with standard parameters. */
     public static int generateTexture(int target) {
         final int textureArray[] = new int[1];
         GLES20.glGenTextures(1, textureArray, 0);

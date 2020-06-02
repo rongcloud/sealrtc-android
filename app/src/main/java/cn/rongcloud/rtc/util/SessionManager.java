@@ -3,16 +3,14 @@ package cn.rongcloud.rtc.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/**
- * Created by Huichao on 2016/11/24.
- */
-
+/** Created by Huichao on 2016/11/24. */
 public class SessionManager {
     private static final String SETTIING_OPTIONS = "SETTIING_OPTIONS";
     private static SharedPreferences sharedPreferences;
     private static SessionManager sessionManager;
     public static final String ROOM_NUM = "room_id";
     private static Context mContext;
+
     public static void initContext(Context context) {
         mContext = context;
     }
@@ -65,9 +63,9 @@ public class SessionManager {
         return value;
     }
 
-    public boolean contains(String key){
-        if(null==sharedPreferences){
-            return  false;
+    public boolean contains(String key) {
+        if (null == sharedPreferences) {
+            return false;
         }
         return sharedPreferences.contains(key);
     }
@@ -87,7 +85,7 @@ public class SessionManager {
         return sharedPreferences.getString(key, "");
     }
 
-    public String getString(String key, String defVal){
+    public String getString(String key, String defVal) {
         return sharedPreferences.getString(key, defVal);
     }
 
@@ -95,27 +93,27 @@ public class SessionManager {
         return sharedPreferences.getBoolean(key, false);
     }
 
-    public boolean getBoolean(String key, boolean defaultVal){
+    public boolean getBoolean(String key, boolean defaultVal) {
         return sharedPreferences.getBoolean(key, defaultVal);
     }
 
-    public Boolean getIsSupportTiny(String key){
+    public Boolean getIsSupportTiny(String key) {
         return sharedPreferences.getBoolean(key, true);
     }
 
     public Long getLong(String key) {
         return sharedPreferences.getLong(key, 0);
     }
+
     public int getInt(String key) {
-        return sharedPreferences.getInt(key,0);
+        return sharedPreferences.getInt(key, 0);
     }
 
-    public int getInt(String key, int defValue){
+    public int getInt(String key, int defValue) {
         return sharedPreferences.getInt(key, defValue);
     }
 
-    public float getFloat(String key, float defValue){
-        return  sharedPreferences.getFloat(key, defValue);
+    public float getFloat(String key, float defValue) {
+        return sharedPreferences.getFloat(key, defValue);
     }
 }
-

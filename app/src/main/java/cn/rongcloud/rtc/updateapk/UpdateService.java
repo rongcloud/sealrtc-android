@@ -26,7 +26,10 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
-
+import cn.rongcloud.rtc.BuildConfig;
+import cn.rongcloud.rtc.R;
+import io.rong.common.RLog;
+import io.rong.push.common.PushCacheHelper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,12 +38,6 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import cn.rongcloud.rtc.BuildConfig;
-import cn.rongcloud.rtc.R;
-import io.rong.common.RLog;
-import io.rong.push.common.PushCacheHelper;
-
-
 public class UpdateService extends Service {
     public static final String TAG = "UpdateService";
     public static final String ACTION = "me.shenfan.UPDATE_APP";
@@ -48,7 +45,7 @@ public class UpdateService extends Service {
     public static final String PROGRESS = "progress";
     public static boolean DEBUG = false;
 
-    //下载大小通知频率
+    // 下载大小通知频率
     public static final int UPDATE_NUMBER_SIZE = 4;
     public static final int DEFAULT_RES_ID = -1;
 
@@ -56,23 +53,23 @@ public class UpdateService extends Service {
     public static final int UPDATE_ERROR_STATUS = -1;
     public static final int UPDATE_SUCCESS_STATUS = 1;
 
-    //params
+    // params
     private static final String URL = "downloadUrl";
     private static final String ICO_RES_ID = "icoResId";
     private static final String ICO_SMALL_RES_ID = "icoSmallResId";
     private static final String UPDATE_PROGRESS = "updateProgress";
     private static final String STORE_DIR = "storeDir";
     private static final String DOWNLOAD_NOTIFICATION_FLAG = "downloadNotificationFlag";
-    private static final String DOWNLOAD_SUCCESS_NOTIFICATION_FLAG = "downloadSuccessNotificationFlag";
+    private static final String DOWNLOAD_SUCCESS_NOTIFICATION_FLAG =
+            "downloadSuccessNotificationFlag";
     private static final String DOWNLOAD_ERROR_NOTIFICATION_FLAG = "downloadErrorNotificationFlag";
     private static final String IS_SEND_BROADCAST = "isSendBroadcast";
 
-
     private String downloadUrl;
-    private int icoResId;             //default app ico
+    private int icoResId; // default app ico
     private int icoSmallResId;
-    private int updateProgress;   //update notification progress when it add number
-    private String storeDir;          //default sdcard/Android/package/update
+    private int updateProgress; // update notification progress when it add number
+    private String storeDir; // default sdcard/Android/package/update
     private int downloadNotificationFlag;
     private int downloadSuccessNotificationFlag;
     private int downloadErrorNotificationFlag;
@@ -82,9 +79,7 @@ public class UpdateService extends Service {
     private UpdateProgressListener updateProgressListener;
     private LocalBinder localBinder = new LocalBinder();
 
-    /**
-     * Class used for the client Binder.
-     */
+    /** Class used for the client Binder. */
     public class LocalBinder extends Binder {
         /**
          * set update progress call back
@@ -96,8 +91,7 @@ public class UpdateService extends Service {
         }
     }
 
-
-    private boolean startDownload;//开始下载
+    private boolean startDownload; // 开始下载
     private int lastProgressNumber;
     private Notification.Builder builder;
     private NotificationManager manager;
@@ -107,9 +101,7 @@ public class UpdateService extends Service {
     private Intent localIntent;
     private DownloadApk downloadApkTask;
 
-    /**
-     * whether debug
-     */
+    /** whether debug */
     public static void debug() {
         DEBUG = true;
     }
@@ -119,7 +111,11 @@ public class UpdateService extends Service {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri contentUri = FileProvider.getUriForFile(getBaseContext().getApplicationContext(),  BuildConfig.APPLICATION_ID+".provider", apkFile);
+            Uri contentUri =
+                    FileProvider.getUriForFile(
+                            getBaseContext().getApplicationContext(),
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            apkFile);
             intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
         } else {
             intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
@@ -144,8 +140,7 @@ public class UpdateService extends Service {
 
     private static File getDownloadDir(UpdateService service) {
         File downloadDir = null;
-        if (Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)) {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             if (service.storeDir != null) {
                 downloadDir = new File(Environment.getExternalStorageDirectory(), service.storeDir);
             } else {
@@ -159,7 +154,6 @@ public class UpdateService extends Service {
         }
         return downloadDir;
     }
-
 
     @Override
     public void onCreate() {
@@ -178,9 +172,9 @@ public class UpdateService extends Service {
             updateProgress = intent.getIntExtra(UPDATE_PROGRESS, UPDATE_NUMBER_SIZE);
             downloadNotificationFlag = intent.getIntExtra(DOWNLOAD_NOTIFICATION_FLAG, 0);
             downloadErrorNotificationFlag = intent.getIntExtra(DOWNLOAD_ERROR_NOTIFICATION_FLAG, 0);
-            downloadSuccessNotificationFlag = intent.getIntExtra(DOWNLOAD_SUCCESS_NOTIFICATION_FLAG, 0);
+            downloadSuccessNotificationFlag =
+                    intent.getIntExtra(DOWNLOAD_SUCCESS_NOTIFICATION_FLAG, 0);
             isSendBroadcast = intent.getBooleanExtra(IS_SEND_BROADCAST, false);
-
 
             if (DEBUG) {
                 Log.d(TAG, "downloadUrl: " + downloadUrl);
@@ -242,8 +236,11 @@ public class UpdateService extends Service {
         } catch (PackageManager.NameNotFoundException e) {
             applicationInfo = null;
         }
-        String applicationName =
-                (String) packageManager.getApplicationLabel(applicationInfo);
+        String applicationName = "";
+        if (packageManager != null) {
+            applicationName = (String) packageManager.getApplicationLabel(applicationInfo);
+        }
+
         return applicationName;
     }
 
@@ -267,11 +264,17 @@ public class UpdateService extends Service {
     private void buildNotification() {
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        builder = createNotification(this, getString(R.string.update_app_model_prepare), getString(R.string.update_app_model_prepare), downloadNotificationFlag);
+        builder =
+                createNotification(
+                        this,
+                        getString(R.string.update_app_model_prepare),
+                        getString(R.string.update_app_model_prepare),
+                        downloadNotificationFlag);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel notificationChannel = new NotificationChannel(channelId, getApplicationName(), importance);
+            NotificationChannel notificationChannel =
+                    new NotificationChannel(channelId, getApplicationName(), importance);
             notificationChannel.enableLights(false);
             notificationChannel.setLightColor(Color.GREEN);
             notificationChannel.enableVibration(false);
@@ -292,9 +295,7 @@ public class UpdateService extends Service {
         }
     }
 
-    /**
-     * @param progress download percent , max 100
-     */
+    /** @param progress download percent , max 100 */
     private void update(int progress) {
         if (progress - lastProgressNumber > updateProgress) {
             lastProgressNumber = progress;
@@ -312,7 +313,8 @@ public class UpdateService extends Service {
         builder.setProgress(0, 0, false);
         builder.setContentText(getString(R.string.update_app_model_success));
         Intent i = installIntent(path);
-        PendingIntent intent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent intent =
+                PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(intent);
         builder.setDefaults(downloadSuccessNotificationFlag);
         Notification n = builder.build();
@@ -328,8 +330,8 @@ public class UpdateService extends Service {
 
     private void error() {
         Intent i = webLauncher(downloadUrl);
-        PendingIntent intent = PendingIntent.getActivity(this, 0, i,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent intent =
+                PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentText(getString(R.string.update_app_model_error));
         builder.setContentIntent(intent);
         builder.setProgress(0, 0, false);
@@ -344,10 +346,13 @@ public class UpdateService extends Service {
         stopSelf();
     }
 
-
-    private static Notification.Builder createNotification(Context context, String title, String content, int flag) {
+    private static Notification.Builder createNotification(
+            Context context, String title, String content, int flag) {
         boolean isLollipop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-        int smallIcon = context.getResources().getIdentifier("notification_small_icon", "drawable", context.getPackageName());
+        int smallIcon =
+                context.getResources()
+                        .getIdentifier(
+                                "notification_small_icon", "drawable", context.getPackageName());
 
         if (smallIcon <= 0 || !isLollipop) {
             smallIcon = context.getApplicationInfo().icon;
@@ -356,8 +361,13 @@ public class UpdateService extends Service {
         Drawable loadIcon = context.getApplicationInfo().loadIcon((context.getPackageManager()));
         Bitmap appIcon = null;
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && loadIcon instanceof AdaptiveIconDrawable) {
-                appIcon = Bitmap.createBitmap(loadIcon.getIntrinsicWidth(), loadIcon.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && loadIcon instanceof AdaptiveIconDrawable) {
+                appIcon =
+                        Bitmap.createBitmap(
+                                loadIcon.getIntrinsicWidth(),
+                                loadIcon.getIntrinsicHeight(),
+                                Bitmap.Config.ARGB_8888);
                 final Canvas canvas = new Canvas(appIcon);
                 loadIcon.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                 loadIcon.draw(canvas);
@@ -382,7 +392,12 @@ public class UpdateService extends Service {
             PackageManager pm = context.getPackageManager();
             String name;
             try {
-                name = pm.getApplicationLabel(pm.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA)).toString();
+                name =
+                        pm.getApplicationLabel(
+                                        pm.getApplicationInfo(
+                                                context.getPackageName(),
+                                                PackageManager.GET_META_DATA))
+                                .toString();
             } catch (PackageManager.NameNotFoundException e) {
                 name = "";
             }
@@ -420,8 +435,10 @@ public class UpdateService extends Service {
 
             final String downloadUrl = params[0];
 
-            final File file = new File(UpdateService.getDownloadDir(updateServiceWeakReference.get()),
-                    UpdateService.getSaveFileName(downloadUrl));
+            final File file =
+                    new File(
+                            UpdateService.getDownloadDir(updateServiceWeakReference.get()),
+                            UpdateService.getSaveFileName(downloadUrl));
             if (DEBUG) {
                 Log.d(TAG, "download url is " + downloadUrl);
                 Log.d(TAG, "download apk cache at " + file.getAbsolutePath());
@@ -525,17 +542,15 @@ public class UpdateService extends Service {
         }
     }
 
-
-    /**
-     * a builder class helper use UpdateService
-     */
+    /** a builder class helper use UpdateService */
     public static class Builder {
 
         private String downloadUrl;
-        private int icoResId = DEFAULT_RES_ID;             //default app ico
+        private int icoResId = DEFAULT_RES_ID; // default app ico
         private int icoSmallResId = DEFAULT_RES_ID;
-        private int updateProgress = UPDATE_NUMBER_SIZE;   //update notification progress when it add number
-        private String storeDir;          //default sdcard/Android/package/update
+        private int updateProgress =
+                UPDATE_NUMBER_SIZE; // update notification progress when it add number
+        private String storeDir; // default sdcard/Android/package/update
         private int downloadNotificationFlag;
         private int downloadSuccessNotificationFlag;
         private int downloadErrorNotificationFlag;
@@ -668,7 +683,9 @@ public class UpdateService extends Service {
             final PackageManager packageManager = context.getPackageManager();
             ApplicationInfo appInfo = null;
             try {
-                appInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+                appInfo =
+                        packageManager.getApplicationInfo(
+                                context.getPackageName(), PackageManager.GET_META_DATA);
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
@@ -678,5 +695,4 @@ public class UpdateService extends Service {
             return 0;
         }
     }
-
 }

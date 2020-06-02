@@ -9,23 +9,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-
 import cn.rongcloud.rtc.util.NToast;
-
 
 public class LoadDialog extends Dialog {
 
-    /**
-     * LoadDialog
-     */
+    /** LoadDialog */
     private static LoadDialog loadDialog;
-    /**
-     * canNotCancel, the mDialogTextView dimiss or undimiss flag
-     */
+    /** canNotCancel, the mDialogTextView dimiss or undimiss flag */
     private boolean canNotCancel;
-    /**
-     * if the mDialogTextView don't dimiss, what is the tips.
-     */
+    /** if the mDialogTextView don't dimiss, what is the tips. */
     private String tipMsg;
 
     private TextView mShowMessage;
@@ -33,9 +25,9 @@ public class LoadDialog extends Dialog {
     /**
      * the LoadDialog constructor
      *
-     * @param ctx          Context
+     * @param ctx Context
      * @param canNotCancel boolean
-     * @param tipMsg       String
+     * @param tipMsg String
      */
     public LoadDialog(final Context ctx, boolean canNotCancel, String tipMsg) {
         super(ctx);
@@ -92,8 +84,8 @@ public class LoadDialog extends Dialog {
     /**
      * show the mDialogTextView
      *
-     * @param context  Context
-     * @param message  String, show the message to user when isCancel is true.
+     * @param context Context
+     * @param message String, show the message to user when isCancel is true.
      * @param isCancel boolean, true is can't dimiss，false is can dimiss
      */
     private static void show(Context context, String message, boolean isCancel) {
@@ -109,9 +101,7 @@ public class LoadDialog extends Dialog {
         loadDialog.show();
     }
 
-    /**
-     * dismiss the mDialogTextView
-     */
+    /** dismiss the mDialogTextView */
     public static void dismiss(Context context) {
         try {
             if (context instanceof Activity) {

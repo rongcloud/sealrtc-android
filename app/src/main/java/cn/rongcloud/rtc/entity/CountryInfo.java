@@ -1,29 +1,19 @@
 package cn.rongcloud.rtc.entity;
 
-import com.google.gson.annotations.Expose;
-
-import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.util.Utils;
 import me.yokeyword.indexablerv.IndexableEntity;
 
-/**
- * Created by wangw on 2019/4/8.
- */
+/** Created by wangw on 2019/4/8. */
 public class CountryInfo implements IndexableEntity {
 
-
-    /**
-     * region : 1
-     * locale : {"en":"Canada","zh":"加拿大"}
-     */
-
+    /** region : 1 locale : {"en":"Canada","zh":"加拿大"} */
     public String region;
+
     public String en;
     public String zh;
     public String pinyin;
 
-    public CountryInfo() {
-    }
+    public CountryInfo() {}
 
     public CountryInfo(String region) {
         this.region = region;
@@ -37,10 +27,8 @@ public class CountryInfo implements IndexableEntity {
 
     @Override
     public String getFieldIndexBy() {
-        if (Utils.isZhLanguage())
-            return zh;
-        else
-            return en;
+        if (Utils.isZhLanguage()) return zh;
+        else return en;
     }
 
     @Override
@@ -53,8 +41,7 @@ public class CountryInfo implements IndexableEntity {
         this.pinyin = pinyin;
     }
 
-    public static CountryInfo createDefault(){
-        return new CountryInfo("86","China","中国");
+    public static CountryInfo createDefault() {
+        return new CountryInfo("86", "China", "中国");
     }
-
 }

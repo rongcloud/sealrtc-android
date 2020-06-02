@@ -1,10 +1,6 @@
 package cn.rongcloud.rtc;
 
-/**
- * Created by Huichao Li on 2017/3/20.
- * Wrapper class for server mode
- */
-
+/** Created by Huichao Li on 2017/3/20. Wrapper class for server mode */
 public class ConfigServersMode {
 
     private String cmptls;

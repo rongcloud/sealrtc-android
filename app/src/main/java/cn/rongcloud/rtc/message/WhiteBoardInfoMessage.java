@@ -1,12 +1,10 @@
 package cn.rongcloud.rtc.message;
 
 import android.os.Parcel;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @MessageTag(value = "SealRTC:WhiteBoardInfo", flag = MessageTag.STATUS)
 public class WhiteBoardInfoMessage extends MessageContent {
@@ -74,15 +72,16 @@ public class WhiteBoardInfoMessage extends MessageContent {
         roomToken = parcel.readString();
     }
 
-    public static final Creator<WhiteBoardInfoMessage> CREATOR = new Creator<WhiteBoardInfoMessage>() {
-        @Override
-        public WhiteBoardInfoMessage createFromParcel(Parcel source) {
-            return new WhiteBoardInfoMessage(source);
-        }
+    public static final Creator<WhiteBoardInfoMessage> CREATOR =
+            new Creator<WhiteBoardInfoMessage>() {
+                @Override
+                public WhiteBoardInfoMessage createFromParcel(Parcel source) {
+                    return new WhiteBoardInfoMessage(source);
+                }
 
-        @Override
-        public WhiteBoardInfoMessage[] newArray(int size) {
-            return new WhiteBoardInfoMessage[size];
-        }
-    };
+                @Override
+                public WhiteBoardInfoMessage[] newArray(int size) {
+                    return new WhiteBoardInfoMessage[size];
+                }
+            };
 }

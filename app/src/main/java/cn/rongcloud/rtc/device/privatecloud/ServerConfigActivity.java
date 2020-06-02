@@ -6,19 +6,15 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import org.greenrobot.eventbus.EventBus;
-
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.RongRTCEngine;
 import cn.rongcloud.rtc.SettingActivity;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.utils.FinLog;
+import org.greenrobot.eventbus.EventBus;
 
-/**
- * 私有云地址自定义页面
- */
+/** 私有云地址自定义页面 */
 public class ServerConfigActivity extends Activity {
 
     private static final String TAG = "ServerConfigActivity";
@@ -34,12 +30,14 @@ public class ServerConfigActivity extends Activity {
         edit_appSecret = (EditText) findViewById(R.id.edit_appSecret);
         edit_apiServer = (EditText) findViewById(R.id.edit_apiServer);
         edit_mediaServer = (EditText) findViewById(R.id.edit_media_server);
-        findViewById(R.id.settings_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        findViewById(R.id.settings_back)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                finish();
+                            }
+                        });
 
         SessionManager.getInstance().put(SettingActivity.IS_RONGRTC_CONNECTIONMODE, false);
         appkey = SessionManager.getInstance().getString(ServerUtils.APP_KEY_KEY);
@@ -104,17 +102,21 @@ public class ServerConfigActivity extends Activity {
 
         SessionManager.getInstance().remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
 
-        Toast.makeText(this, getResources().getString(R.string.save_successful), Toast.LENGTH_SHORT).show();
-        String logAppkey = (ServerUtils.APP_KEY.equals(UserUtils.APP_KEY)) ? "---" : ServerUtils.APP_KEY;
-        String logNavServer = (ServerUtils.NAV_SERVER.equals(UserUtils.NAV_SERVER)) ? "---" : ServerUtils.NAV_SERVER;
+        Toast.makeText(this, getResources().getString(R.string.save_successful), Toast.LENGTH_SHORT)
+                .show();
+        String logAppkey =
+                (ServerUtils.APP_KEY.equals(UserUtils.APP_KEY)) ? "---" : ServerUtils.APP_KEY;
+        String logNavServer =
+                (ServerUtils.NAV_SERVER.equals(UserUtils.NAV_SERVER))
+                        ? "---"
+                        : ServerUtils.NAV_SERVER;
         FinLog.v(TAG, "APP_KEY : " + logAppkey);
         FinLog.v(TAG, "NAV_SERVER :" + logNavServer);
         FinLog.v(TAG, "appSecret :" + appSecret);
         FinLog.v(TAG, "apiServer :" + apiServer);
         FinLog.v(TAG, "mediaServer :" + mediaServer);
 
-        if(!TextUtils.isEmpty(ServerUtils.APP_KEY) &&
-                !TextUtils.isEmpty(ServerUtils.NAV_SERVER)){
+        if (!TextUtils.isEmpty(ServerUtils.APP_KEY) && !TextUtils.isEmpty(ServerUtils.NAV_SERVER)) {
             EventBus.getDefault().post(TAG);
         }
         finish();

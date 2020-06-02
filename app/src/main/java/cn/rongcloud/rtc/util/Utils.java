@@ -7,22 +7,12 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import cn.rongcloud.rtc.SettingActivity;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.rongcloud.rtc.SettingActivity;
-
-/**
- * @Author DengXudong.
- * @Time 2018/1/22.
- * @Description:
- */
+/** @Author DengXudong. @Time 2018/1/22. @Description: */
 public class Utils {
     public static final String SCREEN_SHARING = "ScreenSharing";
     private static Context mContext = null;
@@ -53,15 +43,16 @@ public class Utils {
      * @return
      */
     public static boolean isNetWorkAvailable(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
 
     public static final String QUIC = "quic://", TCP = "tcp://";
-    //默认使用的取token地址 release
+    // 默认使用的取token地址 release
     public static final String TOKEN_SERVER_URL_EXTERNAL = "https://api.blinkcloud.cn:8800/token";
-    //默认使用的cmp地址 release
+    // 默认使用的cmp地址 release
     public static final String CMP_SERVER_URL_EXTERNAL = "cmp.blinkcloud.cn:80";
 
     /**
@@ -86,16 +77,18 @@ public class Utils {
      */
     public static boolean connectionModeConfig(String val) {
         boolean isQuic = false;
-        //RongRTCContext.ConfigParameter.RongRTCConnectionMode== RongRTCEngine.RongRTCConnectionMode.QUIC?true:false;
+        // RongRTCContext.ConfigParameter.RongRTCConnectionMode==
+        // RongRTCEngine.RongRTCConnectionMode.QUIC?true:false;
         if (val.indexOf(QUIC) != -1) {
-//            RongRTCEngine.getInstance().setRongRTCConnectionMode(true);
-//            isQuic= true;
+            //            RongRTCEngine.getInstance().setRongRTCConnectionMode(true);
+            //            isQuic= true;
         } else if (val.indexOf(TCP) != -1) {
-//            RongRTCEngine.getInstance().setRongRTCConnectionMode(false);
+            //            RongRTCEngine.getInstance().setRongRTCConnectionMode(false);
             isQuic = false;
         }
-//        SessionManager.getInstance(Utils.getContext()).put(SettingActivity.IS_RONGRTC_CONNECTIONMODE,isQuic);
-//        FinLog.v("BinClient","输入的是："+(isQuic?"Quic":"Tcp"+"地址"));
+        //
+        // SessionManager.getInstance(Utils.getContext()).put(SettingActivity.IS_RONGRTC_CONNECTIONMODE,isQuic);
+        //        FinLog.v("BinClient","输入的是："+(isQuic?"Quic":"Tcp"+"地址"));
         return isQuic;
     }
 
@@ -120,15 +113,17 @@ public class Utils {
      * @param val false:tcp true:quic
      */
     public static void resetConnectionMode(boolean val) {
-//        RongRTCEngine.getInstance().setRongRTCConnectionMode(val);
-        SessionManager.getInstance().put(SettingActivity.IS_RONGRTC_CONNECTIONMODE, val ? true : false);
+        //        RongRTCEngine.getInstance().setRongRTCConnectionMode(val);
+        SessionManager.getInstance()
+                .put(SettingActivity.IS_RONGRTC_CONNECTIONMODE, val ? true : false);
     }
 
     public static String getCurProcessName(Context context) {
         int pid = android.os.Process.myPid();
-        ActivityManager mActivityManager = (ActivityManager) context
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcessInfos = mActivityManager.getRunningAppProcesses();
+        ActivityManager mActivityManager =
+                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcessInfos =
+                mActivityManager.getRunningAppProcesses();
         if (runningAppProcessInfos == null) {
             return null;
         }
@@ -141,20 +136,19 @@ public class Utils {
         return null;
     }
 
-
     private static final String COLON = ":";
 
     public static String parseTimeSeconds(int t) {
         String format = "%02d:%02d";
         String formatHour = "%02d:%02d:%02d";
-        int seconds = t%60;
-        int m = t/60;
-        int minutes = m%60;
-        int hours = m/60;
-        if(hours > 0){
-            return String.format(formatHour,hours,minutes,seconds);
-        }else {
-            return String.format(format,minutes,seconds);
+        int seconds = t % 60;
+        int m = t / 60;
+        int minutes = m % 60;
+        int hours = m / 60;
+        if (hours > 0) {
+            return String.format(formatHour, hours, minutes, seconds);
+        } else {
+            return String.format(format, minutes, seconds);
         }
     }
 
@@ -183,11 +177,10 @@ public class Utils {
 
     /**
      * 判断当前系统是否使用中文
+     *
      * @return
      */
-    public static boolean isZhLanguage(){
-        if (getContext() == null)
-            return true;
+    public static boolean isZhLanguage() {
         return getContext().getResources().getConfiguration().locale.getLanguage().endsWith("zh");
     }
 }

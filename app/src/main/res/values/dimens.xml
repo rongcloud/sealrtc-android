@@ -5,7 +5,6 @@
     <dimen name="checkbox_spacing">16dp</dimen>
     <dimen name="popup_window_xoff">45dp</dimen>
     <dimen name="popup_width">100dp</dimen>
-    <dimen name="popup_height">60dp</dimen>
     <dimen name="rtc_dimen_size_0.5">0.5dp</dimen>
     <dimen name="rtc_dimen_size_4">4dp</dimen>
     <dimen name="rtc_dimen_size_14">14dp</dimen>
@@ -17,7 +16,6 @@
     <dimen name="rtc_text_size_16">16sp</dimen>
     <dimen name="rtc_text_size_18">18sp</dimen>
     <dimen name="rtc_text_size_20">20sp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="font_normal_big">15sp</dimen>
 

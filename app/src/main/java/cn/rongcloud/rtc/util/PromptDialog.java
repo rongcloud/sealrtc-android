@@ -8,9 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
-
 import cn.rongcloud.rtc.R;
-
 
 public class PromptDialog extends AlertDialog {
     private Context mContext;
@@ -32,20 +30,32 @@ public class PromptDialog extends AlertDialog {
         return new PromptDialog(context, message);
     }
 
-    public static PromptDialog newInstance(final Context context, String title, String message, String positiveButton) {
+    public static PromptDialog newInstance(
+            final Context context, String title, String message, String positiveButton) {
         return new PromptDialog(context, title, message, positiveButton);
     }
 
-    public static PromptDialog newInstance(final Context context, String title, String message, String positiveButton, String negativeButton) {
+    public static PromptDialog newInstance(
+            final Context context,
+            String title,
+            String message,
+            String positiveButton,
+            String negativeButton) {
         return new PromptDialog(context, title, message, positiveButton, negativeButton);
     }
 
-    public PromptDialog(final Context context, String title, String message, String positiveButton, String negativeButton) {
+    public PromptDialog(
+            final Context context,
+            String title,
+            String message,
+            String positiveButton,
+            String negativeButton) {
         this(context, title, message, positiveButton);
         this.mNegativeButton = negativeButton;
     }
 
-    public PromptDialog(final Context context, String title, String message, String positiveButton) {
+    public PromptDialog(
+            final Context context, String title, String message, String positiveButton) {
         this(context, title, message);
         mPositiveButton = positiveButton;
     }
@@ -65,7 +75,8 @@ public class PromptDialog extends AlertDialog {
     @Override
     protected void onStart() {
         super.onStart();
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater =
+                (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(mLayoutResId, null);
         TextView txtViewTitle = (TextView) view.findViewById(R.id.popup_dialog_title);
         TextView txtViewMessage = (TextView) view.findViewById(R.id.popup_dialog_message);
@@ -78,24 +89,26 @@ public class PromptDialog extends AlertDialog {
         if (negativeTxtColor != 0) {
             txtViewCancel.setTextColor(negativeTxtColor);
         }
-        txtViewOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPromptButtonClickedListener != null) {
-                    mPromptButtonClickedListener.onPositiveButtonClicked();
-                }
-                dismiss();
-            }
-        });
-        txtViewCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPromptButtonClickedListener != null) {
-                    mPromptButtonClickedListener.onNegativeButtonClicked();
-                }
-                dismiss();
-            }
-        });
+        txtViewOK.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mPromptButtonClickedListener != null) {
+                            mPromptButtonClickedListener.onPositiveButtonClicked();
+                        }
+                        dismiss();
+                    }
+                });
+        txtViewCancel.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mPromptButtonClickedListener != null) {
+                            mPromptButtonClickedListener.onNegativeButtonClicked();
+                        }
+                        dismiss();
+                    }
+                });
         if (!TextUtils.isEmpty(mTitle)) {
             txtViewTitle.setText(mTitle);
             txtViewTitle.setVisibility(View.VISIBLE);
@@ -121,7 +134,8 @@ public class PromptDialog extends AlertDialog {
         disableCancel = true;
     }
 
-    public PromptDialog setPromptButtonClickedListener(OnPromptButtonClickedListener buttonClickedListener) {
+    public PromptDialog setPromptButtonClickedListener(
+            OnPromptButtonClickedListener buttonClickedListener) {
         this.mPromptButtonClickedListener = buttonClickedListener;
         return this;
     }
@@ -146,11 +160,14 @@ public class PromptDialog extends AlertDialog {
     }
 
     private int gePopupWidth() {
-        int distanceToBorder = (int) mContext.getResources().getDimension(R.dimen.rtc_dimen_size_40);
+        int distanceToBorder =
+                (int) mContext.getResources().getDimension(R.dimen.rtc_dimen_size_40);
         return getScreenWidth() - 2 * (distanceToBorder);
     }
 
     private int getScreenWidth() {
-        return ((WindowManager) (mContext.getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay().getWidth();
+        return ((WindowManager) (mContext.getSystemService(Context.WINDOW_SERVICE)))
+                .getDefaultDisplay()
+                .getWidth();
     }
 }

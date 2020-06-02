@@ -1,5 +1,7 @@
 package cn.rongcloud.rtc.util;
 
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -10,16 +12,10 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
-
 import cn.rongcloud.rtc.CallActivity;
 import cn.rongcloud.rtc.R;
 
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-
-/**
- * 以解决通话过程中切入后台麦克风不工作
- */
+/** 以解决通话过程中切入后台麦克风不工作 */
 public class RTCNotificationService extends Service {
 
     private NotificationManager mNotificationManager;
@@ -31,16 +27,17 @@ public class RTCNotificationService extends Service {
         super.onCreate();
         try {
             mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            Intent intent=new Intent(this, CallActivity.class);
+            Intent intent = new Intent(this, CallActivity.class);
             intent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-            Notification.Builder builder = new Notification.Builder(this)
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setTicker(getString(R.string.app_name))
-                    .setContentTitle(getString(R.string.TapToContiueAsVideoCallIsOn))
-                    .setAutoCancel(true)
-                    .setContentIntent(pendingIntent);
+            Notification.Builder builder =
+                    new Notification.Builder(this)
+                            .setSmallIcon(R.drawable.ic_launcher)
+                            .setTicker(getString(R.string.app_name))
+                            .setContentTitle(getString(R.string.TapToContiueAsVideoCallIsOn))
+                            .setAutoCancel(true)
+                            .setContentIntent(pendingIntent);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 builder.setCategory(Notification.CATEGORY_CALL);
@@ -50,8 +47,8 @@ public class RTCNotificationService extends Service {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 int importance = NotificationManager.IMPORTANCE_DEFAULT;
-                NotificationChannel notificationChannel = new
-                        NotificationChannel(channelId, "test", importance);
+                NotificationChannel notificationChannel =
+                        new NotificationChannel(channelId, "test", importance);
                 notificationChannel.enableLights(false);
                 notificationChannel.setLightColor(Color.GREEN);
                 notificationChannel.enableVibration(false);

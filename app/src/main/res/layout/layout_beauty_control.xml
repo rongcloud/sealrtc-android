@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <cn.rongcloud.rtc.faceunity.ui.widget.TouchStateImageView
+        android:id="@+id/iv_compare"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginBottom="18dp"
+        android:src="@drawable/demo_icon_contrast"
+        android:visibility="invisible" />
+
+    <RelativeLayout
+        android:id="@+id/cl_bottom_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:background="#BD050F14"
+        android:layout_below="@id/iv_compare">
+
+        <cn.rongcloud.rtc.faceunity.ui.widget.seekbar.DiscreteSeekBar
+            android:id="@+id/beauty_seek_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:visibility="invisible"
+            app:dsb_indicatorColor="@color/main_color"
+            app:dsb_indicatorElevation="0dp"
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_max="100"
+            app:dsb_min="0"
+            app:dsb_progressColor="@color/main_color"
+            app:dsb_rippleColor="@color/main_color"
+            app:dsb_scrubberHeight="2dp"
+            app:dsb_thumbSize="16dp"
+            app:dsb_trackBaseHeight="8dp"
+            app:dsb_trackColor="@color/colorWhite"
+            app:dsb_value="0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/fl_face_skin_items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_below="@id/beauty_seek_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="66dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_recover_face_skin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:text="@string/recover"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+                <ImageView
+                    android:id="@+id/iv_recover_face_skin"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginBottom="9dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/demo_icon_recover_open"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_recover_face_skin"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="20dp"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="66dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/divider_line_color_75" />
+
+            <HorizontalScrollView
+                android:id="@+id/skin_beauty_select_block"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="67dp">
+
+
+                <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBoxGroup
+                    android:id="@+id/beauty_group_skin_beauty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal|bottom"
+                    android:orientation="horizontal">
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_blur_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_buffing_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_buffing_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_buffing_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_buffing_nor_open"
+                        app:text_normal="@string/beauty_box_heavy_blur_fine" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_color_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_skin_control_color_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_skin_control_color_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_skin_control_color_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_skin_control_color_open_normal"
+                        app:text_normal="@string/beauty_box_color_level" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_red_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_skin_control_red_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_skin_control_red_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_skin_control_red_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_skin_control_red_open_normal"
+                        app:text_normal="@string/beauty_box_red_level" />
+
+                    <!--                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox-->
+                    <!--                        android:id="@+id/beauty_box_pouch"-->
+                    <!--                        android:layout_width="wrap_content"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        app:drawable_close_checked="@drawable/demo_icon_dark_circles_sel"-->
+                    <!--                        app:drawable_close_normal="@drawable/demo_icon_dark_circles_nor"-->
+                    <!--                        app:drawable_open_checked="@drawable/demo_icon_dark_circles_sel_open"-->
+                    <!--                        app:drawable_open_normal="@drawable/demo_icon_dark_circles_nor_open"-->
+                    <!--                        app:text_normal="@string/beauty_micro_pouch" />-->
+
+                    <!--                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox-->
+                    <!--                        android:id="@+id/beauty_box_nasolabial"-->
+                    <!--                        android:layout_width="wrap_content"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        app:drawable_close_checked="@drawable/demo_icon_wrinkle_sel"-->
+                    <!--                        app:drawable_close_normal="@drawable/demo_icon_wrinkle_nor"-->
+                    <!--                        app:drawable_open_checked="@drawable/demo_icon_wrinkle_sel_open"-->
+                    <!--                        app:drawable_open_normal="@drawable/demo_icon_wrinkle_nor_open"-->
+                    <!--                        app:text_normal="@string/beauty_micro_nasolabial" />-->
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_eye_bright"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_skin_control_bright_eyes_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_skin_control_bright_eyes_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_skin_control_bright_eyes_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_skin_control_bright_eyes_open_normal"
+                        app:text_normal="@string/beauty_box_eye_bright" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_tooth_whiten"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_skin_control_teeth_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_skin_control_teeth_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_skin_control_teeth_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_skin_control_teeth_open_normal"
+                        app:text_normal="@string/beauty_box_tooth_whiten" />
+
+                </cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBoxGroup>
+            </HorizontalScrollView>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fl_face_shape_items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_below="@id/beauty_seek_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="66dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_recover_face_shape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:text="@string/recover"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+                <ImageView
+                    android:id="@+id/iv_recover_face_shape"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginBottom="9dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/demo_icon_recover_open"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_recover_face_shape"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="20dp"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="66dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/divider_line_color_75" />
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="67dp"
+                android:scrollbars="none">
+
+                <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBoxGroup
+                    android:id="@+id/beauty_group_face_shape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal|bottom"
+                    android:orientation="horizontal">
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_cheek_thinning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_type_control_cheekthin_level_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_type_control_cheekthin_level_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_type_control_cheekthin_level_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_type_control_cheekthin_level_open_normal"
+                        app:text_normal="@string/beauty_box_cheek_thinning" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_cheek_v"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:checked="true"
+                        app:drawable_close_checked="@drawable/demo_icon_v_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_v_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_v_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_v_nor_open"
+                        app:text_normal="@string/beauty_box_cheek_v" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_cheek_narrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_narrow_face_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_narrow_face_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_narrow_face_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_narrow_face_nor_open"
+                        app:text_normal="@string/beauty_box_cheek_narrow" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_cheek_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_little_face_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_little_face_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_little_face_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_little_face_nor_open"
+                        app:text_normal="@string/beauty_box_cheek_small" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_eye_enlarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_type_control_enlarge_eye_level_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_type_control_enlarge_eye_level_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_type_control_enlarge_eye_level_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_type_control_enlarge_eye_level_open_normal"
+                        app:text_normal="@string/beauty_box_eye_enlarge" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_intensity_chin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_type_control_chin_level_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_type_control_chin_level_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_type_control_chin_level_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_type_control_chin_level_open_normal"
+                        app:text_normal="@string/beauty_box_intensity_chin" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_intensity_forehead"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_type_control_forehead_level_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_type_control_forehead_level_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_type_control_forehead_level_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_type_control_forehead_level_open_normal"
+                        app:text_normal="@string/beauty_box_intensity_forehead" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_intensity_nose"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_type_control_thin_nose_level_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_type_control_thin_nose_level_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_type_control_thin_nose_level_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_type_control_thin_nose_level_open_normal"
+                        app:text_normal="@string/beauty_box_intensity_nose" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_intensity_mouth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/beauty_type_control_mouth_shape_close_checked"
+                        app:drawable_close_normal="@drawable/beauty_type_control_mouth_shape_close_normal"
+                        app:drawable_open_checked="@drawable/beauty_type_control_mouth_shape_open_checked"
+                        app:drawable_open_normal="@drawable/beauty_type_control_mouth_shape_open_normal"
+                        app:text_normal="@string/beauty_box_intensity_mouth" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_canthus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_open_eyes_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_open_eyes_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_open_eyes_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_open_eyes_nor_open"
+                        app:text_normal="@string/beauty_micro_canthus" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_eye_space"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_eye_distance_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_eye_distance_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_eye_distance_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_eye_distance_nor_open"
+                        app:text_normal="@string/beauty_micro_eye_space" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_eye_rotate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_eye_angle_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_eye_angle_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_eye_angle_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_eye_angle_nor_open"
+                        app:text_normal="@string/beauty_micro_eye_rotate" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_long_nose"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_proboscis_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_proboscis_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_proboscis_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_proboscis_nor_open"
+                        app:text_normal="@string/beauty_micro_long_nose" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_philtrum"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_shrinking_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_shrinking_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_shrinking_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_shrinking_nor_open"
+                        app:text_normal="@string/beauty_micro_philtrum" />
+
+                    <cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_smile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_smile_mouth_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_smile_mouth_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_smile_mouth_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_smile_mouth_nor_open"
+                        app:text_normal="@string/beauty_micro_smile" />
+
+                </cn.rongcloud.rtc.faceunity.ui.widget.beautybox.BeautyBoxGroup>
+
+            </HorizontalScrollView>
+        </FrameLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/filter_recycle_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/beauty_seek_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </RelativeLayout>
+    <View
+        android:id="@+id/beauty_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#33E5E5E5"
+        android:layout_below="@id/cl_bottom_view" />
+
+    <cn.rongcloud.rtc.faceunity.ui.widget.CheckGroup
+        android:id="@+id/beauty_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:background="#BD050F14"
+        android:orientation="horizontal"
+        android:layout_below="@id/beauty_line">
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/beauty_radio_skin_beauty"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:clickable="true"
+            android:text="@string/beauty_radio_skin_beauty"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="13sp" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/beauty_radio_face_shape"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:clickable="true"
+            android:text="@string/beauty_radio_face_shape"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="13sp" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/beauty_radio_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:clickable="true"
+            android:text="@string/beauty_radio_filter"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="13sp" />
+
+    </cn.rongcloud.rtc.faceunity.ui.widget.CheckGroup>
+
+</RelativeLayout>

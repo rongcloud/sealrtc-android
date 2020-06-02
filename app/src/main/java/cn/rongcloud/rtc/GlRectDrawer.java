@@ -12,7 +12,6 @@ package cn.rongcloud.rtc;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-
 import java.nio.FloatBuffer;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -79,22 +78,27 @@ public class GlRectDrawer {
                     + "}\n";
     // clang-format on
 
-    // Vertex coordinates in Normalized Device Coordinates, i.e. (-1, -1) is bottom-left and (1, 1) is
+    // Vertex coordinates in Normalized Device Coordinates, i.e. (-1, -1) is bottom-left and (1, 1)
+    // is
     // top-right.
-    private static final FloatBuffer FULL_RECTANGLE_BUF = GlUtil.createFloatBuffer(new float[]{
-            -1.0f, -1.0f, // Bottom left.
-            1.0f, -1.0f, // Bottom right.
-            -1.0f, 1.0f, // Top left.
-            1.0f, 1.0f, // Top right.
-    });
+    private static final FloatBuffer FULL_RECTANGLE_BUF =
+            GlUtil.createFloatBuffer(
+                    new float[] {
+                        -1.0f, -1.0f, // Bottom left.
+                        1.0f, -1.0f, // Bottom right.
+                        -1.0f, 1.0f, // Top left.
+                        1.0f, 1.0f, // Top right.
+                    });
 
     // Texture coordinates - (0, 0) is bottom-left and (1, 1) is top-right.
-    private static final FloatBuffer FULL_RECTANGLE_TEX_BUF = GlUtil.createFloatBuffer(new float[]{
-            0.0f, 0.0f, // Bottom left.
-            1.0f, 0.0f, // Bottom right.
-            0.0f, 1.0f, // Top left.
-            1.0f, 1.0f // Top right.
-    });
+    private static final FloatBuffer FULL_RECTANGLE_TEX_BUF =
+            GlUtil.createFloatBuffer(
+                    new float[] {
+                        0.0f, 0.0f, // Bottom left.
+                        1.0f, 0.0f, // Bottom right.
+                        0.0f, 1.0f, // Top left.
+                        1.0f, 1.0f // Top right.
+                    });
 
     private static class Shader {
         public final GlShader glShader;
@@ -110,11 +114,18 @@ public class GlRectDrawer {
     private final Map<String, Shader> shaders = new IdentityHashMap<String, Shader>();
 
     /**
-     * Draw an OES texture frame with specified texture transformation matrix. Required resources are
-     * allocated at the first call to this function.
+     * Draw an OES texture frame with specified texture transformation matrix. Required resources
+     * are allocated at the first call to this function.
      */
-    public void drawOes(int oesTextureId, float[] texMatrix, int frameWidth, int frameHeight,
-                        int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
+    public void drawOes(
+            int oesTextureId,
+            float[] texMatrix,
+            int frameWidth,
+            int frameHeight,
+            int viewportX,
+            int viewportY,
+            int viewportWidth,
+            int viewportHeight) {
         prepareShader(OES_FRAGMENT_SHADER_STRING, texMatrix);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         // updateTexImage() may be called from another thread in another EGL context, so we need to
@@ -128,8 +139,15 @@ public class GlRectDrawer {
      * Draw a RGB(A) texture frame with specified texture transformation matrix. Required resources
      * are allocated at the first call to this function.
      */
-    public void drawRgb(int textureId, float[] texMatrix, int frameWidth, int frameHeight,
-                        int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
+    public void drawRgb(
+            int textureId,
+            float[] texMatrix,
+            int frameWidth,
+            int frameHeight,
+            int viewportX,
+            int viewportY,
+            int viewportWidth,
+            int viewportHeight) {
         prepareShader(RGB_FRAGMENT_SHADER_STRING, texMatrix);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
@@ -142,8 +160,15 @@ public class GlRectDrawer {
      * Draw a YUV frame with specified texture transformation matrix. Required resources are
      * allocated at the first call to this function.
      */
-    public void drawYuv(int[] yuvTextures, float[] texMatrix, int frameWidth, int frameHeight,
-                        int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
+    public void drawYuv(
+            int[] yuvTextures,
+            float[] texMatrix,
+            int frameWidth,
+            int frameHeight,
+            int viewportX,
+            int viewportY,
+            int viewportWidth,
+            int viewportHeight) {
         prepareShader(YUV_FRAGMENT_SHADER_STRING, texMatrix);
         // Bind the textures.
         for (int i = 0; i < 3; ++i) {
@@ -174,13 +199,13 @@ public class GlRectDrawer {
             shaders.put(fragmentShader, shader);
             shader.glShader.useProgram();
             // Initialize fragment shader uniform values.
-            if (fragmentShader == YUV_FRAGMENT_SHADER_STRING) {
+            if (YUV_FRAGMENT_SHADER_STRING.equals(fragmentShader)) {
                 GLES20.glUniform1i(shader.glShader.getUniformLocation("y_tex"), 0);
                 GLES20.glUniform1i(shader.glShader.getUniformLocation("u_tex"), 1);
                 GLES20.glUniform1i(shader.glShader.getUniformLocation("v_tex"), 2);
-            } else if (fragmentShader == RGB_FRAGMENT_SHADER_STRING) {
+            } else if (RGB_FRAGMENT_SHADER_STRING.equals(fragmentShader)) {
                 GLES20.glUniform1i(shader.glShader.getUniformLocation("rgb_tex"), 0);
-            } else if (fragmentShader == OES_FRAGMENT_SHADER_STRING) {
+            } else if (OES_FRAGMENT_SHADER_STRING.equals(fragmentShader)) {
                 GLES20.glUniform1i(shader.glShader.getUniformLocation("oes_tex"), 0);
             } else {
                 throw new IllegalStateException("Unknown fragment shader: " + fragmentShader);
@@ -196,7 +221,8 @@ public class GlRectDrawer {
     }
 
     /**
-     * Release all GLES resources. This needs to be done manually, otherwise the resources are leaked.
+     * Release all GLES resources. This needs to be done manually, otherwise the resources are
+     * leaked.
      */
     public void release() {
         for (Shader shader : shaders.values()) {

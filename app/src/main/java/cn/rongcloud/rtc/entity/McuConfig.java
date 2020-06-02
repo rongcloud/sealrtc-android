@@ -1,26 +1,20 @@
 package cn.rongcloud.rtc.entity;
 
-import com.google.gson.annotations.Expose;
-
 import java.util.List;
 
-/**
- * Created by wangw on 2019-10-11.
- */
+/** Created by wangw on 2019-10-11. */
 public class McuConfig {
 
-
     /**
-     * version : 1
-     * mode : 1
-     * host_user_id : 001
-     * output : {"video":{"normal":{"width":360,"height":640,"fps":25,"bitrate":800},"tiny":{"width":180,"height":320,"fps":15,"bitrate":200},"exparams":{"renderMode":1}},"audio":{"bitrate":200}}
-     * input : {"video":[{"user_id":"111","x":0,"y":0,"width":180,"height":320},{"user_id":"2222","x":180,"y":320,"width":180,"height":320}]}
+     * version : 1 mode : 1 host_user_id : 001 output :
+     * {"video":{"normal":{"width":360,"height":640,"fps":25,"bitrate":800},"tiny":{"width":180,"height":320,"fps":15,"bitrate":200},"exparams":{"renderMode":1}},"audio":{"bitrate":200}}
+     * input :
+     * {"video":[{"user_id":"111","x":0,"y":0,"width":180,"height":320},{"user_id":"2222","x":180,"y":320,"width":180,"height":320}]}
      */
-
     private int version = 1;
-    private int mode = 3;   // 2和3不用指定 input   1. 自定义布局， 2:悬浮布局，3：自适应布局；
-    private String host_user_id;    // 把主播放在 左上;
+
+    private int mode = 3; // 2和3不用指定 input   1. 自定义布局， 2:悬浮布局，3：自适应布局；
+    private String host_user_id; // 把主播放在 左上;
     private OutputBean output;
     private InputBean input;
 
@@ -66,11 +60,12 @@ public class McuConfig {
 
     public static class OutputBean {
         /**
-         * video : {"normal":{"width":360,"height":640,"fps":25,"bitrate":800},"tiny":{"width":180,"height":320,"fps":15,"bitrate":200},"exparams":{"renderMode":1}}
+         * video :
+         * {"normal":{"width":360,"height":640,"fps":25,"bitrate":800},"tiny":{"width":180,"height":320,"fps":15,"bitrate":200},"exparams":{"renderMode":1}}
          * audio : {"bitrate":200}
          */
-
         private VideoBean video;
+
         private AudioBean audio;
 
         public VideoBean getVideo() {
@@ -91,12 +86,11 @@ public class McuConfig {
 
         public static class VideoBean {
             /**
-             * normal : {"width":360,"height":640,"fps":25,"bitrate":800}
-             * tiny : {"width":180,"height":320,"fps":15,"bitrate":200}
-             * exparams : {"renderMode":1}
+             * normal : {"width":360,"height":640,"fps":25,"bitrate":800} tiny :
+             * {"width":180,"height":320,"fps":15,"bitrate":200} exparams : {"renderMode":1}
              */
-
             private NormalBean normal;
+
             private TinyBean tiny;
             private ExparamsBean exparams;
 
@@ -111,6 +105,7 @@ public class McuConfig {
             public TinyBean getTiny() {
                 return tiny;
             }
+
             public void setTiny(TinyBean tiny) {
                 this.tiny = tiny;
             }
@@ -124,14 +119,9 @@ public class McuConfig {
             }
 
             public static class NormalBean {
-                /**
-                 * width : 360
-                 * height : 640
-                 * fps : 25
-                 * bitrate : 800
-                 */
-
+                /** width : 360 height : 640 fps : 25 bitrate : 800 */
                 private int width;
+
                 private int height;
                 private int fps;
                 private int bitrate;
@@ -170,14 +160,9 @@ public class McuConfig {
             }
 
             public static class TinyBean {
-                /**
-                 * width : 180
-                 * height : 320
-                 * fps : 15
-                 * bitrate : 200
-                 */
-
+                /** width : 180 height : 320 fps : 15 bitrate : 200 */
                 private int width;
+
                 private int height;
                 private int fps;
                 private int bitrate;
@@ -216,10 +201,7 @@ public class McuConfig {
             }
 
             public static class ExparamsBean {
-                /**
-                 * renderMode : 1
-                 */
-
+                /** renderMode : 1 */
                 private int renderMode = 1; // 1:crop裁剪填充 ；2:whole
 
                 public int getRenderMode() {
@@ -233,10 +215,7 @@ public class McuConfig {
         }
 
         public static class AudioBean {
-            /**
-             * bitrate : 200
-             */
-
+            /** bitrate : 200 */
             private int bitrate;
 
             public int getBitrate() {
@@ -261,15 +240,9 @@ public class McuConfig {
         }
 
         public static class VideoBeanX {
-            /**
-             * user_id : 111
-             * x : 0
-             * y : 0
-             * width : 180
-             * height : 320
-             */
-
+            /** user_id : 111 x : 0 y : 0 width : 180 height : 320 */
             private String user_id;
+
             private int x;
             private int y;
             private int width;

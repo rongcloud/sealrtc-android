@@ -1,7 +1,7 @@
 /*
-    ShengDao Android Client, NToast
-    Copyright (c) 2014 ShengDao Tech Company Limited
- */
+   ShengDao Android Client, NToast
+   Copyright (c) 2014 ShengDao Tech Company Limited
+*/
 
 package cn.rongcloud.rtc.device.utils;
 
@@ -9,7 +9,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
-
 
 public class DeviceNToast {
 

@@ -1,10 +1,6 @@
 package cn.rongcloud.rtc.entity;
 
-/**
- * @Author DengXuDong.
- * @Time 2018/1/29.
- * @Description:
- */
+/** @Author DengXuDong. @Time 2018/1/29. @Description: */
 public class CMPAddress {
     private String cmpServer;
     private String serverURL;

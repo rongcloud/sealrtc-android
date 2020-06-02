@@ -6,5 +6,4 @@ public class UserInfo {
     public String userId;
     public int joinMode;
     public long timestamp;
-
 }

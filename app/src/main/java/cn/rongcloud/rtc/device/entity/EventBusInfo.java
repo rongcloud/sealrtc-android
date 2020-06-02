@@ -5,8 +5,7 @@ public class EventBusInfo {
     private String content;
     private int realyValue;
 
-
-    public EventBusInfo( int requestCode, String content, int realVal) {
+    public EventBusInfo(int requestCode, String content, int realVal) {
         this.requestCode = requestCode;
         this.content = content;
         this.realyValue = realVal;

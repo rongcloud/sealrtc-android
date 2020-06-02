@@ -40,6 +40,10 @@
         <activity android:name=".device.SettingInputActivity" />
         <activity android:name=".device.SelectionParametersActivity" />
         <activity
+            android:name=".AudioMixActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/Theme.Transparent"/>
+        <activity
             android:name=".device.DeviceSettingsActivity"
             android:label="@string/title_activity_codec_settings"
             android:theme="@style/NoActionBar" />

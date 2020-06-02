@@ -7,13 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.List;
-
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.entity.ColorFormat;
 import cn.rongcloud.rtc.device.utils.OnColorFormatItemClickListener;
 import cn.rongcloud.rtc.util.ButtentSolp;
+import java.util.List;
 
 public class ColorFormatAdapter extends RecyclerView.Adapter<ColorFormatAdapter.ColorFormatHolder> {
 
@@ -32,7 +30,9 @@ public class ColorFormatAdapter extends RecyclerView.Adapter<ColorFormatAdapter.
 
     @Override
     public ColorFormatHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.device_layout_colorformat_item, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.device_layout_colorformat_item, parent, false);
         return new ColorFormatHolder(view);
     }
 
@@ -42,7 +42,8 @@ public class ColorFormatAdapter extends RecyclerView.Adapter<ColorFormatAdapter.
         String colorAlias = colorFormats.get(position).getAlias();
 
         if (!TextUtils.isEmpty(colorAlias) && !colorAlias.startsWith("0x")) {
-            holder.tv_colorFormat.setText("0x" + Integer.toHexString(colorValue) + "\n" + colorAlias);
+            holder.tv_colorFormat.setText(
+                    "0x" + Integer.toHexString(colorValue) + "\n" + colorAlias);
         } else {
             holder.tv_colorFormat.setText(colorAlias);
         }
@@ -52,24 +53,30 @@ public class ColorFormatAdapter extends RecyclerView.Adapter<ColorFormatAdapter.
             holder.iv_select.setImageResource(R.drawable.device_icon_checkbox_hover);
             holder.iv_select.setSelected(true);
         }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ButtentSolp.check(v.getId(), 500)) {
-                    return;
-                }
-                if (holder.iv_select.isSelected()) {
-                    holder.iv_select.setImageResource(R.drawable.device_icon_checkbox_checked);
-                    holder.iv_select.setSelected(false);
-                } else {
-                    holder.iv_select.setImageResource(R.drawable.device_icon_checkbox_hover);
-                    holder.iv_select.setSelected(true);
-                }
-                if (listener != null) {
-                    listener.onClick(position, colorFormats.get(position).getAlias(), colorFormats.get(position).getColor());
-                }
-            }
-        });
+        holder.itemView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (ButtentSolp.check(v.getId(), 500)) {
+                            return;
+                        }
+                        if (holder.iv_select.isSelected()) {
+                            holder.iv_select.setImageResource(
+                                    R.drawable.device_icon_checkbox_checked);
+                            holder.iv_select.setSelected(false);
+                        } else {
+                            holder.iv_select.setImageResource(
+                                    R.drawable.device_icon_checkbox_hover);
+                            holder.iv_select.setSelected(true);
+                        }
+                        if (listener != null) {
+                            listener.onClick(
+                                    position,
+                                    colorFormats.get(position).getAlias(),
+                                    colorFormats.get(position).getColor());
+                        }
+                    }
+                });
     }
 
     @Override
@@ -87,8 +94,6 @@ public class ColorFormatAdapter extends RecyclerView.Adapter<ColorFormatAdapter.
             tv_colorFormat = (TextView) itemView.findViewById(R.id.tv_colorFormat);
             iv_select = (ImageView) itemView.findViewById(R.id.iv_select);
         }
-
-
     }
 
     public void setOnItemClickListener(OnColorFormatItemClickListener listener) {

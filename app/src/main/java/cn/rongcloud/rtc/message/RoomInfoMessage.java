@@ -2,21 +2,15 @@ package cn.rongcloud.rtc.message;
 
 import android.os.Parcel;
 import android.support.annotation.IntDef;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @MessageTag(value = "SealRTC:SetRoomInfo", flag = MessageTag.NONE)
 public class RoomInfoMessage extends MessageContent {
 
-    @IntDef({
-            JoinMode.AUDIO_VIDEO,
-            JoinMode.AUDIO,
-            JoinMode.OBSERVER
-    })
+    @IntDef({JoinMode.AUDIO_VIDEO, JoinMode.AUDIO, JoinMode.OBSERVER})
     public @interface JoinMode {
         int AUDIO_VIDEO = 0;
         int AUDIO = 1;
@@ -29,7 +23,12 @@ public class RoomInfoMessage extends MessageContent {
     private long timeStamp;
     private boolean master;
 
-    public RoomInfoMessage(String userId, String userName, @JoinMode int joinMode, long timeStamp, boolean master) {
+    public RoomInfoMessage(
+            String userId,
+            String userName,
+            @JoinMode int joinMode,
+            long timeStamp,
+            boolean master) {
         this.userId = userId;
         this.userName = userName;
         this.joinMode = joinMode;
@@ -132,16 +131,16 @@ public class RoomInfoMessage extends MessageContent {
         master = parcel.readInt() == 1;
     }
 
-    public static final Creator<RoomInfoMessage> CREATOR = new Creator<RoomInfoMessage>() {
-        @Override
-        public RoomInfoMessage createFromParcel(Parcel source) {
-            return new RoomInfoMessage(source);
-        }
+    public static final Creator<RoomInfoMessage> CREATOR =
+            new Creator<RoomInfoMessage>() {
+                @Override
+                public RoomInfoMessage createFromParcel(Parcel source) {
+                    return new RoomInfoMessage(source);
+                }
 
-        @Override
-        public RoomInfoMessage[] newArray(int size) {
-            return new RoomInfoMessage[size];
-        }
-    };
-
+                @Override
+                public RoomInfoMessage[] newArray(int size) {
+                    return new RoomInfoMessage[size];
+                }
+            };
 }

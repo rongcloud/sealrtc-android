@@ -69,15 +69,27 @@ public class GlTextureFrameBuffer {
         // Allocate texture.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, pixelFormat, width, height, 0, pixelFormat,
-                GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glTexImage2D(
+                GLES20.GL_TEXTURE_2D,
+                0,
+                pixelFormat,
+                width,
+                height,
+                0,
+                pixelFormat,
+                GLES20.GL_UNSIGNED_BYTE,
+                null);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GlUtil.checkNoGLES2Error("GlTextureFrameBuffer setSize");
 
         // Attach the texture to the framebuffer as color attachment.
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBufferId);
         GLES20.glFramebufferTexture2D(
-                GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, textureId, 0);
+                GLES20.GL_FRAMEBUFFER,
+                GLES20.GL_COLOR_ATTACHMENT0,
+                GLES20.GL_TEXTURE_2D,
+                textureId,
+                0);
 
         // Check that the framebuffer is in a good state.
         final int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
@@ -105,12 +117,12 @@ public class GlTextureFrameBuffer {
     }
 
     /**
-     * Release texture and framebuffer. An EGLContext must be bound on the current thread when calling
-     * this function. This object should not be used after this call.
+     * Release texture and framebuffer. An EGLContext must be bound on the current thread when
+     * calling this function. This object should not be used after this call.
      */
     public void release() {
-        GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
-        GLES20.glDeleteFramebuffers(1, new int[]{frameBufferId}, 0);
+        GLES20.glDeleteTextures(1, new int[] {textureId}, 0);
+        GLES20.glDeleteFramebuffers(1, new int[] {frameBufferId}, 0);
         width = 0;
         height = 0;
     }
