@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import cn.rongcloud.rtc.engine.report.StatusBean;
+import cn.rongcloud.rtc.api.report.StatusBean;
 import java.util.ArrayList;
 import java.util.List;
 

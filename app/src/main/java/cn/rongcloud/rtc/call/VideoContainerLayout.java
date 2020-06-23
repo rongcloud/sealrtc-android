@@ -1,4 +1,4 @@
-package cn.rongcloud.rtc;
+package cn.rongcloud.rtc.call;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -11,7 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import cn.rongcloud.rtc.engine.view.RongRTCGestureDetector;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import io.rong.common.RLog;
 
 public class VideoContainerLayout extends RelativeLayout
@@ -78,7 +78,7 @@ public class VideoContainerLayout extends RelativeLayout
         final int height = getDefaultSize(Integer.MAX_VALUE, heightMeasureSpec);
         for (int i = 0; i < getChildCount(); i++) {
             View childView = getChildAt(i);
-            if (childView instanceof RongRTCVideoView) {
+            if (childView instanceof RCRTCVideoView) {
                 gestureDetector.setLayoutSize(width, height);
             }
         }
@@ -90,7 +90,7 @@ public class VideoContainerLayout extends RelativeLayout
         RLog.d(TAG, "onLayout: ");
         for (int i = 0; i < getChildCount(); i++) {
             View childView = getChildAt(i);
-            if (childView instanceof RongRTCVideoView) {
+            if (childView instanceof RCRTCVideoView) {
                 gestureDetector.requestSize();
             }
         }
@@ -99,7 +99,7 @@ public class VideoContainerLayout extends RelativeLayout
     private void gestureVideoView(int left, int top, int right, int bottom) {
         for (int i = 0; i < getChildCount(); i++) {
             View childView = getChildAt(i);
-            if (childView instanceof RongRTCVideoView) {
+            if (childView instanceof RCRTCVideoView) {
 
                 int childWidth = right - left;
                 int childHeight = bottom - top;

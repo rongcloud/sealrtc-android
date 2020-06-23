@@ -4,7 +4,6 @@ import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.utils.FinLog;
-import java.io.IOException;
 import org.json.JSONObject;
 
 /** http://10.12.8.82:8888/ */
@@ -47,13 +46,6 @@ public class LiveDataOperator {
                                 if (onResultCallBack != null)
                                     onResultCallBack.onFailed(String.valueOf(errorCode));
                             }
-
-                            @Override
-                            public void onError(IOException exception) {
-                                FinLog.e(TAG, "query exception:: " + exception.getMessage());
-                                if (onResultCallBack != null)
-                                    onResultCallBack.onFailed(exception.getMessage());
-                            }
                         });
     }
 
@@ -80,13 +72,6 @@ public class LiveDataOperator {
                                 if (onResultCallBack != null)
                                     onResultCallBack.onFailed(String.valueOf(errorCode));
                             }
-
-                            @Override
-                            public void onError(IOException exception) {
-                                FinLog.e(TAG, "publish exception:: " + exception.getMessage());
-                                if (onResultCallBack != null)
-                                    onResultCallBack.onFailed(exception.getMessage());
-                            }
                         });
     }
 
@@ -112,13 +97,6 @@ public class LiveDataOperator {
                                 FinLog.e(TAG, "unpublish errorCode:: " + errorCode);
                                 if (onResultCallBack != null)
                                     onResultCallBack.onFailed(String.valueOf(errorCode));
-                            }
-
-                            @Override
-                            public void onError(IOException exception) {
-                                FinLog.e(TAG, "unpublish exception:: " + exception.getMessage());
-                                if (onResultCallBack != null)
-                                    onResultCallBack.onFailed(exception.getMessage());
                             }
                         });
     }

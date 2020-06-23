@@ -1,7 +1,7 @@
 package cn.rongcloud.rtc.whiteboard;
 
 import android.text.TextUtils;
-import cn.rongcloud.rtc.RTCErrorCode;
+import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;

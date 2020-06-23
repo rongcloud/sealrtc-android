@@ -306,7 +306,7 @@ public class RongRTCSurfaceTextureHelper {
         if (handler.getLooper().getThread() != Thread.currentThread()) {
             throw new IllegalStateException("Wrong thread.");
         }
-        if (isQuitting || !hasPendingTexture || isTextureInUse) {
+        if (isQuitting || !hasPendingTexture || isTextureInUse || listener == null) {
             return;
         }
         isTextureInUse = true;

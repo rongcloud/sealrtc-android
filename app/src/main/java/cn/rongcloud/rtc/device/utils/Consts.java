@@ -26,7 +26,7 @@ public class Consts {
             "SP_AUDIO_SAMPLE_USE_AUDIO_RECORDER";
     public static final String SP_AUDIO_SOURCE = "SP_AUDIO_SOURCE";
     public static final String SP_AUDIO_SAMPLE_RATE = "SP_AUDIO_SAMPLE_RATE";
-    public static final String SP_AUDIO_CHANNEL_STEREO_ENABLE = "SP_AUDIO_CHANNEL_STEREO_ENABLE";
+    public static final String SP_AUDIO_STEREO_ENABLE = "SP_AUDIO_STEREO_ENABLE";
 
     public static final String SP_AUDIO_TRANSPORT_BIT_RATE = "SP_AUDIO_TRANSPORT_BIT_RATE";
 
@@ -49,6 +49,10 @@ public class Consts {
     public static final String encoder_colorFormat_eventBus = "encoder_colorFormat_eventBus";
     public static final String device_camera_info_eventBus = "device_camera_info_eventBus";
     public static final String codec_info_eventBus = "codec_info_eventBus";
+
+    public static final String ENCODE_BIT_RATE_MODE_CQ = "CQ";
+    public static final String ENCODE_BIT_RATE_MODE_CBR = "CBR";
+    public static final String ENCODE_BIT_RATE_MODE_VBR = "VBR";
 
     // 编码类型的code值 方便页面显示顶部操作栏标题 和  方便选择之后知道选择的是哪个具体的条目
     public static final int REQUEST_CODE_ENCODER_TYPE = 1;

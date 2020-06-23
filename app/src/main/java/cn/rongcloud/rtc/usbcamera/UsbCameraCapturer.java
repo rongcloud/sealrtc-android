@@ -1,7 +1,8 @@
 package cn.rongcloud.rtc.usbcamera;
 
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoOutputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.rtc.stream.local.RongRTCAVOutputStream;
 
 /** Created by wangw on 2019/4/29. */
@@ -14,10 +15,10 @@ public interface UsbCameraCapturer {
     void stopCapturer();
 
     /** 发布流 */
-    void publishVideoStream(RongRTCResultUICallBack callBack);
+    void publishVideoStream(IRCRTCResultCallback callBack);
 
     /** 取消发布 */
-    void unPublishVideoStream(RongRTCResultUICallBack callback);
+    void unPublishVideoStream(IRCRTCResultCallback callback);
 
     /** 释放资源 */
     void release();
@@ -27,7 +28,7 @@ public interface UsbCameraCapturer {
      *
      * @param videoView
      */
-    void setRongRTCVideoView(RongRTCVideoView videoView);
+    void setRongRTCVideoView(RCRTCVideoView videoView);
 
-    RongRTCAVOutputStream getVideoOutputStream();
+    RCRTCVideoOutputStream getVideoOutputStream();
 }

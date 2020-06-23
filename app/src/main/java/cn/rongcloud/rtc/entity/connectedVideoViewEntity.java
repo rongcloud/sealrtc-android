@@ -1,6 +1,6 @@
 package cn.rongcloud.rtc.entity;
 
-import cn.rongcloud.rtc.VideoViewManager;
+import cn.rongcloud.rtc.call.VideoViewManager;
 
 /** Created by dengxudong on 2018/7/26. */
 public class connectedVideoViewEntity {

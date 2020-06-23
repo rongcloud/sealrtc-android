@@ -30,6 +30,7 @@
         style="@style/style_call_settings_tab_btn"
         android:text="其他"
         android:background="@drawable/call_settings_tab_right"
+        android:visibility="gone"
         ></android.support.v7.widget.AppCompatRadioButton>
 
 </RadioGroup>

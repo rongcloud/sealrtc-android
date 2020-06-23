@@ -7,19 +7,22 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+
 import cn.rongcloud.rtc.R;
-import cn.rongcloud.rtc.VideoViewManager;
-import cn.rongcloud.rtc.custom.RongRTCMediaFileSender;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
+import cn.rongcloud.rtc.call.VideoViewManager;
+import cn.rongcloud.rtc.custom.RongRTCVideoFileSender;
 import cn.rongcloud.rtc.screen_cast.RongRTCScreenCastHelper;
 import cn.rongcloud.rtc.utils.FinLog;
-import com.bumptech.glide.Glide;
 
 /** @Author DengXuDong. @Time 2018/2/7. @Description: */
 public class CoverView extends RelativeLayout {
@@ -34,12 +37,23 @@ public class CoverView extends RelativeLayout {
     //    private TextPaint textPaint;
     private String UserId = "", UserName = "RongRTC";
     public ProgressBar progressBar;
-    public RongRTCVideoView rongRTCVideoView = null;
+    public RCRTCVideoView rongRTCVideoView = null;
     public VideoViewManager.RenderHolder mRenderHolder;
     private View trackTest;
     private View firstFrameTest;
     private View testLayout;
     private View eglTest;
+    private String tag;
+    private ContainerNameListener nameListener;
+
+    public interface ContainerNameListener {
+
+        void updateNameInfo(String name, String id, String tag);
+
+        void showAudioLevel();
+
+        void hideAudioLevel();
+    }
 
     public CoverView(Context context) {
         super(context);
@@ -56,12 +70,19 @@ public class CoverView extends RelativeLayout {
     }
 
     private void init() {
+        Log.d(TAG, "init: ");
         try {
             LayoutInflater.from(mContext).inflate(R.layout.layout_cover, this, true);
             trackTest = findViewById(R.id.auto_test);
             testLayout = findViewById(R.id.testLayout);
             eglTest = findViewById(R.id.auto_test3);
             ivAudioCover = (ImageView) findViewById(R.id.iv_audiocover);
+            ivAudioCover.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    return false;
+                }
+            });
             firstFrameTest = findViewById(R.id.auto_test2);
             mRl_Container = (RelativeLayout) findViewById(R.id.relative_cover);
 
@@ -73,6 +94,12 @@ public class CoverView extends RelativeLayout {
             //            textPaint=tv_userName.getPaint();
             //            textPaint.setFakeBoldText(true);
             iv_Header = (ImageView) findViewById(R.id.iv_bg);
+            iv_Header.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    return false;
+                }
+            });
             iv_Audiolevel = (ImageView) findViewById(R.id.iv_audiolevel);
             Glide.with(mContext).asGif().load(R.drawable.sound).into(iv_Audiolevel);
 
@@ -93,23 +120,51 @@ public class CoverView extends RelativeLayout {
         }
     }
 
+    public void setNameListener(ContainerNameListener nameListener) {
+        this.nameListener = nameListener;
+    }
+
     public void showAudioLevel() {
-        if (null == iv_Audiolevel) {
-            return;
+        if (nameListener != null) {
+            nameListener.showAudioLevel();
+        } else {
+            if (null == iv_Audiolevel) {
+                return;
+            }
+            if (iv_Audiolevel.getVisibility() != VISIBLE) {
+                iv_Audiolevel.setVisibility(VISIBLE);
+            }
+            iv_Audiolevel.bringToFront();
         }
-        if (iv_Audiolevel.getVisibility() != VISIBLE) {
-            iv_Audiolevel.setVisibility(VISIBLE);
-        }
-        iv_Audiolevel.bringToFront();
-        tv_userName.bringToFront();
+    }
+
+    public void showNameIndexView() {
+        tv_userName.setVisibility(VISIBLE);
+        iv_Audiolevel.setVisibility(VISIBLE);
+    }
+
+    public void hidNameIndexView() {
+        tv_userName.setVisibility(GONE);
+        iv_Audiolevel.setVisibility(GONE);
+
     }
 
     public void closeAudioLevel() {
-        if (null == iv_Audiolevel) {
-            return;
+        if (nameListener != null) {
+            nameListener.hideAudioLevel();
+        } else {
+            if (null == iv_Audiolevel) {
+                return;
+            }
+            if (iv_Audiolevel.getVisibility() != INVISIBLE) {
+                iv_Audiolevel.setVisibility(INVISIBLE);
+            }
         }
-        if (iv_Audiolevel.getVisibility() != INVISIBLE) {
-            iv_Audiolevel.setVisibility(INVISIBLE);
+    }
+
+    public void updateNameTv() {
+        if (nameListener != null) {
+            nameListener.updateNameInfo(tv_userName.getText().toString(), UserId, tag);
         }
     }
 
@@ -120,22 +175,36 @@ public class CoverView extends RelativeLayout {
         }
         if (tv_userName != null) {
             if (!TextUtils.isEmpty(tag) && TextUtils
-                .equals(tag, RongRTCMediaFileSender.VIDEO_TAG)) {
+                .equals(tag, "FileVideo")) {
                 tv_userName.setText(
                     name + "-" + mContext.getResources().getString(R.string.user_video_custom));
             } else if (!TextUtils.isEmpty(tag)
                 && TextUtils.equals(tag, RongRTCScreenCastHelper.VIDEO_TAG)) {
                 tv_userName.setText(
-                    name + "-" + mContext.getResources().getString(R.string.user_shared_screen));
+                        name + "-" + mContext.getResources().getString(R.string.user_shared_screen));
             }
+            this.tag = tag;
         }
         if (!TextUtils.isEmpty(id)) {
             this.UserId = id;
         }
+        updateNameTv();
         setUserType();
     }
 
-    /** 隱藏用戶名等 */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return false;
+    }
+
+    /**
+     * 隱藏用戶名等
+     */
     private void setCoverTransoarent() {
         try {
             iv_Header.setVisibility(INVISIBLE);
@@ -151,14 +220,14 @@ public class CoverView extends RelativeLayout {
      *
      * @param videoView
      */
-    public void setRongRTCVideoView(RongRTCVideoView videoView) {
+    public void setRongRTCVideoView(RCRTCVideoView videoView) {
         this.rongRTCVideoView = videoView;
         if (null == mRl_Container) {
             return;
         }
         try {
             for (int i = 0; i < mRl_Container.getChildCount(); i++) {
-                if (mRl_Container.getChildAt(i) instanceof RongRTCVideoView) {
+                if (mRl_Container.getChildAt(i) instanceof RCRTCVideoView) {
                     mRl_Container.removeView(mRl_Container.getChildAt(i));
                 }
             }
@@ -174,7 +243,7 @@ public class CoverView extends RelativeLayout {
     public void showBlinkVideoView() {
         if (mRl_Container == null) return;
         for (int i = 0; i < mRl_Container.getChildCount(); i++) {
-            if (mRl_Container.getChildAt(i) instanceof RongRTCVideoView) {
+            if (mRl_Container.getChildAt(i) instanceof RCRTCVideoView) {
                 mRl_Container.getChildAt(i).setVisibility(VISIBLE);
             }
         }
@@ -185,10 +254,10 @@ public class CoverView extends RelativeLayout {
     public void showUserHeader() {
         try {
             iv_Header.setVisibility(VISIBLE);
-            tv_userName.setVisibility(VISIBLE);
+//            tv_userName.setVisibility(VISIBLE);
             for (int i = 0; i < mRl_Container.getChildCount(); i++) {
-                if (mRl_Container.getChildAt(i) instanceof RongRTCVideoView) {
-                    RongRTCVideoView videoView = (RongRTCVideoView) mRl_Container.getChildAt(i);
+                if (mRl_Container.getChildAt(i) instanceof RCRTCVideoView) {
+                    RCRTCVideoView videoView = (RCRTCVideoView) mRl_Container.getChildAt(i);
                     if (videoView.getVisibility() == VISIBLE) {
                         closeLoading();
                     }
@@ -250,7 +319,7 @@ public class CoverView extends RelativeLayout {
         }
     }
 
-    public RongRTCVideoView getRongRTCVideoView() {
+    public RCRTCVideoView getRongRTCVideoView() {
         return rongRTCVideoView;
     }
 

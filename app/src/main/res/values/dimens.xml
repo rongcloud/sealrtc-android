@@ -17,6 +17,8 @@
     <dimen name="rtc_text_size_18">18sp</dimen>
     <dimen name="rtc_text_size_20">20sp</dimen>
 
+    <dimen name="audio_level_size">25dp</dimen>
+
     <dimen name="font_normal_big">15sp</dimen>
 
 </resources>

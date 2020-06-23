@@ -14,25 +14,25 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.rongcloud.rtc.api.RCRTCEngine;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultDataCallback;
+import cn.rongcloud.rtc.api.stream.RCRTCInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoInputStream;
+import cn.rongcloud.rtc.base.RCRTCMediaType;
+import cn.rongcloud.rtc.base.RCRTCRoomType;
+import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
-import cn.rongcloud.rtc.callback.JoinLiveUICallBack;
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
-import cn.rongcloud.rtc.engine.report.StatusBean;
-import cn.rongcloud.rtc.engine.report.StatusReport;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
-import cn.rongcloud.rtc.events.RongRTCStatusReportListener;
-import cn.rongcloud.rtc.room.RongRTCRoomConfig;
-import cn.rongcloud.rtc.stream.remote.RongRTCLiveAVInputStream;
+import cn.rongcloud.rtc.call.AppRTCAudioManager;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.rtc.utils.FinLog;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** Created by Huichao.Li on 2019/8/29. */
-public class LiveListActivity extends RongRTCBaseActivity implements RongRTCStatusReportListener {
+public class LiveListActivity extends RongRTCBaseActivity {
 
     private Button queryButton, publishButton, unpublishButton;
     ListView liveListView;
@@ -42,7 +42,7 @@ public class LiveListActivity extends RongRTCBaseActivity implements RongRTCStat
     private RelativeLayout liveVideoContainer;
     private Button liveVideoClose;
     private static final String TAG = LiveListActivity.class.getSimpleName();
-    RongRTCVideoView videoView = null;
+    RCRTCVideoView videoView = null;
     private String liveUrl = "";
     private AppRTCAudioManager audioManager = null;
 
@@ -68,81 +68,69 @@ public class LiveListActivity extends RongRTCBaseActivity implements RongRTCStat
 
         queryLiveData();
 
-        publishButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        JSONObject jsonObject = new JSONObject();
-                        try {
-                            jsonObject.put(LiveDataOperator.ROOM_ID, "001");
-                            jsonObject.put(LiveDataOperator.ROOM_NAME, "test001 room");
-                            jsonObject.put(LiveDataOperator.LIVE_URL, "https://www.test.com");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        LiveDataOperator.getInstance().publish(jsonObject.toString(), null);
-                    }
-                });
-        queryButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        queryLiveData();
-                    }
-                });
+        publishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put(LiveDataOperator.ROOM_ID, "001");
+                    jsonObject.put(LiveDataOperator.ROOM_NAME, "test001 room");
+                    jsonObject.put(LiveDataOperator.LIVE_URL, "https://www.test.com");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                LiveDataOperator.getInstance().publish(jsonObject.toString(), null);
+            }
+        });
+        queryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                queryLiveData();
+            }
+        });
 
-        unpublishButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        JSONObject jsonObject = new JSONObject();
-                        try {
-                            jsonObject.put("roomId", "001");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        LiveDataOperator.getInstance().unpublish(jsonObject.toString(), null);
-                    }
-                });
+        unpublishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("roomId", "001");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                LiveDataOperator.getInstance().unpublish(jsonObject.toString(), null);
+            }
+        });
 
-        liveListView.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        Toast.makeText(
-                                        getApplicationContext(),
-                                        liveModelList.get(i).userName,
-                                        Toast.LENGTH_SHORT)
-                                .show();
-                        liveUrl = liveModelList.get(i).liveUrl;
-                        joinLive(liveUrl);
-                    }
-                });
+        liveListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getApplicationContext(), liveModelList.get(i).userName, Toast.LENGTH_SHORT).show();
+                liveUrl = liveModelList.get(i).liveUrl;
+                joinLive(liveUrl);
+            }
+        });
 
-        liveVideoClose.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        quitLive();
-                    }
-                });
+        liveVideoClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                quitLive();
+            }
+        });
     }
 
     private void initAudioManager() {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         // Create and audio manager that will take care of audio routing,
         // audio modes, audio device enumeration etc.
-        audioManager =
-                AppRTCAudioManager.create(
-                        this,
-                        new Runnable() {
-                            // This method will be called each time the audio state (number and
-                            // type of devices) has been changed.
-                            @Override
-                            public void run() {
-                                onAudioManagerChangedState();
-                            }
-                        });
+        audioManager = AppRTCAudioManager.create(this, new Runnable() {
+            // This method will be called each time the audio state (number and
+            // type of devices) has been changed.
+            @Override
+            public void run() {
+                onAudioManagerChangedState();
+            }
+        });
         // Store existing audio settings and change audio mode to
         // MODE_IN_COMMUNICATION for best possible VoIP performance.
         Log.d(TAG, "Initializing the audio manager...");
@@ -154,66 +142,50 @@ public class LiveListActivity extends RongRTCBaseActivity implements RongRTCStat
     }
 
     private void queryLiveData() {
-        LiveDataOperator.getInstance()
-                .query(
-                        new LiveDataOperator.OnResultCallBack() {
-                            @Override
-                            public void onSuccess(String result) {
-                                parseQueryResult(result);
-                                runOnUiThread(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                liveListAdapter.notifyDataSetChanged();
-                                            }
-                                        });
-                            }
+        LiveDataOperator.getInstance().query(new LiveDataOperator.OnResultCallBack() {
+            @Override
+            public void onSuccess(String result) {
+                parseQueryResult(result);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        liveListAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
 
-                            @Override
-                            public void onFailed(String error) {}
-                        });
+            @Override
+            public void onFailed(String error) {}
+        });
     }
 
     private void joinLive(String liveUrl) {
         liveVideoLayout.setVisibility(View.VISIBLE);
-        CenterManager.getInstance()
-                .subscribeLiveAVStream(
-                        liveUrl,
-                        RongRTCRoomConfig.LiveType.AUDIO_VIDEO,
-                        new JoinLiveUICallBack() {
-                            @Override
-                            public void onUiVideoStreamReceived(RongRTCLiveAVInputStream stream) {
-                                showToast("开始观看视频直播: " + stream.getUserId());
-                                videoView =
-                                        RongRTCEngine.getInstance()
-                                                .createVideoView(LiveListActivity.this);
-                                stream.setRongRTCVideoView(videoView);
-                                liveVideoContainer.addView(videoView, -1, -1);
-                                onRegisterStatusReportListener();
-                            }
+        RCRTCEngine.getInstance().subscribeLiveStream(
+            liveUrl, RCRTCRoomType.LIVE_AUDIO_VIDEO, new IRCRTCResultDataCallback<List<RCRTCInputStream>>() {
+                @Override
+                public void onSuccess(List<RCRTCInputStream> streams) {
+                    for (RCRTCInputStream inputStream : streams) {
+                        if (inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
+                            showToast("开始观看视频直播");
+                            videoView = new RCRTCVideoView(LiveListActivity.this);
+                            RCRTCVideoInputStream videoInputStream = (RCRTCVideoInputStream) inputStream;
+                            videoInputStream.setVideoView(videoView);
+                            liveVideoContainer.addView(videoView, -1, -1);
+                        } else if (inputStream.getMediaType() == RCRTCMediaType.AUDIO) {
+                            showToast("收到音频流");
+                            TextView view = new TextView(getApplicationContext());
+                            view.setText("收到音频");
+                            liveVideoContainer.addView(view);
+                        }
+                    }
+                }
 
-                            @Override
-                            public void onUiAudioStreamReceived(RongRTCLiveAVInputStream stream) {
-                                showToast("收到音频流");
-                                TextView view = new TextView(getApplicationContext());
-                                view.setText("收到音频");
-                                liveVideoContainer.addView(view);
-                            }
-
-                            @Override
-                            public void onUiSuccess() {
-                                showToast("订阅直播成功");
-                            }
-
-                            @Override
-                            public void onUiFailed(RTCErrorCode code) {
-                                showToast("打开直播失败！" + code);
-                            }
-                        });
-    }
-
-    private void onRegisterStatusReportListener() {
-        CenterManager.getInstance().registerStatusReportListener(this);
+                @Override
+                public void onFailed(RTCErrorCode errorCode) {
+                    showToast("打开直播失败！" + errorCode);
+                }
+            });
     }
 
     private void quitLive() {
@@ -223,33 +195,28 @@ public class LiveListActivity extends RongRTCBaseActivity implements RongRTCStat
         }
         liveVideoContainer.removeAllViews();
         liveVideoLayout.setVisibility(View.GONE);
-        RongRTCEngine.getInstance()
-                .unsubscribeLiveAVStream(
-                        liveUrl,
-                        new RongRTCResultUICallBack() {
-                            @Override
-                            public void onUiSuccess() {
-                                runOnUiThread(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                showToast("退出观看成功");
-                                            }
-                                        });
-                            }
+        RCRTCEngine.getInstance().unsubscribeLiveStream(liveUrl, new IRCRTCResultCallback() {
+            @Override
+            public void onSuccess() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast("退出观看成功");
+                    }
+                });
+            }
 
-                            @Override
-                            public void onUiFailed(final RTCErrorCode errorCode) {
-                                runOnUiThread(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                showToast("退出观看失败: " + errorCode);
-                                                FinLog.d(TAG, "quit live errorCode: " + errorCode);
-                                            }
-                                        });
-                            }
-                        });
+            @Override
+            public void onFailed(final RTCErrorCode errorCode) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast("退出观看失败: " + errorCode);
+                        FinLog.d(TAG, "quit live errorCode: " + errorCode);
+                    }
+                });
+            }
+        });
     }
 
     private void parseQueryResult(String result) {
@@ -267,20 +234,6 @@ public class LiveListActivity extends RongRTCBaseActivity implements RongRTCStat
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onAudioReceivedLevel(HashMap<String, String> audioLevel) {}
-
-    @Override
-    public void onAudioInputLevel(String audioLevel) {}
-
-    @Override
-    public void onConnectionStats(StatusReport statusReport) {
-        for (Map.Entry<String, StatusBean> entry : statusReport.statusVideoRcvs.entrySet()) {
-            StatusBean value = entry.getValue();
-            Log.d(TAG, "onConnectionStats: " + value.frameWidth + " x " + value.frameHeight);
         }
     }
 
@@ -336,6 +289,5 @@ public class LiveListActivity extends RongRTCBaseActivity implements RongRTCStat
             audioManager.close();
             audioManager = null;
         }
-        CenterManager.getInstance().registerStatusReportListener(this);
     }
 }

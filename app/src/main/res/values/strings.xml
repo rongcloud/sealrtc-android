@@ -69,6 +69,8 @@
     <string name="islive">is Live</string>
     <string name="stereo">stereo</string>
     <string name="audio_process">audio_process</string>
+    <string name="rtc_toast_switch_to_speaker">Listen through the speaker</string>
+    <string name="rtc_toast_switch_to_receiver">Listen through the receiver</string>
 
     <string name="get_code">Get Code</string>
     <string name="VerificationCodeError">The verification code is wrong, please re-acquire</string>

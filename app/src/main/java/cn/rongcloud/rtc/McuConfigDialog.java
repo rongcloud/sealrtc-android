@@ -1,8 +1,6 @@
 package cn.rongcloud.rtc;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -10,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,23 +18,29 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
-import cn.rongcloud.rtc.config.RongCenterConfig;
-import cn.rongcloud.rtc.entity.McuConfig;
-import cn.rongcloud.rtc.media.RongMediaSignalClient;
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
-import cn.rongcloud.rtc.room.RongRTCRoom;
-import cn.rongcloud.rtc.stream.local.RongRTCLocalSourceManager;
-import cn.rongcloud.rtc.user.RongRTCRemoteUser;
-import cn.rongcloud.rtc.util.UserUtils;
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import java.io.IOException;
+
+import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
+
+import cn.rongcloud.rtc.api.RCRTCEngine;
+import cn.rongcloud.rtc.api.RCRTCLocalUser;
+import cn.rongcloud.rtc.api.RCRTCRemoteUser;
+import cn.rongcloud.rtc.api.RCRTCRoom;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultDataCallback;
+import cn.rongcloud.rtc.api.stream.RCRTCLiveInfo;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig;
+import cn.rongcloud.rtc.base.RCRTCMediaType;
+import cn.rongcloud.rtc.base.RCRTCStream;
+import cn.rongcloud.rtc.base.RTCErrorCode;
+import cn.rongcloud.rtc.api.RCRTCMixConfig;
+import cn.rongcloud.rtc.api.RCRTCMixConfig.CustomLayoutList.CustomLayout;
+import cn.rongcloud.rtc.api.RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout;
+import cn.rongcloud.rtc.api.RCRTCMixConfig.MixLayoutMode;
+import cn.rongcloud.rtc.api.RCRTCMixConfig.VideoRenderMode;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /** Created by wangw on 2019-10-14. */
 public class McuConfigDialog extends DialogFragment implements View.OnClickListener {
@@ -53,24 +56,31 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
     private RadioButton mRbExparams02;
     private RadioGroup mRgEx;
 
-    private RongRTCRoom mRTCRoom;
-    private McuConfig mConfig;
-    private String mServerDomain;
+    private RCRTCRoom mRTCRoom;
+    private RCRTCMixConfig mConfig;
+    private RCRTCLiveInfo mLiveInfo;
 
-    public static void showDialog(Activity context, String configServer) {
-        McuConfigDialog dialog = new McuConfigDialog();
+    public static void showDialog(Activity context, RCRTCLiveInfo liveInfo) {
+        McuConfigDialog dialog = new McuConfigDialog(liveInfo);
         Bundle bundle = new Bundle();
-        bundle.putString("server", configServer);
         dialog.setArguments(bundle);
         dialog.show(context.getFragmentManager(), TAG);
+    }
+
+    public McuConfigDialog() {
+
+    }
+
+    @SuppressLint("ValidFragment")
+    public McuConfigDialog(RCRTCLiveInfo mLiveInfo) {
+        super();
+        this.mLiveInfo = mLiveInfo;
     }
 
     @Nullable
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+        LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //        return super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.dialog_mcu_config, container, false);
         onFindViews(view);
@@ -101,106 +111,136 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
         mRbExparams02 = view.findViewById(R.id.rb_exparams_02);
         mRgEx = view.findViewById(R.id.rg_ex);
 
-        mRg.setOnCheckedChangeListener(
-                new RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        switch (checkedId) {
-                            case R.id.rb_mode_01:
-                                mConfig.setMode(2);
-                                break;
-                            case R.id.rb_mode_02:
-                                mConfig.setMode(3);
-                                break;
-                            case R.id.rb_mode_03:
-                                mConfig.setMode(1);
-                                break;
-                        }
-                    }
-                });
+        mRg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rb_mode_01:
+                        mConfig.setLayoutMode(MixLayoutMode.SUSPENSION);
+                        break;
+                    case R.id.rb_mode_02:
+                        mConfig.setLayoutMode(MixLayoutMode.ADAPTIVE);
+                        break;
+                    case R.id.rb_mode_03:
+                        mConfig.setLayoutMode(MixLayoutMode.CUSTOM);
+                        break;
+                }
+            }
+        });
 
-        mRgEx.setOnCheckedChangeListener(
-                new RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        McuConfig.OutputBean.VideoBean.ExparamsBean exparams =
-                                mConfig.getOutput().getVideo().getExparams();
-                        switch (checkedId) {
-                            case R.id.rb_exparams_01:
-                                exparams.setRenderMode(1);
-                                break;
-                            case R.id.rb_exparams_02:
-                                exparams.setRenderMode(2);
-                                break;
-                        }
-                    }
-                });
+        mRgEx.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                VideoRenderMode renderMode = VideoRenderMode.WHOLE;
+                switch (checkedId) {
+                    case R.id.rb_exparams_01:
+                        renderMode = VideoRenderMode.CROP;
+                        break;
+                    case R.id.rb_exparams_02:
+                        renderMode = VideoRenderMode.WHOLE;
+                        break;
+                }
+                mConfig.getMediaConfig().getVideoConfig().getExtend().setRenderMode(renderMode);
+            }
+        });
 
         view.findViewById(R.id.btn_sub).setOnClickListener(this);
         view.findViewById(R.id.iv_close).setOnClickListener(this);
     }
 
+    private void updateCustomMixLayout() {
+        ArrayList<RCRTCStream> streams = new ArrayList<>();
+        RCRTCRoom room = RCRTCEngine.getInstance().getRoom();
+        RCRTCLocalUser localUser = room.getLocalUser();
+        streams.addAll(localUser.getStreams());
+        for (RCRTCRemoteUser user : room.getRemoteUsers()) {
+            streams.addAll(user.getStreams());
+        }
+        VideoLayout videoLayout = mConfig.getMediaConfig().getVideoConfig().getVideoLayout();
+        onUpdateCustomMixLayout(mConfig, localUser.getDefaultVideoStream(),
+            streams, 100, 100, 0, 0, videoLayout.getWidth(), videoLayout.getHeight());
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mRTCRoom = CenterManager.getInstance().getRongRTCRoom();
+        mRTCRoom = RCRTCEngine.getInstance().getRoom();
         mConfig = createMcuConfig(mRTCRoom);
-        mServerDomain = getArguments().getString("server");
     }
 
-    private McuConfig createMcuConfig(RongRTCRoom rongRTCRoom) {
-        McuConfig config = new McuConfig();
-        config.setMode(3);
-        config.setHost_user_id(rongRTCRoom.getLocalUser().getUserId());
+    private RCRTCMixConfig createMcuConfig(RCRTCRoom rongRTCRoom) {
+        mConfig = new RCRTCMixConfig();
+        //合流布局模式
+        mConfig.setLayoutMode(MixLayoutMode.SUSPENSION);
+        RCRTCLocalUser localUser = rongRTCRoom.getLocalUser();
+        //当做背景的Stream
+        mConfig.setHostVideoStream(localUser.getDefaultVideoStream());
+        // 合流布局输出配置
+        RCRTCMixConfig.MediaConfig mediaConfig = new RCRTCMixConfig.MediaConfig();
+        // 合流布局视频输出配置
+        RCRTCMixConfig.MediaConfig.VideoConfig video = new RCRTCMixConfig.MediaConfig.VideoConfig();
+        // 视频layout配置
+        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videolayout =
+            new RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout();
 
-        // output
-        McuConfig.OutputBean output = new McuConfig.OutputBean();
-        McuConfig.OutputBean.VideoBean video = new McuConfig.OutputBean.VideoBean();
-        McuConfig.OutputBean.VideoBean.NormalBean normal =
-                new McuConfig.OutputBean.VideoBean.NormalBean();
-        RongCenterConfig rongRTCConfig = RongRTCLocalSourceManager.getInstance().getRongRTCConfig();
-        normal.setBitrate(rongRTCConfig.getMaxRate());
-        normal.setWidth(Integer.parseInt(mEvW.getText().toString()));
-        normal.setHeight(Integer.parseInt(mEvH.getText().toString()));
-        normal.setFps(rongRTCConfig.getVideoFPS());
-        video.setNormal(normal);
+        RCRTCVideoStreamConfig videoConfig = RCRTCEngine.getInstance().getDefaultVideoStream().getVideoConfig();
+        videolayout.setBitrate(videoConfig.getMaxRate());
+        videolayout.setWidth(Integer.parseInt(mEvW.getText().toString()));
+        videolayout.setHeight(Integer.parseInt(mEvH.getText().toString()));
+        videolayout.setFps(videoConfig.getVideoFps().getFps());
+        video.setVideoLayout(videolayout);
 
-        McuConfig.OutputBean.VideoBean.ExparamsBean exparams =
-                new McuConfig.OutputBean.VideoBean.ExparamsBean();
-        exparams.setRenderMode(1);
-        video.setExparams(exparams);
+        //输出扩展配置
+        video.setExtend(new RCRTCMixConfig.MediaConfig.VideoConfig.VideoExtend(VideoRenderMode.WHOLE));
 
-        output.setVideo(video);
-        McuConfig.OutputBean.AudioBean audio = new McuConfig.OutputBean.AudioBean();
-        audio.setBitrate(96);
-        output.setAudio(audio);
-        config.setOutput(output);
+        mediaConfig.setVideoConfig(video);
 
-        McuConfig.InputBean input = new McuConfig.InputBean();
-        ArrayList<McuConfig.InputBean.VideoBeanX> list = new ArrayList<>();
-        McuConfig.InputBean.VideoBeanX iv = new McuConfig.InputBean.VideoBeanX();
-        iv.setUser_id(rongRTCRoom.getLocalUser().getUserId());
-        iv.setX(0);
-        iv.setY(0);
-        iv.setWidth(100);
-        iv.setHeight(100);
-        list.add(iv);
-        Map<String, RongRTCRemoteUser> remoteUsers = rongRTCRoom.getRemoteUsers();
-        if (remoteUsers != null) {
-            int i = 1;
-            for (RongRTCRemoteUser user : remoteUsers.values()) {
-                McuConfig.InputBean.VideoBeanX vb = new McuConfig.InputBean.VideoBeanX();
-                vb.setUser_id(user.getUserId());
-                vb.setX(100 * i);
-                vb.setY(100);
-                vb.setWidth(100);
-                vb.setHeight(100);
-                list.add(vb);
+        // 音频输出配置
+        //TODO 没有特殊配置，一般不需要设置
+//        RongRTCMixConfig.MediaConfig.AudioConfig audio = new RongRTCMixConfig.MediaConfig.AudioConfig();
+//        mediaConfig.setAudioConfig(audio);
+
+        mConfig.setMediaConfig(mediaConfig);
+        return mConfig;
+    }
+
+    /**
+     * 更新自定义布局参数
+     *
+     * @param config
+     * @param hostStream   当做背景的Stream
+     * @param streams
+     * @param videoWidth   小视频窗口的宽
+     * @param videoHeight  小竖屏窗口的高
+     * @param startX       起始X坐标
+     * @param startY       起始Y坐标
+     * @param screenWidth  输出屏幕的宽
+     * @param screenHeight 输出屏幕的高
+     */
+    private void onUpdateCustomMixLayout(RCRTCMixConfig config, RCRTCStream hostStream,
+        List<RCRTCStream> streams, int videoWidth, int videoHeight, int startX, int startY,
+        int screenWidth, int screenHeight) {
+        ArrayList<CustomLayout> list = new ArrayList<>();
+        CustomLayout hLayout = new CustomLayout();
+        hLayout.setVideoStream(hostStream);
+        hLayout.setWidth(screenWidth);
+        hLayout.setHeight(screenHeight);
+        hLayout.setX(0);
+        hLayout.setY(0);
+        list.add(hLayout);
+        for (RCRTCStream stream : streams) {
+            CustomLayout vl = new CustomLayout();
+            if (stream == hostStream || stream.getMediaType() != RCRTCMediaType.VIDEO) {
+                continue;
             }
+            vl.setVideoStream(stream);
+            vl.setX(startX);
+            vl.setY(startY + (videoHeight * list.size()));
+            vl.setWidth(videoWidth);
+            vl.setHeight(videoHeight);
+            list.add(vl);
         }
-        input.setVideo(list);
-        config.setInput(input);
-        return config;
+        config.setCustomLayouts(list);
     }
 
     @Override
@@ -216,121 +256,29 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
     }
 
     private void onSubmit() {
-        McuConfig.OutputBean.VideoBean.NormalBean normal =
-                mConfig.getOutput().getVideo().getNormal();
-        normal.setWidth(Integer.parseInt(mEvW.getText().toString()));
-        normal.setHeight(Integer.parseInt(mEvH.getText().toString()));
+        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videoLayout =
+            mConfig.getMediaConfig().getVideoConfig().getVideoLayout();
+//        videoLayout.setWidth(Integer.parseInt(mEvW.getText().toString()));
+//        videoLayout.setHeight(Integer.parseInt(mEvH.getText().toString()));
 
-        Gson gson =
-                new GsonBuilder()
-                        .setExclusionStrategies(
-                                new ExclusionStrategy() {
-                                    @Override
-                                    public boolean shouldSkipField(FieldAttributes f) {
+        RCRTCVideoStreamConfig videoConfig = RCRTCEngine.getInstance().getDefaultVideoStream().getVideoConfig();
+        videoLayout.setWidth(videoConfig.getVideoResolution().getWidth());
+        videoLayout.setHeight(videoConfig.getVideoResolution().getHeight());
+        if (mConfig.getLayoutMode() == MixLayoutMode.CUSTOM) {
+            updateCustomMixLayout();
+        }
+        mLiveInfo.setMixConfig(mConfig, new IRCRTCResultCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
+                dismiss();
+            }
 
-                                        if (TextUtils.equals(f.getName(), "tiny")
-                                                || (f.getDeclaringClass()
-                                                                == McuConfig.OutputBean.VideoBean
-                                                                        .NormalBean.class
-                                                        && TextUtils.equals(
-                                                                f.getName(), "bitrate")))
-                                            return true;
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean shouldSkipClass(Class<?> clazz) {
-                                        return false;
-                                    }
-                                })
-                        .create();
-        String configJson = gson.toJson(mConfig);
-        Log.d(TAG, "MCUConfig= " + configJson);
-
-        Request request =
-                new Request.Builder()
-                        .url(mServerDomain + "/server/mcu/config")
-                        .method(RequestMethod.POST)
-                        .addHeader("RoomId", mRTCRoom.getRoomId())
-                        .addHeader("UserId", mRTCRoom.getLocalUser().getUserId())
-                        .addHeader("AppKey", UserUtils.APP_KEY)
-                        .addHeader("SessionId", mRTCRoom.getSessionId())
-                        .addHeader("Token", RongMediaSignalClient.getInstance().getRtcToken())
-                        .body(configJson)
-                        .build();
-        HttpClient.getDefault()
-                .request(
-                        request,
-                        new HttpClient.ResultCallback() {
-
-                            @Override
-                            public void onResponse(String result) {
-                                Log.d(TAG, "onResponse: " + result);
-                                if (getActivity() == null || getActivity().isFinishing()) {
-                                    return;
-                                }
-
-                                getActivity()
-                                        .runOnUiThread(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(
-                                                                        getActivity(),
-                                                                        "Config设置成功",
-                                                                        Toast.LENGTH_LONG)
-                                                                .show();
-                                                        dismiss();
-                                                    }
-                                                });
-                            }
-
-                            @Override
-                            public void onFailure(final int errorCode) {
-                                Log.d(TAG, "onFailure: " + errorCode);
-                                if (getActivity() == null || getActivity().isFinishing()) {
-                                    return;
-                                }
-
-                                getActivity()
-                                        .runOnUiThread(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(
-                                                                        getActivity(),
-                                                                        "Config Failure: "
-                                                                                + errorCode,
-                                                                        Toast.LENGTH_LONG)
-                                                                .show();
-                                                        dismiss();
-                                                    }
-                                                });
-                            }
-
-                            @Override
-                            public void onError(final IOException exception) {
-                                Log.d(TAG, "onError: " + exception);
-                                if (getActivity() == null || getActivity().isFinishing()) {
-                                    return;
-                                }
-
-                                getActivity()
-                                        .runOnUiThread(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(
-                                                                        getActivity(),
-                                                                        "Config Error: "
-                                                                                + exception
-                                                                                        .getMessage(),
-                                                                        Toast.LENGTH_LONG)
-                                                                .show();
-                                                        dismiss();
-                                                    }
-                                                });
-                            }
-                        });
+            @Override
+            public void onFailed(RTCErrorCode errorCode) {
+                Log.d(TAG, "onUiFailed: " + errorCode);
+                Toast.makeText(getActivity(), "更新失败: " + errorCode, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

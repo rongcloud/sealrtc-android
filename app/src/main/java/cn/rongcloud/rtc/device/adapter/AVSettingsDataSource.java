@@ -573,7 +573,7 @@ public class AVSettingsDataSource {
                 SessionManager.getInstance().getInt(Consts.SP_AUDIO_SAMPLE_RATE, 48000);
         boolean audioSampleStereo =
                 SessionManager.getInstance()
-                        .getBoolean(Consts.SP_AUDIO_CHANNEL_STEREO_ENABLE, false);
+                        .getBoolean(Consts.SP_AUDIO_STEREO_ENABLE, false);
         int audioBitRate =
                 SessionManager.getInstance().getInt(Consts.SP_AUDIO_TRANSPORT_BIT_RATE, 30);
 
@@ -643,7 +643,7 @@ public class AVSettingsDataSource {
         } else {
             SessionManager.getInstance()
                     .put(
-                            Consts.SP_AUDIO_CHANNEL_STEREO_ENABLE,
+                            Consts.SP_AUDIO_STEREO_ENABLE,
                             Boolean.parseBoolean(configInfo.getItemValue()));
         }
 
@@ -662,7 +662,7 @@ public class AVSettingsDataSource {
         audioCaptureSettings.clear();
         SessionManager.getInstance().remove(Consts.SP_AUDIO_SOURCE);
         SessionManager.getInstance().remove(Consts.SP_AUDIO_SAMPLE_RATE);
-        SessionManager.getInstance().remove(Consts.SP_AUDIO_CHANNEL_STEREO_ENABLE);
+        SessionManager.getInstance().remove(Consts.SP_AUDIO_STEREO_ENABLE);
         SessionManager.getInstance().remove(Consts.SP_AUDIO_TRANSPORT_BIT_RATE);
     }
 

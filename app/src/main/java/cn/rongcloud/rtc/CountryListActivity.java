@@ -20,7 +20,6 @@ import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import com.google.gson.Gson;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import me.yokeyword.indexablerv.IndexableAdapter;
@@ -124,12 +123,6 @@ public class CountryListActivity extends RongRTCBaseActivity implements View.OnC
                             @Override
                             public void onFailure(int errorCode) {
                                 postShowToast("onFailure:" + errorCode);
-                            }
-
-                            @Override
-                            public void onError(IOException exception) {
-                                exception.printStackTrace();
-                                postShowToast("onError:" + exception.getMessage());
                             }
                         });
     }

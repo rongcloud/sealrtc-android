@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
+import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.faceunity.FURenderer;
 import cn.rongcloud.rtc.message.RoomInfoMessage;
 import cn.rongcloud.rtc.message.RoomKickOffMessage;
@@ -13,9 +13,7 @@ import cn.rongcloud.rtc.message.WhiteBoardInfoMessage;
 import cn.rongcloud.rtc.util.RTCNotificationService;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.Utils;
-import cn.rongcloud.rtc.utils.FileLogUtil;
 import com.tencent.bugly.crashreport.CrashReport;
-import io.rong.common.FileUtils;
 import io.rong.imlib.AnnotationNotFoundException;
 import io.rong.imlib.RongIMClient;
 
@@ -29,7 +27,6 @@ public class RongRTCApplication extends MultiDexApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
         SessionManager.initContext(this);
     }
 
@@ -44,29 +41,20 @@ public class RongRTCApplication extends MultiDexApplication {
         strategy.setUploadProcess(processName.equals(getPackageName()));
         // 初始化Bugly
         CrashReport.initCrashReport(this, "3612cc23a8", false, strategy);
-        MultiDex.install(this);
         if (getApplicationInfo().packageName.equals(Utils.getCurProcessName(this))) {
-            String logPath = FileUtils.getCachePath(this, "/ronglog");
-            String filePath = logPath + "/rcvoip.log";
-            FileLogUtil.setFileLog(filePath);
-        }
-
-        //        if (getApplicationContext().getApplicationInfo().getid)
-
-        try {
+          try {
             RongIMClient.registerMessageType(RoomInfoMessage.class);
             RongIMClient.registerMessageType(WhiteBoardInfoMessage.class);
             RongIMClient.registerMessageType(RoomKickOffMessage.class);
-        } catch (AnnotationNotFoundException e) {
+          } catch (AnnotationNotFoundException e) {
             e.printStackTrace();
+          }
+
+          // 相芯SDK 初始化
+          FURenderer.initFURenderer(this);
         }
 
-        // 内测时设置为true ， 发布时修改为false
-        //        CrashReport.initCrashReport(getApplicationContext(), "ef48d6a01a", true);
         registerLifecycleCallbacks();
-
-        // 相芯SDK 初始化
-        FURenderer.initFURenderer(this);
     }
 
     private void registerLifecycleCallbacks() {
@@ -119,7 +107,7 @@ public class RongRTCApplication extends MultiDexApplication {
             if (isActive) {
                 isActive = false;
                 // AppBackground
-                if (CenterManager.getInstance().isInRoom()) {
+                if (RCRTCEngine.getInstance().getRoom() != null) {
                     startService(new Intent(this, RTCNotificationService.class));
                 }
             }
@@ -127,9 +115,8 @@ public class RongRTCApplication extends MultiDexApplication {
     }
 
     private void stopNotificationService() {
-        if (CenterManager.getInstance().isInRoom()) {
-            boolean val =
-                    stopService(new Intent(RongRTCApplication.this, RTCNotificationService.class));
+        if (RCRTCEngine.getInstance().getRoom() != null) {
+          stopService(new Intent(RongRTCApplication.this, RTCNotificationService.class));
         }
     }
 }

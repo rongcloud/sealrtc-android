@@ -99,7 +99,6 @@
         <item name="android:layout_height">36dp</item>
         <item name="android:layout_marginTop">@dimen/checkbox_spacing</item>
         <item name="android:button">@null</item>
-        <item name="android:layout_alignParentRight">true</item>
     </style>
 
     <style name="Widget.DiscreteIndicatorTextAppearance" parent="android:TextAppearance.Small">

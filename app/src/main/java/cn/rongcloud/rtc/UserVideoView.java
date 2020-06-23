@@ -8,14 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
-import cn.rongcloud.rtc.stream.remote.RongRTCAVInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 
 public class UserVideoView extends FrameLayout {
     private TextView userName;
-    private RongRTCVideoView rongRTCVideoView;
+    private RCRTCVideoView rongRTCVideoView;
     private String userId;
-    private RongRTCAVInputStream inputStream;
+    private RCRTCVideoInputStream inputStream;
 
     public UserVideoView(@NonNull Context context) {
         this(context, null);
@@ -38,10 +38,10 @@ public class UserVideoView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         userName = (TextView) findViewById(R.id.user_name);
-        rongRTCVideoView = (RongRTCVideoView) findViewById(R.id.video_view);
+        rongRTCVideoView = (RCRTCVideoView) findViewById(R.id.video_view);
         userName.setText(userId);
         if (inputStream != null) {
-            inputStream.setRongRTCVideoView(rongRTCVideoView);
+            inputStream.setVideoView(rongRTCVideoView);
         }
     }
 
@@ -56,7 +56,7 @@ public class UserVideoView extends FrameLayout {
         return userId;
     }
 
-    public void setInputStream(RongRTCAVInputStream inputStream) {
+    public void setInputStream(RCRTCVideoInputStream inputStream) {
         this.inputStream = inputStream;
     }
 }

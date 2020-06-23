@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <cn.rongcloud.rtc.ContainerLayout
+    <cn.rongcloud.rtc.call.ContainerLayout
         android:id="@+id/call_render_big_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -122,14 +122,14 @@
 
     </RelativeLayout>
 
-    <com.herewhite.sdk.WhiteBroadView
+    <RelativeLayout
         android:id="@+id/call_whiteboard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="30dp"
         android:visibility="gone">
 
-    </com.herewhite.sdk.WhiteBroadView>
+    </RelativeLayout>
 
     <Button
         android:id="@+id/white_board_close"
@@ -182,11 +182,22 @@
               android:text="MCU"
               android:visibility="gone" />
 
+
+            <android.support.v7.widget.AppCompatCheckBox
+              android:id="@+id/btn_switch_videosize"
+              android:layout_width="36dp"
+              android:layout_height="36dp"
+              android:layout_marginTop="@dimen/checkbox_spacing"
+              android:background="@drawable/icon_hd"
+              android:button="@null"
+              android:checked="false" />
+
             <android.support.v7.widget.AppCompatCheckBox
               android:id="@+id/menu_fu_enbale"
               android:layout_width="36dp"
               android:layout_height="36dp"
               android:layout_marginTop="@dimen/checkbox_spacing"
+              android:layout_below="@+id/btn_switch_videosize"
               android:background="@drawable/selector_checkbox_ful"
               android:button="@null"
               android:checked="false" />
@@ -300,8 +311,8 @@
             <android.support.v7.widget.AppCompatButton
               android:id="@+id/menu_btn_call_menu_settings"
               style="@style/style_call_menu_btn"
-              android:visibility="gone"
               android:background="@drawable/selector_btn_menu_call_settings"
+              android:visibility="gone"
               android:layout_below="@id/menu_up" />
 
             <android.support.v7.widget.AppCompatCheckBox
@@ -331,8 +342,20 @@
               android:layout_marginTop="@dimen/checkbox_spacing"
               android:background="@drawable/selector_switch_screen_cast"
               android:button="@null"
-              android:checked="false"
-              android:visibility="gone"/>
+              android:visibility="gone"
+              android:checked="false" />
+
+            <!-- 暂时隐藏 -->
+            <android.support.v7.widget.AppCompatCheckBox
+              android:id="@+id/menu_focus"
+              android:layout_width="36dp"
+              android:layout_height="36dp"
+              android:layout_below="@+id/menu_screen"
+              android:layout_marginTop="@dimen/checkbox_spacing"
+              android:background="@drawable/selector_enable_focus"
+              android:button="@null"
+              android:visibility="gone"
+              android:checked="false" />
         </RelativeLayout>
     </ScrollView>
     <include

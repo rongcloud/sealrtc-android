@@ -12,8 +12,8 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import cn.rongcloud.rtc.CallActivity;
 import cn.rongcloud.rtc.R;
+import cn.rongcloud.rtc.call.CallActivity;
 
 /** 以解决通话过程中切入后台麦克风不工作 */
 public class RTCNotificationService extends Service {

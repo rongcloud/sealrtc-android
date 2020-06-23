@@ -1,25 +1,53 @@
 package cn.rongcloud.rtc.usbcamera;
 
 import android.content.Context;
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
-import cn.rongcloud.rtc.stream.MediaType;
-import cn.rongcloud.rtc.stream.local.RongRTCAVOutputStream;
-import cn.rongcloud.rtc.user.RongRTCLocalUser;
+import cn.rongcloud.rtc.api.RCRTCEngine;
+import cn.rongcloud.rtc.api.RCRTCLocalUser;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
+import cn.rongcloud.rtc.api.callback.IRCRTCVideoSource;
+import cn.rongcloud.rtc.api.callback.IRCRTCVideoSource.IRCVideoConsumer;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoOutputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig;
+import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 
 /** Created by wangw on 2019/4/29. */
 public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements UsbCameraCapturer {
 
     public static final String STREAM_TAG = "USB";
-    private RongRTCVideoView mVideoView;
-    private RongRTCAVOutputStream mOutputStream;
-    private RongRTCLocalUser mLocalUser;
+    private RCRTCVideoView mVideoView;
+    private RCRTCVideoOutputStream mOutputStream;
+    private RCRTCLocalUser mLocalUser;
+    private volatile IRCVideoConsumer videoConsumer;
+    private volatile boolean observerEnabled = false;
 
-    public UsbCameraCapturerImpl(
-            Context context, RongRTCLocalUser localUser, int width, int height) {
-        super(context, width, height);
+    public UsbCameraCapturerImpl(Context context, RCRTCLocalUser localUser, RCRTCVideoResolution videoResolution) {
+        super(context, videoResolution);
         mLocalUser = localUser;
-        mOutputStream = new RongRTCAVOutputStream(MediaType.VIDEO, STREAM_TAG);
+        RCRTCVideoStreamConfig.Builder videoConfigBuilder = RCRTCVideoStreamConfig.Builder.create();
+        videoConfigBuilder.setVideoResolution(videoResolution);
+        mOutputStream = RCRTCEngine.getInstance().createVideoStream(STREAM_TAG, videoConfigBuilder.build());
+        mOutputStream.setSource(new IRCRTCVideoSource() {
+            @Override
+            public void onInit(IRCVideoConsumer observer) {
+                videoConsumer = observer;
+            }
+
+            @Override
+            public void onStart() {
+                observerEnabled = true;
+            }
+
+            @Override
+            public void onStop() {
+                videoConsumer = null;
+            }
+
+            @Override
+            public void onDispose() {
+                observerEnabled = false;
+            }
+        });
     }
 
     /** 开始捕获数据 */
@@ -27,13 +55,12 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
     public void startCapturer() {
         setState(STATE_START);
         log("startCapturer", "");
-        queueEvent(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        onStartPreview();
-                    }
-                });
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                onStartPreview();
+            }
+        });
     }
 
     /** 停止捕获数据 */
@@ -41,13 +68,12 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
     public void stopCapturer() {
         setState(STATE_STOP);
         log("stopCapturer", "");
-        queueEvent(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        onStopPreview();
-                    }
-                });
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                onStopPreview();
+            }
+        });
     }
 
     /**
@@ -56,17 +82,16 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
      * @param videoView
      */
     @Override
-    public void setRongRTCVideoView(RongRTCVideoView videoView) {
+    public void setRongRTCVideoView(RCRTCVideoView videoView) {
         mVideoView = videoView;
-        queueEvent(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mOutputStream != null && mVideoView != null) {
-                            mOutputStream.setRongRTCVideoView(mVideoView);
-                        }
-                    }
-                });
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (mOutputStream != null && mVideoView != null) {
+                    mOutputStream.setVideoView(mVideoView);
+                }
+            }
+        });
     }
 
     /**
@@ -75,10 +100,10 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
      * @param callBack
      */
     @Override
-    public void publishVideoStream(RongRTCResultUICallBack callBack) {
+    public void publishVideoStream(IRCRTCResultCallback callBack) {
         log("publishVideoStream", "");
         if (mLocalUser == null) return;
-        mLocalUser.publishAVStream(mOutputStream, callBack);
+        mLocalUser.publishStream(mOutputStream, callBack);
     }
 
     /**
@@ -87,10 +112,10 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
      * @param callBack
      */
     @Override
-    public void unPublishVideoStream(RongRTCResultUICallBack callBack) {
+    public void unPublishVideoStream(IRCRTCResultCallback callBack) {
         log("unPublishVideoStream", "");
         if (mLocalUser == null) return;
-        mLocalUser.unpublishAVStream(mOutputStream, callBack);
+        mLocalUser.unpublishStream(mOutputStream, callBack);
     }
 
     @Override
@@ -105,21 +130,23 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
     }
 
     @Override
-    public RongRTCAVOutputStream getVideoOutputStream() {
+    public RCRTCVideoOutputStream getVideoOutputStream() {
         return mOutputStream;
     }
 
     @Override
     protected void onFrame(byte[] bytes, int selectWidth, int selectHeight) {
         super.onFrame(bytes);
-        if (mOutputStream != null) mOutputStream.writeByteBuffer(bytes, mReqWidth, mReqHeight, 0);
+        if (videoConsumer != null && observerEnabled) {
+            videoConsumer.writeYuvData(bytes, mReqWidth, mReqHeight, 0);
+        }
     }
 
     @Override
     public void onTextureFrameAvailable(
-            int oesTextureId, int width, int height, float[] transformMatrix, long timestampNs) {
-        if (mOutputStream != null)
-            mOutputStream.writeTextureFrame(
-                    width, height, oesTextureId, transformMatrix, 0, timestampNs);
+        int oesTextureId, int width, int height, float[] transformMatrix, long timestampNs) {
+        if (videoConsumer != null && observerEnabled) {
+            videoConsumer.writeTexture(width, height, oesTextureId, transformMatrix, 0, timestampNs);
+        }
     }
 }

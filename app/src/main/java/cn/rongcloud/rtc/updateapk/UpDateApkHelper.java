@@ -12,7 +12,6 @@ import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
-import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -72,11 +71,6 @@ public class UpDateApkHelper {
                             @Override
                             public void onFailure(int errorCode) {
                                 Log.i(TAG, "onFailure() errorCode = " + errorCode);
-                            }
-
-                            @Override
-                            public void onError(IOException exception) {
-                                Log.i(TAG, "onFailure() onError = " + exception);
                             }
                         });
     }

@@ -21,7 +21,6 @@ import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.util.SessionManager;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -160,9 +159,6 @@ public class MediaServerActivity extends RongRTCBaseActivity {
 
                             @Override
                             public void onFailure(int errorCode) {}
-
-                            @Override
-                            public void onError(IOException exception) {}
                         });
     }
 

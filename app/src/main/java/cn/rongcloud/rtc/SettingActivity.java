@@ -18,6 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
+import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoFps;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.device.privatecloud.ServerConfigActivity;
 import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
@@ -166,8 +168,8 @@ public class SettingActivity extends RongRTCBaseActivity
         List<String> videoProfileList = new ArrayList<>();
         StringBuffer stringBuffer = new StringBuffer();
 
-        for (RongRTCConfig.RongRTCVideoResolution profile :
-            RongRTCConfig.RongRTCVideoResolution.values()) {
+        for (RCRTCVideoResolution profile :
+            RCRTCVideoResolution.values()) {
             stringBuffer.setLength(0);
             if (profile.getWidth() != 0) {
                 stringBuffer.append(profile.getWidth());
@@ -287,7 +289,9 @@ public class SettingActivity extends RongRTCBaseActivity
 
         settingOptionText2 = ((TextView) findViewById(R.id.setting_option_2_txt));
         String fps = SessionManager.getInstance().getString(FPS);
-        if (TextUtils.isEmpty(fps)) fps = SessionManager.getInstance().put(FPS, list_fps[0]);
+        if (TextUtils.isEmpty(fps)) {
+            fps = SessionManager.getInstance().put(FPS, list_fps[1]);
+        }
         settingOptionText2.setText(fps);
 
         settingOptionText3 = ((TextView) findViewById(R.id.setting_option_3_txt));
@@ -750,10 +754,10 @@ public class SettingActivity extends RongRTCBaseActivity
         try {
             String resolution = SessionManager.getInstance().getString(RESOLUTION);
             String fps = SessionManager.getInstance().getString(FPS);
-            RongRTCConfig.RongRTCVideoResolution videoResolution =
-                    RongRTCConfig.RongRTCVideoResolution.getVideoResolution(resolution);
-            RongRTCConfig.RongRTCVideoFps videoFrame =
-                    RongRTCConfig.RongRTCVideoFps.getVideoFps(String.format("_%sf", fps));
+            RCRTCVideoResolution videoResolution =
+                    RCRTCVideoResolution.getVideoResolution(resolution);
+            RCRTCVideoFps videoFrame =
+                    RCRTCVideoFps.getVideoFps(String.format("_%sf", fps));
 
             String cameraMaxBitRate =
                     String.format(

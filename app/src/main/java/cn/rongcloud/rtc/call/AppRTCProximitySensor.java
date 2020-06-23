@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package cn.rongcloud.rtc;
+package cn.rongcloud.rtc.call;
 
 import android.content.Context;
 import android.hardware.Sensor;

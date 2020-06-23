@@ -16,6 +16,7 @@ import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 import cn.rongcloud.rtc.R;
+import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
 import cn.rongcloud.rtc.core.EglBase;
 import cn.rongcloud.rtc.core.GlUtil;
 import cn.rongcloud.rtc.engine.view.RongRTCVideoViewManager;
@@ -35,8 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** Created by wangw on 2019/4/29. */
 public abstract class AbstractUsbCameraCapturer
-        implements USBMonitor
-                .OnDeviceConnectListener // , SurfaceTextureHelper.OnTextureFrameAvailableListener
+        implements USBMonitor.OnDeviceConnectListener // , SurfaceTextureHelper.OnTextureFrameAvailableListener
 {
 
     public static final String TAG = "AbstractUsbCameraCapturer";
@@ -58,22 +58,21 @@ public abstract class AbstractUsbCameraCapturer
     private int mSelectWidth;
     private int mSelectHeight;
 
-    public AbstractUsbCameraCapturer(Context context, int width, int height) {
+    public AbstractUsbCameraCapturer(Context context, RCRTCVideoResolution videoResolution) {
         mContext = context;
         HandlerThread handlerThread = new HandlerThread(TAG);
         handlerThread.start();
         mWorkerHandler = new Handler(handlerThread.getLooper());
         Thread thread = mWorkerHandler.getLooper().getThread();
         mWorkerThreadID = thread.getId();
-        mSelectWidth = mReqWidth = width;
-        mSelectHeight = mReqHeight = height;
-        queueEvent(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        onInit();
-                    }
-                });
+        mSelectWidth = mReqWidth = videoResolution.getWidth();
+        mSelectHeight = mReqHeight = videoResolution.getHeight();
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                onInit();
+            }
+        });
     }
 
     private void onInit() {
@@ -125,21 +124,17 @@ public abstract class AbstractUsbCameraCapturer
     }
 
     @Override
-    public void onConnect(
-            final UsbDevice usbDevice,
-            final USBMonitor.UsbControlBlock usbControlBlock,
-            boolean b) {
+    public void onConnect(final UsbDevice usbDevice, final USBMonitor.UsbControlBlock usbControlBlock, boolean b) {
         log("[onConnect]", usbDevice.toString());
         showToast("USB-onConnect");
-        queueEvent(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mState.get() == STATE_START) {
-                            onInitCamera(usbDevice, usbControlBlock);
-                        }
-                    }
-                });
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (mState.get() == STATE_START) {
+                    onInitCamera(usbDevice, usbControlBlock);
+                }
+            }
+        });
     }
 
     /**
@@ -152,61 +147,33 @@ public abstract class AbstractUsbCameraCapturer
         releaseCamera();
         final UVCCamera camera = new UVCCamera();
         camera.open(usbControlBlock);
-        camera.setStatusCallback(
-                new IStatusCallback() {
-                    @Override
-                    public void onStatus(
-                            final int statusClass,
-                            final int event,
-                            final int selector,
-                            final int statusAttribute,
-                            final ByteBuffer data) {
-                        log(
-                                "onStatus",
-                                "statusClass="
-                                        + statusClass
-                                        + "; "
-                                        + "event="
-                                        + event
-                                        + "; "
-                                        + "selector="
-                                        + selector
-                                        + "; "
-                                        + "statusAttribute="
-                                        + statusAttribute
-                                        + "; ");
-                    }
-                });
-        camera.setButtonCallback(
-                new IButtonCallback() {
-                    @Override
-                    public void onButton(final int button, final int state) {
-                        log("onButton", "(button=" + button + "; " + "state=" + state + ")");
-                    }
-                });
+        camera.setStatusCallback(new IStatusCallback() {
+            @Override
+            public void onStatus(final int statusClass,
+                final int event, final int selector, final int statusAttribute, final ByteBuffer data) {
+                log("onStatus", "statusClass=" + statusClass + "; " + "event=" + event + "; " +
+                    "selector=" + selector + "; " + "statusAttribute=" + statusAttribute + "; ");
+            }
+        });
+        camera.setButtonCallback(new IButtonCallback() {
+            @Override
+            public void onButton(final int button, final int state) {
+                log("onButton", "(button=" + button + "; " + "state=" + state + ")");
+            }
+        });
         Size size = getClosestSupportedSize(camera.getSupportedSizeList(), mReqWidth, mReqHeight);
         if (size != null) {
             mSelectWidth = size.width;
             mSelectHeight = size.height;
         }
         try {
-            log(
-                    "onInitCamera",
-                    "select: "
-                            + mSelectWidth
-                            + "x"
-                            + mSelectHeight
-                            + " , req: "
-                            + mReqWidth
-                            + "x"
-                            + mReqHeight);
-            camera.setPreviewSize(
-                    mSelectWidth, mSelectHeight, 1, 60, UVCCamera.FRAME_FORMAT_YUYV, 1.0f);
+            log("onInitCamera", "select: " + mSelectWidth +
+                "x" + mSelectHeight + " , req: " + mReqWidth + "x" + mReqHeight);
+            camera.setPreviewSize(mSelectWidth, mSelectHeight, 1, 60, UVCCamera.FRAME_FORMAT_YUYV, 1.0f);
         } catch (final IllegalArgumentException e) {
             // fallback to YUV mode
             try {
-                camera.setPreviewSize(
-                        mSelectWidth, mSelectHeight, 1, 60, UVCCamera.FRAME_FORMAT_YUYV, 1.0f);
+                camera.setPreviewSize(mSelectWidth, mSelectHeight, 1, 60, UVCCamera.FRAME_FORMAT_YUYV, 1.0f);
             } catch (final IllegalArgumentException e1) {
                 camera.destroy();
                 return;
@@ -233,11 +200,7 @@ public abstract class AbstractUsbCameraCapturer
 
     private void createTexture() throws Exception {
         try {
-            mEglBase =
-                    EglBase.create(
-                            EglBase.create(RongRTCVideoViewManager.getInstance().getBaseContext())
-                                    .getEglBaseContext(),
-                            EglBase.CONFIG_PIXEL_BUFFER);
+            mEglBase = EglBase.create(EglBase.create(RongRTCVideoViewManager.getInstance().getBaseContext()).getEglBaseContext(), EglBase.CONFIG_PIXEL_BUFFER);
             // Both these statements have been observed to fail on rare occasions, see
             // BUG=RongRTC:5682.
             mEglBase.createDummyPbufferSurface();
@@ -249,66 +212,53 @@ public abstract class AbstractUsbCameraCapturer
         }
         final int oesTextureId = GlUtil.generateTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         mSurfaceTexture = new SurfaceTexture(oesTextureId);
-        mSurfaceTexture.setOnFrameAvailableListener(
-                new SurfaceTexture.OnFrameAvailableListener() {
-                    @Override
-                    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                        try {
-                            synchronized (EglBase.lock) {
-                                mSurfaceTexture.updateTexImage();
-                            }
-                        } catch (Exception e) {
-                            FinLog.e(TAG, "updateTexImage Failed: " + e.getMessage());
-                            e.printStackTrace();
-                        }
-
-                        final float[] transformMatrix = new float[16];
-                        surfaceTexture.getTransformMatrix(transformMatrix);
-                        final long timestampNs =
-                                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-                                        ? surfaceTexture.getTimestamp()
-                                        : TimeUnit.MILLISECONDS.toNanos(
-                                                SystemClock.elapsedRealtime());
-                        onTextureFrameAvailable(oesTextureId, transformMatrix, timestampNs);
+        mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+            @Override
+            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                try {
+                    synchronized (EglBase.lock) {
+                        mSurfaceTexture.updateTexImage();
                     }
-                });
+                } catch (Exception e) {
+                    FinLog.e(TAG, "updateTexImage Failed: " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+                final float[] transformMatrix = new float[16];
+                surfaceTexture.getTransformMatrix(transformMatrix);
+                final long timestampNs = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) ?
+                    surfaceTexture.getTimestamp() :
+                    TimeUnit.MILLISECONDS.toNanos(SystemClock.elapsedRealtime());
+                onTextureFrameAvailable(oesTextureId, transformMatrix, timestampNs);
+            }
+        });
     }
 
     protected void openCamera() {
         List<UsbDevice> deviceList = mUSBMonitor.getDeviceList();
         if (deviceList == null || deviceList.isEmpty()) {
-            postUIThread(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mContext == null) {
-                                showToast("未检测到USB摄像头");
-                            } else {
-                                AlertDialog dialog =
-                                        new AlertDialog.Builder(
-                                                        mContext,
-                                                        R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                                .setMessage(
-                                                        "未检测到USB摄像头，请从以下几个步骤排查原因:"
-                                                                + "\n\n  1. OTG功能是否已开启"
-                                                                + "\n  2. USB摄像头设备是否已连接"
-                                                                + "\n\n如果以上步骤都已检查通过还是看不到视频画面则有可能您的手机不支持OTG功能!")
-                                                .setNegativeButton(
-                                                        "确定",
-                                                        new DialogInterface.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(
-                                                                    DialogInterface dialog,
-                                                                    int which) {
-                                                                dialog.dismiss();
-                                                            }
-                                                        })
-                                                .create();
-                                dialog.show();
-                            }
-                        }
-                    });
-
+            postUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mContext == null) {
+                        showToast("未检测到USB摄像头");
+                    } else {
+                        AlertDialog dialog =
+                            new AlertDialog.Builder(mContext, R.style.Theme_AppCompat_Light_Dialog_Alert)
+                                .setMessage("未检测到USB摄像头，请从以下几个步骤排查原因:" +
+                                    "\n\n  1. OTG功能是否已开启" +
+                                    "\n  2. USB摄像头设备是否已连接" +
+                                    "\n\n如果以上步骤都已检查通过还是看不到视频画面则有可能您的手机不支持OTG功能!")
+                                .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                }).create();
+                        dialog.show();
+                    }
+                }
+            });
             return;
         }
         ArrayList<UsbDevice> myDevices = new ArrayList<>();
@@ -317,7 +267,7 @@ public abstract class AbstractUsbCameraCapturer
                 myDevices.add(usbDevice);
             }
         }
-        if (myDevices != null && myDevices.size() != 0) {
+        if (myDevices.size() != 0) {
             UsbDevice cameraDevice = null;
             if (myDevices.size() > 1) {
                 for (UsbDevice usbDevice : myDevices) {

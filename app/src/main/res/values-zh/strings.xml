@@ -74,6 +74,9 @@
     <string name="rtc_dialog_kicked_offline">此用户已在其他设备登录，可修改用户名后再尝试登录</string>
     <string name="rtc_dialog_kicked_by_server">您已被移出房间!</string>
     <string name="rtc_dialog_forbidden_by_server">您被禁止加入该房间!</string>
+    <string name="rtc_toast_switch_to_speaker">已切到扬声器</string>
+    <string name="rtc_toast_switch_to_receiver">已切到听筒</string>
+
 
     <string name="get_code">重新获取验证码</string>
     <string name="VerificationCodeError">验证码错误，请重新获取</string>

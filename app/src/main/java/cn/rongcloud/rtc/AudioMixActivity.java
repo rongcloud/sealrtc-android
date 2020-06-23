@@ -24,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.rongcloud.rtc.api.RCRTCAudioMixer;
 import cn.rongcloud.rtc.stream.local.RongRTCCapture;
 import java.io.File;
 import java.lang.reflect.Array;
@@ -86,11 +87,11 @@ public class AudioMixActivity extends AppCompatActivity implements SeekBar.OnSee
         sb_mix_local_vol.setOnSeekBarChangeListener(this);
 
         tv_mic_vol.setText("0");
-        int mixRemoteVol = RongRTCAudioMixer.getInstance().getMixingVolume();
+        int mixRemoteVol = RCRTCAudioMixer.getInstance().getMixingVolume();
         tv_mix_remote_vol.setText(String.valueOf(mixRemoteVol));
         sb_mix_remote_vol.setProgress(mixRemoteVol);
 
-        int mixLocalVol = RongRTCAudioMixer.getInstance().getPlaybackVolume();
+        int mixLocalVol = RCRTCAudioMixer.getInstance().getPlaybackVolume();
         tv_mix_local_vol.setText(String.valueOf(mixLocalVol));
         sb_mix_local_vol.setProgress(mixLocalVol);
 
@@ -141,29 +142,29 @@ public class AudioMixActivity extends AppCompatActivity implements SeekBar.OnSee
 
     private void performPlay() {
         if (mixing) {
-            RongRTCAudioMixer.getInstance().resume();
+            RCRTCAudioMixer.getInstance().resume();
         } else {
             boolean result = false;
             switch (mixMode) {
                 case MODE_PLAY_MIX:
                     result =
-                            RongRTCAudioMixer.getInstance()
-                                .startMix(audioPath, RongRTCAudioMixer.Mode.MIX, true, -1);
+                            RCRTCAudioMixer.getInstance()
+                                .startMix(audioPath, RCRTCAudioMixer.Mode.MIX, true, -1);
                     break;
                 case MODE_MIX_ONLY:
                     result =
-                            RongRTCAudioMixer.getInstance()
-                                .startMix(audioPath, RongRTCAudioMixer.Mode.MIX, false, -1);
+                            RCRTCAudioMixer.getInstance()
+                                .startMix(audioPath, RCRTCAudioMixer.Mode.MIX, false, -1);
                     break;
                 case MODE_PLAY_ONLY:
                     result =
-                            RongRTCAudioMixer.getInstance()
-                                .startMix(audioPath, RongRTCAudioMixer.Mode.NONE, true, -1);
+                            RCRTCAudioMixer.getInstance()
+                                .startMix(audioPath, RCRTCAudioMixer.Mode.NONE, true, -1);
                     break;
                 case MODE_REPLACE:
                     result =
-                            RongRTCAudioMixer.getInstance()
-                                .startMix(audioPath, RongRTCAudioMixer.Mode.REPLACE, true, -1);
+                            RCRTCAudioMixer.getInstance()
+                                .startMix(audioPath, RCRTCAudioMixer.Mode.REPLACE, true, -1);
                     break;
             }
             if (result) {
@@ -178,11 +179,11 @@ public class AudioMixActivity extends AppCompatActivity implements SeekBar.OnSee
     }
 
     private void performPause() {
-        RongRTCAudioMixer.getInstance().pause();
+        RCRTCAudioMixer.getInstance().pause();
     }
 
     private void performStop() {
-        RongRTCAudioMixer.getInstance().stop();
+        RCRTCAudioMixer.getInstance().stop();
         img_btn_play_pause.setSelected(false);
         img_btn_stop.setEnabled(false);
         mixing = false;
@@ -242,11 +243,11 @@ public class AudioMixActivity extends AppCompatActivity implements SeekBar.OnSee
                 break;
             case R.id.sb_mix_local_vol:
                 tv_mix_local_vol.setText(String.valueOf(progress));
-                RongRTCAudioMixer.getInstance().setPlaybackVolume(progress);
+                RCRTCAudioMixer.getInstance().setPlaybackVolume(progress);
                 break;
             case R.id.sb_mix_remote_vol:
                 tv_mix_remote_vol.setText(String.valueOf(progress));
-                RongRTCAudioMixer.getInstance().setMixingVolume(progress);
+                RCRTCAudioMixer.getInstance().setMixingVolume(progress);
                 break;
         }
     }

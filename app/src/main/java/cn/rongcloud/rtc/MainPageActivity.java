@@ -10,15 +10,6 @@
 
 package cn.rongcloud.rtc;
 
-import static android.media.MediaRecorder.AudioSource.VOICE_COMMUNICATION;
-import static cn.rongcloud.rtc.SettingActivity.IS_AUTO_TEST;
-import static cn.rongcloud.rtc.SettingActivity.IS_MIRROR;
-import static cn.rongcloud.rtc.SettingActivity.IS_WATER;
-import static cn.rongcloud.rtc.util.UserUtils.OBSERVER_MUST;
-import static cn.rongcloud.rtc.util.UserUtils.VIDEOMUTE_MUST;
-import static cn.rongcloud.rtc.util.UserUtils.isObserver_key;
-import static cn.rongcloud.rtc.util.UserUtils.isVideoMute_key;
-
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,10 +31,38 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.rongcloud.rtc.api.RCRTCConfig.Builder;
+import cn.rongcloud.rtc.api.RCRTCEngine;
+import cn.rongcloud.rtc.api.RCRTCRoom;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultDataCallback;
+import cn.rongcloud.rtc.api.stream.RCRTCAudioStreamConfig;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig;
+import cn.rongcloud.rtc.base.RCRTCParamsType.AECMode;
+import cn.rongcloud.rtc.base.RCRTCParamsType.NSLevel;
+import cn.rongcloud.rtc.base.RCRTCParamsType.NSMode;
+import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoFps;
+import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
+import cn.rongcloud.rtc.base.RCRTCParamsType.VideoBitrateMode;
+import cn.rongcloud.rtc.base.RCRTCRoomType;
+import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
-import cn.rongcloud.rtc.callback.JoinRoomUICallBack;
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
-import cn.rongcloud.rtc.core.rongRTC.DevicesUtils;
+import cn.rongcloud.rtc.call.CallActivity;
 import cn.rongcloud.rtc.device.AVSettingsActivity;
 import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
 import cn.rongcloud.rtc.device.utils.Consts;
@@ -55,35 +74,31 @@ import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
 import cn.rongcloud.rtc.message.RoomInfoMessage;
-import cn.rongcloud.rtc.room.RongRTCRoom;
-import cn.rongcloud.rtc.room.RongRTCRoomConfig;
-import cn.rongcloud.rtc.stream.local.RongRTCCapture;
 import cn.rongcloud.rtc.updateapk.UpDateApkHelper;
 import cn.rongcloud.rtc.util.PromptDialog;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.FinLog;
-import com.google.gson.Gson;
+import io.rong.common.RLog;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.RongIMClient.ConnectionErrorCode;
+import io.rong.imlib.RongIMClient.DatabaseOpenStatus;
 import io.rong.imlib.common.DeviceUtils;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import static android.media.MediaRecorder.AudioSource.VOICE_COMMUNICATION;
+import static cn.rongcloud.rtc.SettingActivity.IS_AUTO_TEST;
+import static cn.rongcloud.rtc.SettingActivity.IS_MIRROR;
+import static cn.rongcloud.rtc.SettingActivity.IS_WATER;
+import static cn.rongcloud.rtc.util.UserUtils.APP_KEY;
+import static cn.rongcloud.rtc.util.UserUtils.OBSERVER_MUST;
+import static cn.rongcloud.rtc.util.UserUtils.VIDEOMUTE_MUST;
+import static cn.rongcloud.rtc.util.UserUtils.isObserver_key;
+import static cn.rongcloud.rtc.util.UserUtils.isVideoMute_key;
 
 /** Handles the initial setup where the user selects which room to join. */
 public class MainPageActivity extends RongRTCBaseActivity
         implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-
-    //    public static final boolean ISLIVE = false;
 
     private static final int CHECK_BUTTON_DELATY = 1100;
     private static final int REQUEST_CODE_SELECT_COUNTRY = 1200;
@@ -92,7 +107,7 @@ public class MainPageActivity extends RongRTCBaseActivity
     private static final int STATE_INIT = 1; // 已初始化
     private static final int STATE_JOINING = 2; // 加入中
     private static final int STATE_JOINED = 3; // 已加入
-    private static final int STATE_FAILED = -1; // 加入失败
+    private static final int STATE_FAILED = 4; // 加入失败
     private static final String TAG = "MainPageActivity";
     private static final int CONNECTION_REQUEST = 1;
     private static final long KICK_SILENT_PERIOD = 5 * 60 * 1000L;
@@ -118,7 +133,6 @@ public class MainPageActivity extends RongRTCBaseActivity
 
     private String roomId;
     private String username;
-    private RongRTCConfig.Builder configBuilder;
     private boolean isDebug;
     private boolean joinRoomWhenConnectedInAutoTest;
     List<String> unGrantedPermissions;
@@ -163,6 +177,100 @@ public class MainPageActivity extends RongRTCBaseActivity
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+
+    }
+
+    private void initOrUpdateRTCEngine() {
+        SessionManager sm = SessionManager.getInstance();
+
+
+        Builder configBuilder = Builder.create();
+        if (sm.getBoolean(getResources().getString(R.string.key_use_av_setting), false)) {
+            boolean enableStereo = sm.getBoolean(Consts.SP_AUDIO_STEREO_ENABLE, false);
+            int audioBitrate = sm.getInt(Consts.SP_AUDIO_TRANSPORT_BIT_RATE, 30);
+            int audioSampleRate = sm.getInt(Consts.SP_AUDIO_SAMPLE_RATE, 48000);
+            int audioSource = sm.getInt(Consts.SP_AUDIO_SOURCE, VOICE_COMMUNICATION);
+            VideoBitrateMode videoBitrateMode;
+            String encoderBitRateMode = sm.getString(Consts.SP_ENCODER_BIT_RATE_MODE);
+            if (TextUtils.equals(encoderBitRateMode, Consts.ENCODE_BIT_RATE_MODE_CQ)) {
+                videoBitrateMode = VideoBitrateMode.CQ;
+            } else if (TextUtils.equals(encoderBitRateMode, Consts.ENCODE_BIT_RATE_MODE_VBR)) {
+                videoBitrateMode = VideoBitrateMode.VBR;
+            } else {
+                videoBitrateMode = VideoBitrateMode.CBR;
+            }
+            /* 是否启动 AudioRecord */
+            configBuilder.enableMicrophone(true)
+                    /* 是否采用双声道 */
+                    .enableStereo(enableStereo)
+                    /* 设置麦克采集来源 */
+                    .setAudioSource(audioSource)
+                    /* 设置音频码率 */
+                    .setAudioBitrate(audioBitrate)
+                    /* 设置音频采样率 */
+                    .setAudioSampleRate(audioSampleRate)
+                    /* 视频编码配置 */
+                    .enableHardwareEncoder(sm.getBoolean(Consts.SP_ENCODER_TYPE_KEY, true))
+                    .setHardwareEncoderColor(sm.getInt(Consts.SP_ENCODER_COLOR_FORMAT_VAL_KEY, 0))
+                    .enableEncoderTexture(sm.getBoolean(Consts.ACQUISITION_MODE_KEY, true))
+                    .enableHardwareEncoderHighProfile(sm.getBoolean(Consts.SP_ENCODER_LEVEL_KEY, false))
+                    /* 视频解码配置 */
+                    .enableHardwareDecoder(sm.getBoolean(Consts.SP_DECODER_TYPE_KEY, true))
+                    .setHardwareDecoderColor(sm.getInt(Consts.SP_DECODER_COLOR_FORMAT_VAL_KEY, 0))
+                    /* 编码码率控制模式 */
+                    .setHardwareEncoderBitrateMode(videoBitrateMode);
+        }
+        RCRTCEngine.getInstance().unInit();
+        RLog.d(TAG, "initOrUpdateRTCEngine: ");
+        RCRTCEngine.getInstance().init(getApplicationContext(), configBuilder.build());
+
+        RCRTCAudioStreamConfig.Builder audioConfigBuilder = RCRTCAudioStreamConfig.Builder.create();
+        if (sm.getBoolean(getResources().getString(R.string.key_use_av_setting), false)) {
+            int echoCancelMode = sm.getInt(Consts.SP_AUDIO_ECHO_CANCEL_MODE, 0);
+            int noiseSuppression = sm.getInt(Consts.SP_AUDIO_NOISE_SUPPRESSION_MODE, 0);
+            int noiseSuppressionLevel = sm.getInt(Consts.SP_AUDIO_NOISE_SUPPRESSION_LEVEL, 1);
+            boolean enableHighPassFilter = sm.getBoolean(Consts.SP_AUDIO_NOISE_HIGH_PASS_FILTER, true);
+            /* Audio Echo Cancel */
+            audioConfigBuilder.setEchoCancel(AECMode.parseValue(echoCancelMode))
+                    .enableEchoFilter(sm.getBoolean(Consts.SP_AUDIO_ECHO_CANCEL_FILTER_ENABLE, false))
+                    /* Audio Noise Suppression */
+                    .setNoiseSuppression(NSMode.parseValue(noiseSuppression))
+                    .setNoiseSuppressionLevel(NSLevel.parseValue(noiseSuppressionLevel))
+                    .enableHighPassFilter(enableHighPassFilter)
+                    /* Audio AGC Config */
+                    .enableAGCControl(sm.getBoolean(Consts.SP_AUDIO_AGC_CONTROL_ENABLE, true))
+                    .enableAGCLimiter(sm.getBoolean(Consts.SP_AUDIO_AGC_LIMITER_ENABLE, true))
+                    .setAGCTargetdbov(sm.getInt(Consts.SP_AUDIO_AGC_TARGET_DBOV, -3))
+                    .setAGCCompression(sm.getInt(Consts.SP_AUDIO_AGC_COMPRESSION, 9))
+                    .enablePreAmplifier(sm.getBoolean(Consts.SP_AUDIO_PRE_AMPLIFIER_ENABLE, true))
+                    .setPreAmplifierLevel(sm.getFloat(Consts.SP_AUDIO_PRE_AMPLIFIER_LEVEL, 1.0f));
+            boolean isMusicMode = sm.getBoolean(SettingActivity.IS_AUDIO_MUSIC, false);
+            RCRTCAudioStreamConfig audioStreamConfig = isMusicMode ?
+                    audioConfigBuilder.buildMusicMode() : audioConfigBuilder.buildDefaultMode();
+            RCRTCEngine.getInstance().getDefaultAudioStream().setAudioConfig(audioStreamConfig);
+        }
+
+        RCRTCVideoStreamConfig.Builder videoConfigBuilder = RCRTCVideoStreamConfig.Builder.create();
+        // 如果开启了镜像翻转 VideoFrame，则应关闭镜像预览功能，否则会造成2次翻转效果
+        RCRTCEngine.getInstance().getDefaultVideoStream().setPreviewMirror(!sm.getBoolean(IS_MIRROR));
+        /* 视频分辨率/码率 */
+        String maxBitRate = sm.getString(SettingActivity.BIT_RATE_MAX, "");
+        String minBitRate = sm.getString(SettingActivity.BIT_RATE_MIN);
+        if (!TextUtils.isEmpty(maxBitRate)) {
+            videoConfigBuilder.setMaxRate(Integer.parseInt(maxBitRate.substring(0, maxBitRate.length() - 4)));
+        }
+        if (!TextUtils.isEmpty(minBitRate)) {
+            videoConfigBuilder.setMinRate(Integer.parseInt(minBitRate.substring(0, minBitRate.length() - 4)));
+        }
+        videoConfigBuilder.setVideoResolution(selectiveResolution(sm.getString(SettingActivity.RESOLUTION)))
+                .setVideoFps(selectiveFrame(sm.getString(SettingActivity.FPS)));
+        RCRTCEngine.getInstance().getDefaultVideoStream().
+                enableTinyStream(sm.getIsSupportTiny(SettingActivity.IS_STREAM_TINY));
+        RCRTCEngine.getInstance().getDefaultVideoStream().setCameraDisplayOrientation(
+                sm.getInt(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY, 0));
+        RCRTCEngine.getInstance().getDefaultVideoStream().setFrameOrientation(
+                sm.getInt(Consts.CAPTURE_FRAME_ORIENTATION_KEY, -1));
+        RCRTCEngine.getInstance().getDefaultVideoStream().setVideoConfig(videoConfigBuilder.build());
     }
 
     private void initViews() {
@@ -172,13 +280,6 @@ public class MainPageActivity extends RongRTCBaseActivity
         if (!TextUtils.isEmpty(roomId)) {
             roomEditText.setText(roomId);
         }
-
-        //        if (!TextUtils.isEmpty(roomId)) {
-        //            roomEditText.setEnabled(false);
-        //            roomEditText.setText(roomId);
-        //        }
-        //        roomEditText.requestFocus();
-
         edit_room_phone = (EditText) findViewById(R.id.room_phone);
         String phoneNum = SessionManager.getInstance().getString(UserUtils.PHONE);
         if (!TextUtils.isEmpty(phoneNum)) {
@@ -217,10 +318,8 @@ public class MainPageActivity extends RongRTCBaseActivity
             }
         }
 
-        versionCodeView.setText(
-                getResources().getString(R.string.blink_description_version)
-                        + BuildConfig.VERSION_NAME
-                        + (BuildConfig.DEBUG ? "_Debug" : ""));
+        versionCodeView.setText(getResources().getString(R.string.blink_description_version) +
+            BuildConfig.VERSION_NAME + (BuildConfig.DEBUG ? "_Debug" : ""));
         versionCodeView.setTextColor(getResources().getColor(R.color.blink_text_green));
         versionCodeText = versionCodeView.getText().toString();
         ((TextView) findViewById(R.id.main_page_version))
@@ -233,80 +332,72 @@ public class MainPageActivity extends RongRTCBaseActivity
         mTvCountry.setOnClickListener(this);
         connectButton.setOnClickListener(this);
 
-        roomEditText.addTextChangedListener(
-                new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(
-                            CharSequence s, int start, int count, int after) {}
+        roomEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        if (s.length() > 0) {
-                            connectButton.setBackgroundResource(
-                                    R.drawable.shape_corner_button_blue);
-                            connectButton.setClickable(true);
-                        } else {
-                            SessionManager.getInstance().remove(UserUtils.ROOMID_KEY);
-                            connectButton.setBackgroundResource(
-                                    R.drawable.shape_corner_button_blue_invalid);
-                            connectButton.setClickable(false);
-                        }
-                    }
-                });
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0) {
+                    connectButton.setBackgroundResource(R.drawable.shape_corner_button_blue);
+                    connectButton.setClickable(true);
+                } else {
+                    SessionManager.getInstance().remove(UserUtils.ROOMID_KEY);
+                    connectButton.setBackgroundResource(R.drawable.shape_corner_button_blue_invalid);
+                    connectButton.setClickable(false);
+                }
+            }
+        });
         mTvRegion = (TextView) findViewById(R.id.tv_region);
         updateCountry();
-        logoView.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        long timeDuration = System.currentTimeMillis() - lastClickTime;
-                        if (timeDuration > 500) {
-                            tapStep = 0;
-                            lastClickTime = 0;
-                        } else {
-                            tapStep++;
-                            //                    if (tapStep == 6) {
-                            try {
-                                Intent intent =
-                                        new Intent(MainPageActivity.this, AVSettingsActivity.class);
-                                startActivity(intent);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            //                    }
-                        }
-                        lastClickTime = System.currentTimeMillis();
+        logoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long timeDuration = System.currentTimeMillis() - lastClickTime;
+                if (timeDuration > 500) {
+                    tapStep = 0;
+                    lastClickTime = 0;
+                } else {
+                    tapStep++;
+                    //                    if (tapStep == 6) {
+                    try {
+                        Intent intent = new Intent(MainPageActivity.this, AVSettingsActivity.class);
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                    //                    }
+                }
+                lastClickTime = System.currentTimeMillis();
+            }
+        });
         if (ServerUtils.usePrivateCloud() && mTvCountry != null) {
             mTvCountry.setVisibility(View.GONE);
         }
         //        initSDK();        // imInit 多次。会造成im中extension添加多次
         mLiveView = findViewById(R.id.live_button);
         mLiveView.setOnClickListener(this);
-        RongIMClient.setConnectionStatusListener(
-                new RongIMClient.ConnectionStatusListener() {
-                    @Override
-                    public void onChanged(ConnectionStatus connectionStatus) {
-                        // 点击"开始会议"按钮时，IM为非CONNECTED时会主动connect，如果还是失败，自动化测试case失败
-                        // 监听IM连接状态，做1次自动加入房间的尝试，开发者可以忽略此修改
-                        if (ConnectionStatus.CONNECTED.equals(connectionStatus)) {
-                            if (isDebug && joinRoomWhenConnectedInAutoTest) {
-                                joinRoomWhenConnectedInAutoTest = false;
-                                FinLog.d(TAG, "RongLog IM connected, Join Room");
-                                connectToRoom();
-                            }
-                        } else if (connectionStatus
-                                == RongIMClient.ConnectionStatusListener.ConnectionStatus
-                                        .KICKED_OFFLINE_BY_OTHER_CLIENT) {
-                            EventBus.getDefault().post(new KickedOfflineEvent());
-                            showDialog();
-                        }
+        RongIMClient.setConnectionStatusListener(new RongIMClient.ConnectionStatusListener() {
+            @Override
+            public void onChanged(ConnectionStatus connectionStatus) {
+                // 点击"开始会议"按钮时，IM为非CONNECTED时会主动connect，如果还是失败，自动化测试case失败
+                // 监听IM连接状态，做1次自动加入房间的尝试，开发者可以忽略此修改
+                if (ConnectionStatus.CONNECTED.equals(connectionStatus)) {
+                    if (isDebug && joinRoomWhenConnectedInAutoTest) {
+                        joinRoomWhenConnectedInAutoTest = false;
+                        FinLog.d(TAG, "RongLog IM connected, Join Room");
+                        connectToRoom();
                     }
-                });
+                } else if (connectionStatus ==
+                        RongIMClient.ConnectionStatusListener.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
+                    EventBus.getDefault().post(new KickedOfflineEvent());
+                    showDialog();
+                }
+            }
+        });
     }
 
     private void clearCer() {
@@ -327,28 +418,19 @@ public class MainPageActivity extends RongRTCBaseActivity
                 }
                 if (null == roomEditText
                         || TextUtils.isEmpty(roomEditText.getText().toString().trim())) {
-                    Toast.makeText(
-                                    this,
-                                    getResources().getString(R.string.input_roomId),
-                                    Toast.LENGTH_SHORT)
-                            .show();
+                    String toastMsg = getResources().getString(R.string.input_roomId);
+                    Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 final String phoneNumber = edit_room_phone.getText().toString().trim();
                 if (TextUtils.isEmpty(phoneNumber)) {
-                    Toast.makeText(
-                                    this,
-                                    getResources().getString(R.string.input_room_phoneNum),
-                                    Toast.LENGTH_SHORT)
-                            .show();
+                    String toastMsg = getResources().getString(R.string.input_room_phoneNum);
+                    Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (phoneNumber.length() < 1) {
-                    Toast.makeText(
-                                    this,
-                                    getResources().getString(R.string.input_room_phoneNum_error),
-                                    Toast.LENGTH_SHORT)
-                            .show();
+                    String toastMsg = getResources().getString(R.string.input_room_phoneNum_error);
+                    Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -358,10 +440,8 @@ public class MainPageActivity extends RongRTCBaseActivity
                     SessionManager.getInstance().remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
                 }
 
-                SessionManager.getInstance()
-                        .put(UserUtils.ROOMID_KEY, roomEditText.getText().toString().trim());
-                SessionManager.getInstance()
-                        .put(UserUtils.USERNAME_KEY, userNameEditText.getText().toString().trim());
+                SessionManager.getInstance().put(UserUtils.ROOMID_KEY, roomEditText.getText().toString().trim());
+                SessionManager.getInstance().put(UserUtils.USERNAME_KEY, userNameEditText.getText().toString().trim());
 
                 if (!TextUtils.isEmpty(storedPhone) && !storedPhone.equals(phoneNumber)) {
                     // 登录手机号发生变化时，删除之前保存的userID 和 token
@@ -377,21 +457,15 @@ public class MainPageActivity extends RongRTCBaseActivity
                         connectForXQ(mIsLive);
                         return;
                     } else {
-                        Toast.makeText(
-                                        this,
-                                        getResources()
-                                                .getString(
-                                                        R.string
-                                                                .private_clouconfiguration_cannot_be_empty),
-                                        Toast.LENGTH_SHORT)
-                                .show();
+                        String toastMsg = getResources().getString(R.string.private_clouconfiguration_cannot_be_empty);
+                        Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
 
                 if (!SessionManager.getInstance().contains(phoneNumber)
-                        || TextUtils.isEmpty(
-                                SessionManager.getInstance().getString(UserUtils.USER_ID))) {
+                        || TextUtils.isEmpty(SessionManager.getInstance().getString(UserUtils.USER_ID))
+                        || TextUtils.isEmpty(SessionManager.getInstance().getString(UserUtils.APP_KEY))) {
                     startVerifyActivity(phoneNumber);
                 } else {
                     long kickTime = SessionManager.getInstance().getLong("KICK_TIME");
@@ -399,27 +473,28 @@ public class MainPageActivity extends RongRTCBaseActivity
                     String roomId = roomEditText.getText().toString();
                     if (kickTime > 0
                             && (System.currentTimeMillis() - kickTime < KICK_SILENT_PERIOD
-                                    && roomId.equals(kickedRoomId))) {
-                        Toast.makeText(this, R.string.member_operate_kicked, Toast.LENGTH_SHORT)
-                                .show();
+                            && roomId.equals(kickedRoomId))) {
+                        Toast.makeText(this, R.string.member_operate_kicked, Toast.LENGTH_SHORT).show();
                         return;
                     }
                     if (mStatus == STATE_JOINING) return;
+                    //TODO Server 端已将 APP_KEY 与 IM Navi 导航地址绑定，以后将不再支持单独设置 Navi
+                    // 由于导航地址必须在 SDK 初始化之前设置，所以将初始化 SDK 逻辑放在获取导航地址之后再去初始化 SDK
+                    if (mStatus == STATE_IDLE  && !initSDK()){
+                        showToast("初始化SDK失败,请检查您的 AppKey 设置是否正确");
+                        return;
+                    }
+
                     mStatus = STATE_JOINING;
-                    FinLog.v(
-                            TAG,
-                            "CurrentConnectionStatu : "
-                                    + RongIMClient.getInstance()
-                                            .getCurrentConnectionStatus()
-                                            .name());
+                    String status = RongIMClient.getInstance().getCurrentConnectionStatus().name();
+                    FinLog.v(TAG, "CurrentConnectionStatu : " + status);
                     if (RongIMClient.getInstance().getCurrentConnectionStatus()
                             == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
                         connectToRoom();
                         return;
-                    } else {
-                        if (isDebug) {
-                            connectButton.setBackgroundColor(Color.RED);
-                        }
+                    }
+                    if (isDebug) {
+                        connectButton.setBackgroundColor(Color.RED);
                     }
                     final boolean autoTest = SessionManager.getInstance().getBoolean(IS_AUTO_TEST);
                     if (autoTest) {
@@ -427,42 +502,39 @@ public class MainPageActivity extends RongRTCBaseActivity
                     }
                     String token = SessionManager.getInstance().getString(phoneNumber);
                     FinLog.v(TAG, "token 存在 ：" + token);
-                    RongIMClient.connect(
-                            token,
-                            new RongIMClient.ConnectCallback() {
-                                @Override
-                                public void onTokenIncorrect() {
-                                    mStatus = STATE_FAILED;
-                                    runOnUiThread(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Toast.makeText(
-                                                                    MainPageActivity.this,
-                                                                    "Token验证失败，请重新获取！",
-                                                                    Toast.LENGTH_SHORT)
-                                                            .show();
-                                                    startVerifyActivity(phoneNumber);
-                                                }
-                                            });
-                                }
+                    RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
+                        @Override
+                        public void onDatabaseOpened(DatabaseOpenStatus code) {}
 
+                        public void onTokenIncorrect() {
+                            mStatus = STATE_FAILED;
+                            runOnUiThread(new Runnable() {
                                 @Override
-                                public void onSuccess(String s) {
-                                    SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber);
-                                    if (!autoTest) {
-                                        connectToRoom();
-                                    }
-                                }
-
-                                @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
-                                    mStatus = STATE_FAILED;
-                                    FinLog.e(
-                                            TAG,
-                                            "RongIMClient connectForXQ errorcode :" + errorCode);
+                                public void run() {
+                                    String toastMsg = "Token验证失败，请重新获取！";
+                                    Toast.makeText(MainPageActivity.this, toastMsg, Toast.LENGTH_SHORT).show();
+                                    startVerifyActivity(phoneNumber);
                                 }
                             });
+                        }
+
+                        @Override
+                        public void onSuccess(String s) {
+                            SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber);
+                            if (!autoTest) {
+                                connectToRoom();
+                            }
+                        }
+
+                        @Override
+                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+                            mStatus = STATE_FAILED;
+                            FinLog.e(TAG, "RongIMClient connectForXQ errorcode :" + errorCode);
+                            if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
+                                onTokenIncorrect();
+                            }
+                        }
+                    });
                 }
                 break;
             case R.id.tv_country:
@@ -480,40 +552,37 @@ public class MainPageActivity extends RongRTCBaseActivity
                 } else {
                     String token = SessionManager.getInstance().getString(phoneNumber2);
                     FinLog.v(TAG, "token 存在 ：" + token);
-                    RongIMClient.connect(
-                            token,
-                            new RongIMClient.ConnectCallback() {
-                                @Override
-                                public void onTokenIncorrect() {
-                                    mStatus = STATE_FAILED;
-                                    runOnUiThread(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Toast.makeText(
-                                                                    MainPageActivity.this,
-                                                                    "Token验证失败，请重新获取！",
-                                                                    Toast.LENGTH_SHORT)
-                                                            .show();
-                                                    startVerifyActivity(phoneNumber2);
-                                                }
-                                            });
-                                }
+                    RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
+                        @Override
+                        public void onDatabaseOpened(DatabaseOpenStatus code) {}
 
+                        public void onTokenIncorrect() {
+                            mStatus = STATE_FAILED;
+                            runOnUiThread(new Runnable() {
                                 @Override
-                                public void onSuccess(String s) {
-                                    SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber2);
-                                    jumpLive();
-                                }
-
-                                @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
-                                    mStatus = STATE_FAILED;
-                                    FinLog.e(
-                                            TAG,
-                                            "RongIMClient connectForXQ errorcode :" + errorCode);
+                                public void run() {
+                                    String toastMsg = "Token验证失败，请重新获取！";
+                                    Toast.makeText(MainPageActivity.this, toastMsg, Toast.LENGTH_SHORT).show();
+                                    startVerifyActivity(phoneNumber2);
                                 }
                             });
+                        }
+
+                        @Override
+                        public void onSuccess(String s) {
+                            SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber2);
+                            jumpLive();
+                        }
+
+                        @Override
+                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+                            mStatus = STATE_FAILED;
+                            FinLog.e(TAG, "RongIMClient connectForXQ errorcode :" + errorCode);
+                            if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
+                                onTokenIncorrect();
+                            }
+                        }
+                    });
                 }
                 break;
             default:
@@ -525,7 +594,7 @@ public class MainPageActivity extends RongRTCBaseActivity
     protected void onResume() {
         super.onResume();
         updateCamerCheck();
-        updateConfiguration();
+        initOrUpdateRTCEngine();
         updateRoomType();
 
         String mediaServerUrl = SessionManager.getInstance().getString("MediaUrl");
@@ -553,269 +622,6 @@ public class MainPageActivity extends RongRTCBaseActivity
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-    private void updateConfiguration() {
-
-        if (!SessionManager.getInstance()
-                .getBoolean(getResources().getString(R.string.key_use_av_setting), false)) {
-            return; // 没有进入av setting 界面，不使用本地配置。
-        }
-
-        //如果开启了镜像翻转 VideoFrame，则应关闭镜像预览功能，否则会造成2次翻转效果
-        RongRTCCapture.getInstance()
-            .setPreviewMirror(!SessionManager.getInstance().getBoolean(IS_MIRROR));
-
-        configBuilder = new RongRTCConfig.Builder();
-        boolean isEncoderHardMode =
-                SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_TYPE_KEY, true);
-        String hardEncoderName = SessionManager.getInstance().getString(Consts.SP_ENCODER_NAME_KEY);
-        int encoderColorValue =
-                SessionManager.getInstance().getInt(Consts.SP_ENCODER_COLOR_FORMAT_VAL_KEY, 0);
-        boolean encoderLevel_key =
-                SessionManager.getInstance().getBoolean(Consts.SP_ENCODER_LEVEL_KEY, true);
-        configBuilder
-                .enableHardWareEncode(isEncoderHardMode)
-                .setHardWareEncodeColor(encoderColorValue)
-                .enableHardWareEncodeHighProfile(encoderLevel_key);
-        DevicesUtils.setEnCodeColor(encoderColorValue);
-        DevicesUtils.setHighProfile(encoderLevel_key);
-
-        String encoder_bit_rate_mode_vbr =
-                Utils.getContext().getResources().getString(R.string.encoder_bit_rate_mode_vbr);
-        String encoder_bit_rate_mode_cq =
-                Utils.getContext().getResources().getString(R.string.encoder_bit_rate_mode_cq);
-        String encoder_bit_rate_mode_cbr =
-                Utils.getContext().getResources().getString(R.string.encoder_bit_rate_mode_cbr);
-
-        String encoderBitRateMode =
-                SessionManager.getInstance()
-                        .getString(
-                                Consts.SP_ENCODER_BIT_RATE_MODE,
-                                getResources().getString(R.string.def_encoder_bitrate_mode));
-        if (TextUtils.equals(encoderBitRateMode, encoder_bit_rate_mode_vbr)) {
-            configBuilder.setHardWareEncodeBitrateMode(RongRTCConfig.VideoBitrateMode.VBR);
-            DevicesUtils.setEnCodeBitRateMode(RongRTCConfig.VideoBitrateMode.VBR);
-        } else if (TextUtils.equals(encoderBitRateMode, encoder_bit_rate_mode_cbr)) {
-            configBuilder.setHardWareEncodeBitrateMode(RongRTCConfig.VideoBitrateMode.CBR);
-            DevicesUtils.setEnCodeBitRateMode(RongRTCConfig.VideoBitrateMode.CBR);
-        } else if (TextUtils.equals(encoderBitRateMode, encoder_bit_rate_mode_cq)) {
-            configBuilder.setHardWareEncodeBitrateMode(RongRTCConfig.VideoBitrateMode.CQ);
-            DevicesUtils.setEnCodeBitRateMode(RongRTCConfig.VideoBitrateMode.CQ);
-        }
-
-        boolean isDecoderHardMode =
-                SessionManager.getInstance().getBoolean(Consts.SP_DECODER_TYPE_KEY, true);
-        String hardDecoderName = SessionManager.getInstance().getString(Consts.SP_DECODER_NAME_KEY);
-        int decoderColorSpace =
-                SessionManager.getInstance().getInt(Consts.SP_DECODER_COLOR_FORMAT_VAL_KEY, 0);
-        configBuilder
-                .enableHardWareDecode(isDecoderHardMode)
-                .setHardWareDecodeColor(decoderColorSpace);
-        DevicesUtils.setDeCodeColor(decoderColorSpace);
-
-        // audio capture config
-        int audioSource =
-                SessionManager.getInstance().getInt(Consts.SP_AUDIO_SOURCE, VOICE_COMMUNICATION);
-        int audioSampleRate =
-                SessionManager.getInstance().getInt(Consts.SP_AUDIO_SAMPLE_RATE, 48000);
-        boolean audioSampleStereo =
-                SessionManager.getInstance()
-                        .getBoolean(Consts.SP_AUDIO_CHANNEL_STEREO_ENABLE, false);
-        int audioBitRate =
-                SessionManager.getInstance().getInt(Consts.SP_AUDIO_TRANSPORT_BIT_RATE, 30);
-        configBuilder
-                .setAudioSource(audioSource)
-                .setAudioSampleRate(audioSampleRate)
-                .enableStereo(audioSampleStereo)
-                .setAudioBitrate(audioBitRate);
-
-        // audio agc config
-        boolean audioAgcEnable =
-                SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_AGC_CONTROL_ENABLE, true);
-        boolean audioAgcLimiter =
-                SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_AGC_LIMITER_ENABLE, true);
-        int audioAgcTargetDbov =
-                SessionManager.getInstance().getInt(Consts.SP_AUDIO_AGC_TARGET_DBOV, -3);
-        int audioAgcCompression =
-                SessionManager.getInstance().getInt(Consts.SP_AUDIO_AGC_COMPRESSION, 9);
-        boolean audioPreAmplifierEnable =
-                SessionManager.getInstance().getBoolean(Consts.SP_AUDIO_PRE_AMPLIFIER_ENABLE, true);
-        float audioPreAmplifierLevel =
-                SessionManager.getInstance().getFloat(Consts.SP_AUDIO_PRE_AMPLIFIER_LEVEL, 1.0f);
-        configBuilder
-                .enableAGCControl(audioAgcEnable)
-                .enableAGCLimiter(audioAgcLimiter)
-                .setAGCTargetdbov(audioAgcTargetDbov)
-                .setAGCCompression(audioAgcCompression)
-                .enablePreAmplifier(audioPreAmplifierEnable)
-                .setPreAmplifierLevel(audioPreAmplifierLevel);
-
-        // audio noise suppression
-        int audioNoiseSuppressionMode =
-                SessionManager.getInstance()
-                        .getInt(
-                                Consts.SP_AUDIO_NOISE_SUPPRESSION_MODE,
-                                getResources().getInteger(R.integer.def_ns_model));
-        int audioNoiseSuppressionLevel =
-                SessionManager.getInstance()
-                        .getInt(
-                                Consts.SP_AUDIO_NOISE_SUPPRESSION_LEVEL,
-                                getResources().getInteger(R.integer.def_ns_level));
-        boolean audioNoiseHighPassFilter =
-                SessionManager.getInstance()
-                        .getBoolean(Consts.SP_AUDIO_NOISE_HIGH_PASS_FILTER, true);
-        configBuilder
-                .setNoiseSuppression(RongRTCConfig.NSMode.parseValue(audioNoiseSuppressionMode))
-                .setNoiseSuppressionLevel(
-                        RongRTCConfig.NSLevel.parseValue(audioNoiseSuppressionLevel))
-                .enableHighPassFilter(audioNoiseHighPassFilter);
-
-        // audio echo cancel
-        int audioEchoCancelMode =
-                SessionManager.getInstance().getInt(Consts.SP_AUDIO_ECHO_CANCEL_MODE, 0);
-        boolean audioEchoCancelFilterEnable =
-                SessionManager.getInstance()
-                        .getBoolean(
-                                Consts.SP_AUDIO_ECHO_CANCEL_FILTER_ENABLE,
-                                getResources().getBoolean(R.bool.def_echo_filter_enable));
-        configBuilder
-                .setEchoCancel(RongRTCConfig.AECMode.parseValue(audioEchoCancelMode))
-                .enableEchoFilter(audioEchoCancelFilterEnable);
-
-        // Set max and min bitrate
-        String minBitRate = SessionManager.getInstance().getString(SettingActivity.BIT_RATE_MIN);
-        if (!TextUtils.isEmpty(minBitRate) && minBitRate.length() > 4) {
-            int bitRateIntvalue = Integer.valueOf(minBitRate.substring(0, minBitRate.length() - 4));
-            FinLog.v(TAG, "BIT_RATE_MIN=" + bitRateIntvalue);
-            configBuilder.setMinRate(bitRateIntvalue);
-        }
-        String maxBitRate = SessionManager.getInstance().getString(SettingActivity.BIT_RATE_MAX);
-        if (!TextUtils.isEmpty(maxBitRate) && maxBitRate.length() > 4) {
-            int bitRateIntvalue = Integer.valueOf(maxBitRate.substring(0, maxBitRate.length() - 4));
-            FinLog.v(TAG, "BIT_RATE_MAX=" + bitRateIntvalue);
-            configBuilder.setMaxRate(bitRateIntvalue);
-        }
-        // set resolution
-        String resolution = SessionManager.getInstance().getString(SettingActivity.RESOLUTION);
-        String fps = SessionManager.getInstance().getString(SettingActivity.FPS);
-        RongRTCConfig.RongRTCVideoResolution videoProfile = selectiveResolution(resolution);
-        RongRTCConfig.RongRTCVideoFps videoFrame = selectiveFrame((fps));
-        configBuilder.setVideoResolution(videoProfile).setVideoFps(videoFrame);
-        String codec = SessionManager.getInstance().getString(SettingActivity.CODECS);
-        //        if (!TextUtils.isEmpty(codec)) {
-        //            if ("VP8".equals(codec)) {
-        //                configBuilder.videoCodecs(RongRTCConfig.RongRTCVideoCodecs.VP8);
-        //            } else {
-        //                configBuilder.videoCodecs(RongRTCConfig.RongRTCVideoCodecs.H264);
-        //            }
-        //        }
-        boolean enableTinyStream =
-                SessionManager.getInstance().getIsSupportTiny(SettingActivity.IS_STREAM_TINY);
-        configBuilder.enableTinyStream(enableTinyStream);
-        //
-        // configBuilder.enableStereo(SessionManager.getInstance().getBoolean(SettingActivity.IS_STEREO));
-        //
-        // configBuilder.setAudioBitrate(SessionManager.getInstance().getString(SettingActivity.AUDIO_BITRATE));
-        //
-        // configBuilder.setAudioAgcLimiter(SessionManager.getInstance().getString(SettingActivity.AUDIO_AGC_LIMITER));
-        //
-        // configBuilder.setAudioAgcTargetDBOV(SessionManager.getInstance().getString(SettingActivity.AUDIO_AGC_TARGET_DBOV));
-        //
-        // configBuilder.setAudioAgcCompression(SessionManager.getInstance().getString(SettingActivity.AUDIO_AGC_COMPRESSION));
-        //
-        // configBuilder.setNoiseSuppression(SessionManager.getInstance().getString(SettingActivity.AUDIO__NOISE_SUPPRESSION));
-        //
-        // configBuilder.setNoiseSuppressionLevel(SessionManager.getInstance().getString(SettingActivity.AUDIO__NOISE_SUPPRESSION_LEVEL));
-        //
-        // configBuilder.setEchoCancelMode(SessionManager.getInstance().getString(SettingActivity.AUDIO_ECHO_CANCEL));
-        //
-        // configBuilder.enablePreAmplifier(SessionManager.getInstance().getString(SettingActivity.AUDIO_PREAMPLIFIER));
-        //
-        // configBuilder.setPreAmplifierLevel(SessionManager.getInstance().getString(SettingActivity.AUDIO_PREAMPLIFIER_LEVEL));
-
-        // 在device设置界面设置的屏幕旋转角度 在此在设置一次，防止被覆盖
-        int cameraDisplayOrientation =
-                SessionManager.getInstance()
-                        .getInt(Consts.CAPTURE_CAMERA_DISPLAY_ORIENTATION_KEY, 0);
-        int frameOrientation =
-                SessionManager.getInstance().getInt(Consts.CAPTURE_FRAME_ORIENTATION_KEY, -1);
-        boolean acquisitionMode =
-                SessionManager.getInstance().getBoolean(Consts.ACQUISITION_MODE_KEY, true);
-
-        configBuilder.setCameraDisplayOrientation(cameraDisplayOrientation);
-        configBuilder.setFrameOrientation(frameOrientation);
-        configBuilder.enableVideoTexture(acquisitionMode);
-
-        boolean isAudioMode =
-                SessionManager.getInstance()
-                        .getBoolean(
-                                SettingActivity.IS_AUDIO_MUSIC,
-                                getResources().getBoolean(R.bool.def_audio_music_mode));
-        if (isAudioMode) {
-            configBuilder.buildMusicMode();
-            RongRTCCapture.getInstance().changeAudioScenario(RongRTCConfig.AudioScenario.MUSIC);
-        } else {
-            configBuilder.buildDefaultMode();
-            RongRTCCapture.getInstance().changeAudioScenario(RongRTCConfig.AudioScenario.DEFAULT);
-        }
-
-        FinLog.v(TAG, "enableTinyStream: " + enableTinyStream);
-        FinLog.v(
-                TAG,
-                "audio option stereo: "
-                        + SessionManager.getInstance().getBoolean(SettingActivity.IS_STEREO));
-        FinLog.v(
-                TAG,
-                "audio option audioProcess: "
-                        + SessionManager.getInstance()
-                                .getBoolean(SettingActivity.IS_AUDIO_PROCESS));
-        FinLog.v(
-                TAG,
-                "audio option audio bitrate: "
-                        + SessionManager.getInstance().getString(SettingActivity.AUDIO_BITRATE));
-        FinLog.v(
-                TAG,
-                "audio option audio agc limiter: "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO_AGC_LIMITER));
-        FinLog.v(
-                TAG,
-                "audio option audio agc target dbov: "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO_AGC_TARGET_DBOV));
-        FinLog.v(
-                TAG,
-                "audio option audio agc compression: "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO_AGC_COMPRESSION));
-        FinLog.v(
-                TAG,
-                "audio option audio noise suppression: "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO__NOISE_SUPPRESSION));
-        FinLog.v(
-                TAG,
-                "audio option audio noise suppression level: "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO__NOISE_SUPPRESSION_LEVEL));
-        FinLog.v(
-                TAG,
-                "audio option audio echo cancel: "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO_ECHO_CANCEL));
-        FinLog.v(
-                TAG,
-                "audio option audio preAmplifier : "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO_PREAMPLIFIER));
-        FinLog.v(
-                TAG,
-                "audio option audio preAmplifier level: "
-                        + SessionManager.getInstance()
-                                .getString(SettingActivity.AUDIO_PREAMPLIFIER_LEVEL));
-
-        RongRTCCapture.getInstance().setRTCConfig(configBuilder.build());
     }
 
     private void updateCamerCheck() {
@@ -856,163 +662,92 @@ public class MainPageActivity extends RongRTCBaseActivity
      */
     private void connectToRoom() {
         mStatus = STATE_JOINING;
-        updateConfiguration();
         joinRoomWhenConnectedInAutoTest = false;
         if (RongIMClient.getInstance().getCurrentConnectionStatus()
                 == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
             LoadDialog.show(this);
             final String roomId = roomEditText.getText().toString();
-            RongRTCRoomConfig config =
-                    new RongRTCRoomConfig.Builder()
-                            .setRoomType(
-                                    mIsLive
-                                            ? RongRTCRoomConfig.RoomType.LIVE
-                                            : RongRTCRoomConfig.RoomType.NORMAL)
-                            .setLiveType(
-                                    isVideoMute
-                                            ? RongRTCRoomConfig.LiveType.AUDIO
-                                            : RongRTCRoomConfig.LiveType.AUDIO_VIDEO) // 直播模式为音视频模式
-                            .build();
-            RongRTCEngine.getInstance()
-                    .joinRoom(
-                            roomId,
-                            config,
-                            new JoinRoomUICallBack() {
-                                @Override
-                                protected void onUiSuccess(RongRTCRoom rtcRoom) {
-                                    LoadDialog.dismiss(MainPageActivity.this);
-                                    Toast.makeText(
-                                                    MainPageActivity.this,
-                                                    getResources()
-                                                            .getString(R.string.join_room_success),
-                                                    Toast.LENGTH_SHORT)
-                                            .show();
-                                    int userCount = rtcRoom.getRemoteUsers().size();
-                                    if (userCount >= OBSERVER_MUST && !isObserver) {
-                                        AlertDialog dialog =
-                                                new AlertDialog.Builder(MainPageActivity.this)
-                                                        .setMessage(
-                                                                getResources()
-                                                                        .getString(
-                                                                                R.string
-                                                                                        .join_room_observer_prompt))
-                                                        .setNegativeButton(
-                                                                getResources()
-                                                                        .getString(
-                                                                                R.string
-                                                                                        .rtc_dialog_cancel),
-                                                                new DialogInterface
-                                                                        .OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(
-                                                                            DialogInterface dialog,
-                                                                            int which) {
-                                                                        quitRoom(roomId);
-                                                                        dialog.dismiss();
-                                                                    }
-                                                                })
-                                                        .setPositiveButton(
-                                                                getResources()
-                                                                        .getString(
-                                                                                R.string
-                                                                                        .rtc_dialog_ok),
-                                                                new DialogInterface
-                                                                        .OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(
-                                                                            DialogInterface dialog,
-                                                                            int which) {
-                                                                        dialog.dismiss();
-                                                                        canOnlyPublishAudio = false;
-                                                                        startCallActivity(
-                                                                                true, true);
-                                                                    }
-                                                                })
-                                                        .create();
-                                        dialog.setCancelable(false);
-                                        dialog.show();
-                                    } else if (userCount >= VIDEOMUTE_MUST
-                                            && !isVideoMute
-                                            && !isObserver) {
-                                        AlertDialog dialog =
-                                                new AlertDialog.Builder(MainPageActivity.this)
-                                                        .setMessage(
-                                                                getResources()
-                                                                        .getString(
-                                                                                R.string
-                                                                                        .join_room_audio_only_prompt))
-                                                        .setNegativeButton(
-                                                                getResources()
-                                                                        .getString(
-                                                                                R.string
-                                                                                        .rtc_dialog_cancel),
-                                                                new DialogInterface
-                                                                        .OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(
-                                                                            DialogInterface dialog,
-                                                                            int which) {
-                                                                        quitRoom(roomId);
-                                                                        dialog.dismiss();
-                                                                    }
-                                                                })
-                                                        .setPositiveButton(
-                                                                getResources()
-                                                                        .getString(
-                                                                                R.string
-                                                                                        .rtc_dialog_ok),
-                                                                new DialogInterface
-                                                                        .OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(
-                                                                            DialogInterface dialog,
-                                                                            int which) {
-                                                                        dialog.dismiss();
-                                                                        canOnlyPublishAudio = true;
-                                                                        startCallActivity(
-                                                                                true, false);
-                                                                    }
-                                                                })
-                                                        .create();
-                                        dialog.setCancelable(false);
-                                        dialog.show();
-                                    } else {
-                                        canOnlyPublishAudio = false;
-                                        startCallActivity(isVideoMute, isObserver);
-                                    }
-                                }
 
-                                @Override
-                                protected void onUiFailed(RTCErrorCode errorCode) {
-                                    mStatus = STATE_FAILED;
-                                    LoadDialog.dismiss(MainPageActivity.this);
-                                    if (errorCode == RTCErrorCode.ServerUserBlocked) {
-                                        Toast.makeText(
-                                                        MainPageActivity.this,
-                                                        getResources()
-                                                                .getString(
-                                                                        R.string
-                                                                                .rtc_dialog_forbidden_by_server),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
-                                    } else {
-                                        Toast.makeText(
-                                                        MainPageActivity.this,
-                                                        getResources()
-                                                                .getString(
-                                                                        R.string.join_room_failed),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
-                                    }
-                                }
-                            });
+            RCRTCRoomType roomType;
+            if (mIsLive) {
+                roomType = isVideoMute ? RCRTCRoomType.LIVE_AUDIO : RCRTCRoomType.LIVE_AUDIO_VIDEO;
+            } else {
+                roomType = RCRTCRoomType.MEETING;
+            }
+            RCRTCEngine.getInstance().joinRoom(roomId, roomType, new IRCRTCResultDataCallback<RCRTCRoom>() {
+                    @Override
+                    public void onSuccess(RCRTCRoom room) {
+                        LoadDialog.dismiss(MainPageActivity.this);
+                        String toastMsg = getResources().getString(R.string.join_room_success);
+                        Toast.makeText(MainPageActivity.this, toastMsg, Toast.LENGTH_SHORT).show();
+                        int userCount = room.getRemoteUsers().size();
+                        if (userCount >= OBSERVER_MUST && !isObserver) {
+                            AlertDialog dialog = new AlertDialog.Builder(MainPageActivity.this)
+                                .setMessage(getResources().getString(R.string.join_room_observer_prompt))
+                                .setNegativeButton(getResources().getString(R.string.rtc_dialog_cancel),
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            quitRoom();
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                .setPositiveButton(getResources().getString(R.string.rtc_dialog_ok),
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            canOnlyPublishAudio = false;
+                                            startCallActivity(true, true);
+                                        }
+                                    }).create();
+                            dialog.setCancelable(false);
+                            dialog.show();
+                        } else if (userCount >= VIDEOMUTE_MUST && !isVideoMute && !isObserver) {
+                            AlertDialog dialog = new AlertDialog.Builder(MainPageActivity.this)
+                                .setMessage(getResources().getString(R.string.join_room_audio_only_prompt))
+                                .setNegativeButton(getResources().getString(R.string.rtc_dialog_cancel),
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            quitRoom();
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                .setPositiveButton(getResources().getString(R.string.rtc_dialog_ok),
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            canOnlyPublishAudio = true;
+                                            startCallActivity(true, false);
+                                        }
+                                    }).create();
+                            dialog.setCancelable(false);
+                            dialog.show();
+                        } else {
+                            canOnlyPublishAudio = false;
+                            startCallActivity(isVideoMute, isObserver);
+                        }
+                    }
+
+                    @Override
+                    public void onFailed(RTCErrorCode errorCode) {
+                        mStatus = STATE_FAILED;
+                        LoadDialog.dismiss(MainPageActivity.this);
+                        String toastMsg;
+                        if (errorCode == RTCErrorCode.ServerUserBlocked) {
+                            toastMsg = getResources().getString(R.string.rtc_dialog_forbidden_by_server);
+                        } else {
+                            toastMsg = getResources().getString(R.string.join_room_failed);
+                        }
+                        Toast.makeText(MainPageActivity.this, toastMsg, Toast.LENGTH_SHORT).show();
+                    }
+                });
         } else {
             mStatus = STATE_FAILED;
-            Toast.makeText(
-                            MainPageActivity.this,
-                            getResources().getString(R.string.im_connect_failed),
-                            Toast.LENGTH_SHORT)
-                    .show();
+            String toastMsg = getResources().getString(R.string.im_connect_failed);
+            Toast.makeText(MainPageActivity.this, toastMsg, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1027,15 +762,11 @@ public class MainPageActivity extends RongRTCBaseActivity
         intent.putExtra(CallActivity.EXTRA_USER_NAME, userNameEditText.getText().toString());
         intent.putExtra(CallActivity.EXTRA_CAMERA, muteVideo);
         intent.putExtra(CallActivity.EXTRA_OBSERVER, observer);
-        intent.putExtra(
-                CallActivity.EXTRA_AUTO_TEST,
-                SessionManager.getInstance().getBoolean(IS_AUTO_TEST));
-        intent.putExtra(
-                CallActivity.EXTRA_WATER, SessionManager.getInstance().getBoolean(IS_WATER));
-        intent.putExtra(
-            CallActivity.EXTRA_MIRROR, SessionManager.getInstance().getBoolean(IS_MIRROR));
+        intent.putExtra(CallActivity.EXTRA_AUTO_TEST, SessionManager.getInstance().getBoolean(IS_AUTO_TEST));
+        intent.putExtra(CallActivity.EXTRA_WATER, SessionManager.getInstance().getBoolean(IS_WATER));
+        intent.putExtra(CallActivity.EXTRA_MIRROR, SessionManager.getInstance().getBoolean(IS_MIRROR));
         intent.putExtra(CallActivity.EXTRA_IS_LIVE, mIsLive);
-        RongRTCRoom rongRTCRoom = CenterManager.getInstance().getRongRTCRoom();
+        RCRTCRoom room = RCRTCEngine.getInstance().getRoom();
         int joinMode = RoomInfoMessage.JoinMode.AUDIO_VIDEO;
         if (muteVideo) {
             joinMode = RoomInfoMessage.JoinMode.AUDIO;
@@ -1043,20 +774,12 @@ public class MainPageActivity extends RongRTCBaseActivity
         if (observer) {
             joinMode = RoomInfoMessage.JoinMode.OBSERVER;
         }
-        String userId = rongRTCRoom.getLocalUser().getUserId();
+        String userId = room.getLocalUser().getUserId();
         String userName = userNameEditText.getText().toString();
-        int remoteUserCount = 0;
-        if (rongRTCRoom.getRemoteUsers() != null) {
-            remoteUserCount = rongRTCRoom.getRemoteUsers().size();
-        }
+        int remoteUserCount = room.getRemoteUsers() != null ? room.getRemoteUsers().size() : 0;
         intent.putExtra(CallActivity.EXTRA_IS_MASTER, remoteUserCount == 0);
-        RoomInfoMessage roomInfoMessage =
-                new RoomInfoMessage(
-                        userId,
-                        userName,
-                        joinMode,
-                        System.currentTimeMillis(),
-                        remoteUserCount == 0);
+        RoomInfoMessage roomInfoMessage = new RoomInfoMessage(
+            userId, userName, joinMode, System.currentTimeMillis(), remoteUserCount == 0);
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("userId", userId);
@@ -1067,17 +790,17 @@ public class MainPageActivity extends RongRTCBaseActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        rongRTCRoom.setRoomAttributeValue(
-                jsonObject.toString(),
-                userId,
-                roomInfoMessage,
-                new RongRTCResultUICallBack() {
-                    @Override
-                    public void onUiSuccess() {}
+        room.setRoomAttributeValue(jsonObject.toString(), userId, roomInfoMessage, new IRCRTCResultCallback() {
+            @Override
+            public void onSuccess() {
 
-                    @Override
-                    public void onUiFailed(RTCErrorCode errorCode) {}
-                });
+            }
+
+            @Override
+            public void onFailed(RTCErrorCode errorCode) {
+
+            }
+        });
         startActivityForResult(intent, CONNECTION_REQUEST);
     }
 
@@ -1118,37 +841,36 @@ public class MainPageActivity extends RongRTCBaseActivity
     private void connectForXQ(final boolean isLive) {
         String token = SessionManager.getInstance().getString(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
         FinLog.i(TAG, "private_Cloud_tokne : " + token);
-        if (!TextUtils.isEmpty(token)) {
-            RongIMClient.connect(
-                    token,
-                    new RongIMClient.ConnectCallback() {
-                        @Override
-                        public void onTokenIncorrect() {
-                            getTokenForXQ(isLive);
-                        }
-
-                        @Override
-                        public void onSuccess(String s) {
-                            FinLog.d(TAG, "IM  connectForXQ success ");
-                            if (isLive) {
-                                jumpLive();
-                            } else {
-                                connectToRoom();
-                            }
-                        }
-
-                        @Override
-                        public void onError(RongIMClient.ErrorCode errorCode) {
-                            Toast.makeText(
-                                            MainPageActivity.this,
-                                            "连接IM失败，请稍后重试",
-                                            Toast.LENGTH_SHORT)
-                                    .show();
-                        }
-                    });
-        } else {
+        if (TextUtils.isEmpty(token)) {
             getTokenForXQ(isLive);
+            return;
         }
+        RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
+            public void onTokenIncorrect() {
+                getTokenForXQ(isLive);
+            }
+
+            @Override
+            public void onDatabaseOpened(DatabaseOpenStatus code) {}
+
+            @Override
+            public void onSuccess(String s) {
+                FinLog.d(TAG, "IM  connectForXQ success ");
+                if (isLive) {
+                    jumpLive();
+                } else {
+                    connectToRoom();
+                }
+            }
+
+            @Override
+            public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+                Toast.makeText(MainPageActivity.this, "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
+                if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
+                    onTokenIncorrect();
+                }
+            }
+        });
     }
 
     private void jumpLive() {
@@ -1162,8 +884,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                 .append(
                         edit_room_phone.getText().toString().trim()
                                 + (DeviceUtils.getDeviceId(Utils.getContext()).length() > 4
-                                        ? DeviceUtils.getDeviceId(Utils.getContext())
-                                                .substring(0, 4)
+                                        ? DeviceUtils.getDeviceId(Utils.getContext()).substring(0, 4)
                                         : DeviceUtils.getDeviceId(Utils.getContext())))
                 .append("&")
                 .append("name=")
@@ -1178,67 +899,45 @@ public class MainPageActivity extends RongRTCBaseActivity
             LoadDialog.dismiss(MainPageActivity.this);
             postShowToast("错误 :" + e.getMessage());
         }
-        FinLog.e(
-                TAG,
-                "API_SERVER: "
-                        + ServerUtils.API_SERVER
-                        + " ,  "
-                        + "signature :"
-                        + signature
-                        + " ,  params : "
-                        + params.toString());
-        Request request =
-                new Request.Builder()
-                        .url(ServerUtils.API_SERVER + "/user/getToken.json")
-                        .method(RequestMethod.POST)
-                        .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                        .addHeader("Timestamp", String.valueOf(timestamp))
-                        .addHeader("Nonce", String.valueOf(nonce))
-                        .addHeader("Signature", signature)
-                        .addHeader("App-Key", ServerUtils.APP_KEY)
-                        .body(params.toString())
-                        .build();
-        HttpClient.getDefault()
-                .request(
-                        request,
-                        new HttpClient.ResultCallback() {
+        FinLog.e(TAG, "API_SERVER: " + ServerUtils.API_SERVER +
+            " ,  " + "signature :" + signature + " ,  params : " + params.toString());
+        Request request = new Request.Builder()
+            .url(ServerUtils.API_SERVER + "/user/getToken.json")
+            .method(RequestMethod.POST)
+            .addHeader("Content-Type", "application/x-www-form-urlencoded")
+            .addHeader("Timestamp", String.valueOf(timestamp))
+            .addHeader("Nonce", String.valueOf(nonce))
+            .addHeader("Signature", signature)
+            .addHeader("App-Key", ServerUtils.APP_KEY)
+            .body(params.toString())
+            .build();
+        HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
+            @Override
+            public void onResponse(String result) {
+                FinLog.e(TAG, "result :" + result);
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    if (jsonObject.optInt("code") == 200) {
+                        SessionManager.getInstance()
+                            .put(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY, jsonObject.optString("token"));
+                        connectForXQ(isLive);
+                    } else {
+                        postShowToast("code not 200, code=" + jsonObject.optInt("code"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    postShowToast("请求错误: " + e.getMessage());
+                    FinLog.e(TAG, e.getMessage());
+                }
+            }
 
-                            @Override
-                            public void onResponse(String result) {
-                                FinLog.e(TAG, "result :" + result);
-                                try {
-                                    JSONObject jsonObject = new JSONObject(result);
-                                    if (jsonObject.optInt("code") == 200) {
-                                        SessionManager.getInstance()
-                                                .put(
-                                                        ServerUtils.TOKEN_PRIVATE_CLOUD_KEY,
-                                                        jsonObject.optString("token"));
-                                        connectForXQ(isLive);
-                                    } else {
-                                        postShowToast(
-                                                "code not 200, code=" + jsonObject.optInt("code"));
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    postShowToast("请求错误: " + e.getMessage());
-                                    FinLog.e(TAG, e.getMessage());
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(int errorCode) {
-                                LoadDialog.dismiss(MainPageActivity.this);
-                                postShowToast("请求Token失败 onFailure: " + errorCode);
-                                FinLog.e(TAG, "请求Token失败 errorCode:" + errorCode);
-                            }
-
-                            @Override
-                            public void onError(IOException exception) {
-                                LoadDialog.dismiss(MainPageActivity.this);
-                                exception.printStackTrace();
-                                postShowToast("请求Token失败. exception: " + exception.getMessage());
-                            }
-                        });
+            @Override
+            public void onFailure(int errorCode) {
+                LoadDialog.dismiss(MainPageActivity.this);
+                postShowToast("请求Token失败 onFailure: " + errorCode);
+                FinLog.e(TAG, "请求Token失败 errorCode:" + errorCode);
+            }
+        });
     }
 
     public static String sha1(String data) throws NoSuchAlgorithmException {
@@ -1262,107 +961,76 @@ public class MainPageActivity extends RongRTCBaseActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Request request =
-                new Request.Builder()
-                        .url(
-                                UserUtils.getUrl(
-                                        ServerUtils.getAppServer(), UserUtils.URL_GET_TOKEN_NEW))
-                        .method(RequestMethod.POST)
-                        .body(loginInfo.toString())
-                        .build();
-        HttpClient.getDefault()
-                .request(
-                        request,
-                        new HttpClient.ResultCallback() {
+        Request request = new Request.Builder()
+            .url(UserUtils.getUrl(ServerUtils.getAppServer(), UserUtils.URL_GET_TOKEN_NEW))
+            .method(RequestMethod.POST)
+            .body(loginInfo.toString())
+            .build();
+        HttpClient.getDefault().request(request, new HttpClient.ResultCallback() {
+            @Override
+            public void onResponse(String result) {
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    int code = jsonObject.getInt("code");
+                    if (code == 200) {
+                        jsonObject = jsonObject.getJSONObject("result");
+                        final String token = jsonObject.getString("token");
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void onResponse(String result) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(result);
-                                    int code = jsonObject.getInt("code");
-                                    if (code == 200) {
-                                        jsonObject = jsonObject.getJSONObject("result");
-                                        final String token = jsonObject.getString("token");
-                                        runOnUiThread(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        RongIMClient.connect(
-                                                                token,
-                                                                new RongIMClient.ConnectCallback() {
-                                                                    @Override
-                                                                    public void onTokenIncorrect() {
-                                                                        LoadDialog.dismiss(
-                                                                                MainPageActivity
-                                                                                        .this);
-                                                                        Toast.makeText(
-                                                                                        MainPageActivity
-                                                                                                .this,
-                                                                                        "token获取失败，请稍后重试",
-                                                                                        Toast
-                                                                                                .LENGTH_SHORT)
-                                                                                .show();
-                                                                    }
+                            public void run() {
+                                RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
+                                    @Override
+                                    public void onDatabaseOpened(DatabaseOpenStatus code) {}
 
-                                                                    @Override
-                                                                    public void onSuccess(
-                                                                            String s) {
-                                                                        FinLog.d(
-                                                                                TAG,
-                                                                                "IM  connectForXQ success in getTokenNew");
-                                                                        LoadDialog.dismiss(
-                                                                                MainPageActivity
-                                                                                        .this);
-                                                                        //
-                                                                        //
-                                                                        // SharedPreferences.Editor
-                                                                        // editor = sp.edit();
-                                                                        //
-                                                                        //
-                                                                        // editor.putString("tokenNew", token);
-                                                                        //
-                                                                        //
-                                                                        // editor.commit();
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onError(
-                                                                            RongIMClient.ErrorCode
-                                                                                    errorCode) {
-                                                                        LoadDialog.dismiss(
-                                                                                MainPageActivity
-                                                                                        .this);
-                                                                        Toast.makeText(
-                                                                                        MainPageActivity
-                                                                                                .this,
-                                                                                        "连接IM失败，请稍后重试",
-                                                                                        Toast
-                                                                                                .LENGTH_SHORT)
-                                                                                .show();
-                                                                        FinLog.d(
-                                                                                TAG,
-                                                                                "IM  connectForXQ = "
-                                                                                        + errorCode
-                                                                                                .getValue());
-                                                                    }
-                                                                });
-                                                    }
-                                                });
+                                    public void onTokenIncorrect() {
+                                        LoadDialog.dismiss(MainPageActivity.this);
+                                        Toast.makeText(MainPageActivity.this,
+                                            "token获取失败，请稍后重试", Toast.LENGTH_SHORT).show();
                                     }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
 
-                            @Override
-                            public void onFailure(int errorCode) {
-                                FinLog.d(TAG, "getToken error = " + errorCode);
-                            }
+                                    @Override
+                                    public void onSuccess(String s) {
+                                        FinLog.d(TAG, "IM  connectForXQ success in getTokenNew");
+                                        LoadDialog.dismiss(MainPageActivity.this);
+                                        //
+                                        //
+                                        // SharedPreferences.Editor
+                                        // editor = sp.edit();
+                                        //
+                                        //
+                                        // editor.putString("tokenNew", token);
+                                        //
+                                        //
+                                        // editor.commit();
+                                    }
 
-                            @Override
-                            public void onError(IOException exception) {
-                                FinLog.d(TAG, "getToken IOException = " + exception.getMessage());
+                                    @Override
+                                    public void onError(
+                                        RongIMClient.ConnectionErrorCode errorCode) {
+                                        LoadDialog.dismiss(MainPageActivity.this);
+                                        Toast.makeText(MainPageActivity.this,
+                                            "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
+                                        FinLog.d(TAG,
+                                            "IM  connectForXQ = " + errorCode.getValue());
+                                        if (errorCode
+                                            == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
+                                            onTokenIncorrect();
+                                        }
+                                    }
+                                });
                             }
                         });
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int errorCode) {
+                FinLog.d(TAG, "getToken error = " + errorCode);
+            }
+        });
     }
 
     private void checkPermissions() {
@@ -1407,30 +1075,33 @@ public class MainPageActivity extends RongRTCBaseActivity
         }
     }
 
-    private void quitRoom(String roomId) {
+    private void quitRoom() {
         mStatus = STATE_INIT;
         canOnlyPublishAudio = false;
-        RongRTCEngine.getInstance()
-                .quitRoom(
-                        roomId,
-                        new RongRTCResultUICallBack() {
+        RCRTCEngine.getInstance().leaveRoom(new IRCRTCResultCallback() {
+            @Override
+            public void onSuccess() {
 
-                            @Override
-                            public void onUiSuccess() {}
+            }
 
-                            @Override
-                            public void onUiFailed(RTCErrorCode errorCode) {}
-                        });
+            @Override
+            public void onFailed(RTCErrorCode errorCode) {
+
+            }
+        });
     }
 
-    private void initSDK() {
+    private boolean initSDK() {
+        if (TextUtils.isEmpty(SessionManager.getInstance().getString(APP_KEY)))
+            return false;
         if (mStatus < STATE_INIT) {
             mStatus = STATE_INIT;
             /*
              * 如果是连接到私有云需要在此配置服务器地址
              * 如果是公有云则不需要调用此方法
              */
-            RongIMClient.setServerInfo(ServerUtils.getNavServer(), UserUtils.FILE_SERVER);
+
+            RongIMClient.setServerInfo(SessionManager.getInstance().getString(APP_KEY), UserUtils.FILE_SERVER);
             RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
             /*
              * 设置建立 Https 连接时，是否使用自签证书。
@@ -1439,11 +1110,12 @@ public class MainPageActivity extends RongRTCBaseActivity
             /*configBuilder = new RongRTCConfig.Builder();
             configBuilder.enableHttpsSelfCertificate(true);*/
             // Jenkins 配置 Meida Server 地址
-            /*if (!TextUtils.isEmpty(UserUtils.MEDIA_SERVER)
+            if (!TextUtils.isEmpty(UserUtils.MEDIA_SERVER)
                     && UserUtils.MEDIA_SERVER.startsWith("http")) {
                 RongMediaSignalClient.setMediaServerUrl(UserUtils.MEDIA_SERVER);
-            }*/
+            }
         }
+        return true;
     }
 
     /**
@@ -1452,29 +1124,20 @@ public class MainPageActivity extends RongRTCBaseActivity
      * @param resolutionStr
      * @return
      */
-    private RongRTCConfig.RongRTCVideoResolution selectiveResolution(String resolutionStr) {
-        RongRTCConfig.RongRTCVideoResolution profile = null;
-
+    private RCRTCVideoResolution selectiveResolution(String resolutionStr) {
+        RCRTCVideoResolution profile = null;
         if (resolutionStr == null || resolutionStr.equals("")) {
-            return RongRTCConfig.RongRTCVideoResolution.RESOLUTION_480_640;
+            return RCRTCVideoResolution.RESOLUTION_480_640;
         }
-
         String[] resolutionArray = resolutionStr.split("x");
-
-        profile =
-                RongRTCConfig.RongRTCVideoResolution.parseVideoResolution(
-                        Integer.valueOf(resolutionArray[0]), Integer.valueOf(resolutionArray[1]));
+        profile = RCRTCVideoResolution.parseVideoResolution(
+            Integer.parseInt(resolutionArray[0]), Integer.parseInt(resolutionArray[1]));
         return profile;
     }
 
-    private RongRTCConfig.RongRTCVideoFps selectiveFrame(String frameStr) {
-        RongRTCConfig.RongRTCVideoFps profile = null;
-        if (TextUtils.isEmpty(frameStr)) {
-            frameStr = "15";
-        }
-
-        profile = RongRTCConfig.RongRTCVideoFps.parseVideoFps(Integer.valueOf(frameStr));
-        return profile;
+    private RCRTCVideoFps selectiveFrame(String frameStr) {
+        frameStr = TextUtils.isEmpty(frameStr) ? "15" : frameStr;
+        return RCRTCVideoFps.parseVideoFps(Integer.parseInt(frameStr));
     }
 
     private void startVerifyActivity(String phoneNumber) {
@@ -1501,14 +1164,13 @@ public class MainPageActivity extends RongRTCBaseActivity
         SessionManager.getInstance().put("KICK_ROOM_ID", event.getRoomId());
         final PromptDialog dialog =
                 PromptDialog.newInstance(this, getString(R.string.member_operate_kicked));
-        dialog.setPromptButtonClickedListener(
-                new PromptDialog.OnPromptButtonClickedListener() {
-                    @Override
-                    public void onPositiveButtonClicked() {}
+        dialog.setPromptButtonClickedListener(new PromptDialog.OnPromptButtonClickedListener() {
+            @Override
+            public void onPositiveButtonClicked() {}
 
-                    @Override
-                    public void onNegativeButtonClicked() {}
-                });
+            @Override
+            public void onNegativeButtonClicked() {}
+        });
         dialog.disableCancel();
         dialog.setCancelable(false);
         dialog.show();
@@ -1528,23 +1190,14 @@ public class MainPageActivity extends RongRTCBaseActivity
     }
 
     private void showDialog() {
-        runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        AlertDialog.Builder builder =
-                                new AlertDialog.Builder(MainPageActivity.this)
-                                        .setTitle(getText(R.string.rtc_dialog_kicked_offline))
-                                        .setNeutralButton(
-                                                getText(R.string.rtc_dialog_ok),
-                                                new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(
-                                                            DialogInterface dialogInterface,
-                                                            int i) {}
-                                                });
-                        builder.create().show();
-                    }
-                });
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainPageActivity.this)
+                    .setTitle(getText(R.string.rtc_dialog_kicked_offline))
+                    .setNeutralButton(getText(R.string.rtc_dialog_ok), null);
+                builder.create().show();
+            }
+        });
     }
 }
