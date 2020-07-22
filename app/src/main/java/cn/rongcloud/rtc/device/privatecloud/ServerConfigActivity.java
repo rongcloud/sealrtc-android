@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import cn.rongcloud.rtc.R;
-import cn.rongcloud.rtc.RongRTCEngine;
 import cn.rongcloud.rtc.SettingActivity;
+import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.utils.FinLog;
@@ -98,8 +98,7 @@ public class ServerConfigActivity extends Activity {
             ServerUtils.MEDIA_SERVER = "";
             SessionManager.getInstance().remove(ServerUtils.MEDIA_SERVER_URL_KEY);
         }
-        RongRTCEngine.getInstance().setMediaServerUrl(mediaServer);
-
+        RCRTCEngine.getInstance().setMediaServerUrl(mediaServer);
         SessionManager.getInstance().remove(ServerUtils.TOKEN_PRIVATE_CLOUD_KEY);
 
         Toast.makeText(this, getResources().getString(R.string.save_successful), Toast.LENGTH_SHORT)

@@ -16,6 +16,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
@@ -122,7 +124,7 @@ public class MediaServerActivity extends RongRTCBaseActivity {
         if (!TextUtils.isEmpty(url)) {
             SessionManager.getInstance().put("MediaName", name);
             SessionManager.getInstance().put("MediaUrl", url);
-            CenterManager.getInstance().setMediaServerUrl(url);
+            RCRTCEngine.getInstance().setMediaServerUrl(url);
         }
     }
 

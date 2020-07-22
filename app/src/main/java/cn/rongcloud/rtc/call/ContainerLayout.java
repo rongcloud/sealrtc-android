@@ -23,7 +23,6 @@ import com.bumptech.glide.Glide;
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.call.VideoContainerGestureDetector.ViewContainerGestureListener;
 import cn.rongcloud.rtc.core.RendererCommon;
-import cn.rongcloud.rtc.custom.RongRTCVideoFileSender;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.rtc.screen_cast.RongRTCScreenCastHelper;
 import cn.rongcloud.rtc.util.CoverView;

@@ -13,45 +13,42 @@ import android.widget.TextView;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig;
 import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
 import cn.rongcloud.rtc.faceunity.ui.dialog.BaseDialogFragment;
-import java.util.Arrays;
 
 /**
  * Created by wangw on 2020/5/7.
  */
 public class VideoSizeListDialog extends BaseDialogFragment {
 
-  public static VideoSizeListDialog newInstance() {
+  int[] resolutions = {R.string.rtc_resolution_standard, R.string.rtc_resolution_high, R.string.rtc_resolution_ultrahigh};
+  private static Context myContext;
 
+  public static VideoSizeListDialog newInstance(Context context) {
     Bundle args = new Bundle();
-
+    myContext = context;
     VideoSizeListDialog fragment = new VideoSizeListDialog();
     fragment.setArguments(args);
     return fragment;
   }
 
   private OnItemClickListener mOnItemClickListener;
-  private RCRTCVideoStreamConfig.Builder mConfigBuilder;
 
   @Override
   protected View createDialogView(LayoutInflater inflater, @Nullable ViewGroup container) {
     Context context = getActivity();
     RecyclerView recyclerView = new RecyclerView(context);
     recyclerView.setLayoutManager(new LinearLayoutManager(context));
-    RCRTCVideoResolution[] values = RCRTCVideoResolution.values();
 
-    VideoResolutionAdapter adapter = new VideoResolutionAdapter(
-        Arrays.copyOfRange(values, 1, values.length));
+    VideoResolutionAdapter adapter = new VideoResolutionAdapter(resolutions);
     recyclerView.setAdapter(adapter);
-    mConfigBuilder = RCRTCVideoStreamConfig.Builder.create();
 
     return recyclerView;
   }
 
   class VideoResolutionAdapter extends RecyclerView.Adapter<ItemVH> {
 
-    RCRTCVideoResolution[] resolutions;
+    int[] resolutions;
 
-    public VideoResolutionAdapter(RCRTCVideoResolution[] resolutions) {
+    public VideoResolutionAdapter(int[] resolutions) {
       this.resolutions = resolutions;
     }
 
@@ -77,7 +74,7 @@ public class VideoSizeListDialog extends BaseDialogFragment {
   class ItemVH extends ViewHolder {
 
     TextView mLbl;
-    RCRTCVideoResolution mData;
+    RCRTCVideoResolution mData = RCRTCVideoResolution.RESOLUTION_480_640;
 
     public ItemVH(TextView itemView) {
       super(itemView);
@@ -86,6 +83,7 @@ public class VideoSizeListDialog extends BaseDialogFragment {
         @Override
         public void onClick(View v) {
           if (mOnItemClickListener != null) {
+            RCRTCVideoStreamConfig.Builder mConfigBuilder = RCRTCVideoStreamConfig.Builder.create();
             mConfigBuilder.setVideoResolution(mData);
             mOnItemClickListener.onItemClick(mConfigBuilder.build());
           }
@@ -94,9 +92,15 @@ public class VideoSizeListDialog extends BaseDialogFragment {
       });
     }
 
-    public void onBindData(RCRTCVideoResolution resolution) {
-      mData = resolution;
-      mLbl.setText(resolution.getLabel());
+    public void onBindData(int resId) {
+      if (resId == R.string.rtc_resolution_standard) {
+        mData = RCRTCVideoResolution.RESOLUTION_360_480;
+      } else if (resId == R.string.rtc_resolution_high) {
+        mData = RCRTCVideoResolution.RESOLUTION_480_640;
+      } else if (resId == R.string.rtc_resolution_ultrahigh) {
+        mData = RCRTCVideoResolution.RESOLUTION_720_1280;
+      }
+      mLbl.setText(myContext.getResources().getText(resId));
     }
   }
 

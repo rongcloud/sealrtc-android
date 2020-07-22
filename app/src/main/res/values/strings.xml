@@ -71,6 +71,10 @@
     <string name="audio_process">audio_process</string>
     <string name="rtc_toast_switch_to_speaker">Listen through the speaker</string>
     <string name="rtc_toast_switch_to_receiver">Listen through the receiver</string>
+    <string name="rtc_resolution_ultrahigh">720P</string>
+    <string name="rtc_resolution_high">480P</string>
+    <string name="rtc_resolution_standard">360P</string>
+
 
     <string name="get_code">Get Code</string>
     <string name="VerificationCodeError">The verification code is wrong, please re-acquire</string>
@@ -266,4 +270,5 @@
     <string name="mix_mode_play_only">Only Playing</string>
     <string name="mix_mode_replace">Playing and mixing, disable mic</string>
     <string name="mix_file_not_support">This data cannot be played or mixed. Please change other data and try again.</string>
+    <string name="MediaServerStr">MediaServerStr</string>
 </resources>

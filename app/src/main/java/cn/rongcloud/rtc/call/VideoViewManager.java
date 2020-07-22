@@ -33,7 +33,6 @@ import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.call.ContainerLayout.ContainerLayoutGestureEvents;
 import cn.rongcloud.rtc.core.RendererCommon;
 import cn.rongcloud.rtc.entity.connectedVideoViewEntity;
-import cn.rongcloud.rtc.stream.MediaStreamTypeMode;
 import cn.rongcloud.rtc.util.CoverView;
 import cn.rongcloud.rtc.util.RongRTCTalkTypeUtil;
 import cn.rongcloud.rtc.util.SessionManager;
@@ -145,9 +144,6 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
     }
 
     public void touchRender(RenderHolder render) {
-
-        ArrayList<MediaStreamTypeMode> mediaStreamTypeModeList =
-                new ArrayList<MediaStreamTypeMode>();
         int index = positionRenders.indexOf(render);
         final RenderHolder lastSelectedRender = selectedRender;
         if (index < 0) {
@@ -157,13 +153,10 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
         selectedRender = render;
         if (!lastSelectedRender.userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
             // 原来的大窗口变小流
-            MediaStreamTypeMode mediaStreamTypeModeTiny = new MediaStreamTypeMode();
-            mediaStreamTypeModeTiny.uid = lastSelectedRender.userId;
-            mediaStreamTypeModeTiny.flowType = "2";
-            mediaStreamTypeModeList.add(mediaStreamTypeModeTiny);
             if (rongRTCRoom != null) {
                 final String lastId = lastSelectedRender.userId;
                 RCRTCRemoteUser remoteUser = rongRTCRoom.getRemoteUser(lastId);
+                FinLog.d(TAG,"switchToTinyStream");
                 if (remoteUser != null) {
                     remoteUser.switchToTinyStream(new IRCRTCResultCallback() {
                         @Override
@@ -191,14 +184,11 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
 
         if (!selectedRender.userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
             // 原来的小窗口变大流
-            MediaStreamTypeMode mediaStreamTypeMode = new MediaStreamTypeMode();
-            mediaStreamTypeMode.uid = selectedRender.userId;
-            mediaStreamTypeMode.flowType = "1";
-            mediaStreamTypeModeList.add(mediaStreamTypeMode);
             if (rongRTCRoom != null) {
                 final String targetId = selectedRender.userId;
                 RCRTCRemoteUser remoteUser = rongRTCRoom.getRemoteUser(targetId);
                 if (remoteUser != null) {
+                    FinLog.d(TAG,"switchToNormalStream");
                     remoteUser.switchToNormalStream(new IRCRTCResultCallback() {
                         @Override
                         public void onSuccess() {
@@ -271,8 +261,6 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
 
     public void setVideoView(
             boolean isSelf, String userID, String tag, String userName, RCRTCVideoView render, String talkType) {
-        HashMap<String, MediaStreamTypeMode> mediaStreamTypeModeMap = new HashMap<>();
-        MediaStreamTypeMode mediaStreamTypeMode = null;
         Log.i(TAG, ">>>>>>>>>>>>>>>>setVideoView isSelf==" + isSelf);
         if (!connectedRemoteRenders.containsKey(generateKey(userID, tag))) {
             if (isSelf) {
@@ -280,29 +268,24 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
                     customVideoCount = customVideoCount + 1;
                 }
                 if (connectedRemoteRenders.size() == 0) {
-                    mediaStreamTypeMode = largeView(isSelf, userID, tag, userName, render, talkType);
+                    largeView(isSelf, userID, tag, userName, render, talkType);
                 } else {
-                    mediaStreamTypeMode = smallView(isSelf, userID, tag, userName, render, talkType);
+                    smallView(isSelf, userID, tag, userName, render, talkType);
                 }
             } else {
                 if (connectedUsers.size() > 0
                         && !TextUtils.isEmpty(connectedUsers.get(0).getUserId())
                         && connectedUsers.get(0).getKey().equals(generateKey(userID, tag))) {
                     // 放入大屏的远端用户需要切换到大流
-                    mediaStreamTypeMode = largeView(isSelf, userID, tag, userName, render, talkType);
+                    largeView(isSelf, userID, tag, userName, render, talkType);
                     exchangeToNormalStream(selectedRender.userId);
                 } else {
-                    mediaStreamTypeMode = smallView(isSelf, userID, tag, userName, render, talkType);
+                    smallView(isSelf, userID, tag, userName, render, talkType);
                 }
             }
         } else {
-            refreshRemoteView(isSelf, userID, tag, userName, render, mediaStreamTypeModeMap);
+            refreshRemoteView(isSelf, userID, tag, userName, render);
         }
-        if (null != mediaStreamTypeMode) {
-            mediaStreamTypeModeMap.put(userID, mediaStreamTypeMode);
-        }
-        // 默认加载小流，新加入流时不需要切换大小流
-        // sendSubscribeStream(mediaStreamTypeModeMap);
     }
 
     private String generateKey(String userId, String tag) {
@@ -314,9 +297,7 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
             String userID,
             String tag,
             String userName,
-            RCRTCVideoView render,
-            HashMap<String, MediaStreamTypeMode> mediaStreamTypeModeMap) {
-        MediaStreamTypeMode mediaStreamTypeMode = new MediaStreamTypeMode();
+            RCRTCVideoView render) {
         try {
             String key = generateKey(userID, tag);
             boolean isBigScreen = selectedUserid != null && selectedUserid.contains(key);
@@ -347,13 +328,6 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
                 holderContainer.addView(renderHolder.containerLayout, remoteLayoutParams);
             }
             renderHolder.init(isSelf);
-
-            if (mediaStreamTypeModeMap != null && mediaStreamTypeModeMap.containsKey(userID)) {
-                mediaStreamTypeMode.uid = userID;
-                mediaStreamTypeMode.flowType = mediaStreamTypeModeMap.get(userID).flowType;
-                mediaStreamTypeMode.tag = tag;
-                mediaStreamTypeModeMap.put(key, mediaStreamTypeModeMap.get(userID));
-            }
         } catch (Exception e) {
             e.printStackTrace();
             Log.i(TAG, "refreshRemoteView Error=" + e.getMessage());
@@ -361,18 +335,14 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
         Log.i(TAG, "refreshRemoteView End");
     }
 
-    private MediaStreamTypeMode smallView(
+    private void smallView(
             boolean isSelf,
             String userID,
             String tag,
             String userName,
             RCRTCVideoView render,
             String talkType) {
-        MediaStreamTypeMode mediaStreamTypeMode = new MediaStreamTypeMode();
         RenderHolder renderHolder = null;
-        //        Log.v(TAG, "smallView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() +
-        // ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + ",talkType=" +
-        // talkType);
         if (containsKeyVideoViewEntiry(userID, tag)) {
             renderHolder = getViewHolder(userID, tag);
             renderHolder.userName = userName;
@@ -407,28 +377,16 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
                 && !TextUtils.equals(talkType, RongRTCTalkTypeUtil.C_CM)) {
             renderHolder.coverView.showBlinkVideoView();
         }
-
-        mediaStreamTypeMode.uid = userID;
-        mediaStreamTypeMode.flowType = "2";
-        mediaStreamTypeMode.tag = tag;
-        if (userIDEndWithScreenSharing(userID)) {
-            mediaStreamTypeMode = null;
-        }
-        return mediaStreamTypeMode;
     }
 
-    private MediaStreamTypeMode largeView(
+    private void largeView(
             boolean isSelf,
             String userID,
             String tag,
             String userName,
             RCRTCVideoView render,
             String talkType) {
-        MediaStreamTypeMode mediaStreamTypeMode = null;
         RenderHolder renderHolder = null;
-        //        Log.v(TAG, "largeView unUsedRemoteRenders size=" + unUsedRemoteRenders.size() +
-        // ",isSelf=" + isSelf + ",userID=" + userID + ",userName=" + userName + ",talkType=" +
-        // talkType);
         if (isSelf) {
             renderHolder = createRenderHolder(); // unUsedRemoteRenders.get(0);
             //            unUsedRemoteRenders.remove(0);
@@ -461,17 +419,9 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
         selectedRender = renderHolder;
 
         if (!isSelf) {
-            mediaStreamTypeMode = new MediaStreamTypeMode();
-            mediaStreamTypeMode.uid = userID;
-            mediaStreamTypeMode.flowType = "1";
-            mediaStreamTypeMode.tag = tag;
         } else {
             addVideoViewEntiry(userID, tag, renderHolder);
         }
-        if (userIDEndWithScreenSharing(userID)) {
-            mediaStreamTypeMode = null;
-        }
-        return mediaStreamTypeMode;
     }
 
     public void rotateView() {
@@ -947,6 +897,7 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
             FinLog.v(TAG, "not get the remote user = " + targetId);
             return;
         }
+        FinLog.d(TAG,"exchangeToNormalStream->switchToNormalStream");
         remoteUser.switchToNormalStream(new IRCRTCResultCallback() {
             @Override
             public void onSuccess() {

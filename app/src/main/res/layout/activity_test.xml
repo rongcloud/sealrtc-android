@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <HorizontalScrollView
+        android:id="@+id/test_remote_video_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="100dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/test_remote_video_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </HorizontalScrollView>
+
+    <ListView
+        android:id="@+id/test_remote_resource_list"
+        android:layout_width="wrap_content"
+        android:layout_below="@+id/test_remote_video_scroll"
+        android:layout_above="@+id/test_publish_container"
+        android:divider="@color/blink_grey"
+        android:dividerHeight="1dp"
+        android:layout_height="match_parent" />
+
+    <HorizontalScrollView
+        android:id="@+id/test_publish_container"
+        android:layout_width="match_parent"
+        android:layout_above="@+id/test_quit"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/test_publish_audio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="音频" />
+
+            <Button
+                android:id="@+id/test_publish_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="视频" />
+
+            <Button
+                android:id="@+id/test_publish_audio_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="音视频" />
+
+            <Button
+                android:id="@+id/test_publish_custom_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="自定义" />
+
+            <Button
+                android:id="@+id/test_Camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Camera" />
+
+            <Button
+                android:id="@+id/test_Mic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mic" />
+
+            <Button
+              android:id="@+id/test_mediaServer"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/MediaServerStr" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:textColor="@color/blink_blue"
+        android:id="@+id/test_result"
+        android:text="发布结果"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/test_quit"
+        android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"
+        android:text="退出" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@id/test_result"
+        android:layout_toLeftOf="@+id/test_quit"
+        android:layout_below="@+id/test_publish_container"
+        android:layout_alignParentBottom="true">
+
+        <RelativeLayout
+            android:id="@+id/test_local_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+        <RelativeLayout
+            android:id="@+id/test_local_container_custom"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -69,7 +70,6 @@ import cn.rongcloud.rtc.device.utils.Consts;
 import cn.rongcloud.rtc.entity.CountryInfo;
 import cn.rongcloud.rtc.entity.KickEvent;
 import cn.rongcloud.rtc.entity.KickedOfflineEvent;
-import cn.rongcloud.rtc.media.RongMediaSignalClient;
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
 import cn.rongcloud.rtc.media.http.RequestMethod;
@@ -80,6 +80,7 @@ import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.FinLog;
+import cn.rongcloud.rtclib.BuildConfig;
 import io.rong.common.RLog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ConnectionErrorCode;
@@ -119,7 +120,7 @@ public class MainPageActivity extends RongRTCBaseActivity
     private TextView mTvCountry;
     private TextView mTvRegion;
     private AppCompatCheckBox cbCamera;
-    private AppCompatCheckBox cbObserver;
+    private AppCompatCheckBox cbObserver,room_cb_quiktest;
     private ImageView logoView;
 
     // 进入房间时是否关闭摄像头
@@ -162,6 +163,7 @@ public class MainPageActivity extends RongRTCBaseActivity
     private boolean mIsLive = false;
 
     private boolean TokenIncorrectMark = true; // 记录私有云环境请求token失败后，仅重试一次
+    private static final String QUICK_TEST_KEY ="QUICK_TEST_KEY";//记录是否使用快速测试界面
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -307,6 +309,12 @@ public class MainPageActivity extends RongRTCBaseActivity
         versionCodeView = (TextView) findViewById(R.id.main_page_version_code);
         cbCamera = (AppCompatCheckBox) findViewById(R.id.room_cb_close_camera);
         cbObserver = (AppCompatCheckBox) findViewById(R.id.room_cb_observer);
+        room_cb_quiktest=findViewById(R.id.room_cb_quiktest);
+        boolean quickTest=SessionManager.getInstance().getBoolean(QUICK_TEST_KEY);
+        room_cb_quiktest.setChecked(quickTest);
+        room_cb_quiktest.setOnCheckedChangeListener(this);
+        room_cb_quiktest.setVisibility(BuildConfig.DEBUG ? View.VISIBLE:View.GONE);
+
         cbCamera.setOnCheckedChangeListener(this);
         cbObserver.setOnCheckedChangeListener(this);
         logoView = (ImageView) findViewById(R.id.img_logo);
@@ -477,6 +485,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         Toast.makeText(this, R.string.member_operate_kicked, Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    FinLog.d(TAG, "mStatus : " + mStatus);
                     if (mStatus == STATE_JOINING) return;
                     //TODO Server 端已将 APP_KEY 与 IM Navi 导航地址绑定，以后将不再支持单独设置 Navi
                     // 由于导航地址必须在 SDK 初始化之前设置，所以将初始化 SDK 逻辑放在获取导航地址之后再去初始化 SDK
@@ -487,7 +496,7 @@ public class MainPageActivity extends RongRTCBaseActivity
 
                     mStatus = STATE_JOINING;
                     String status = RongIMClient.getInstance().getCurrentConnectionStatus().name();
-                    FinLog.v(TAG, "CurrentConnectionStatu : " + status);
+                    FinLog.d(TAG, "CurrentConnectionStatus : " + status);
                     if (RongIMClient.getInstance().getCurrentConnectionStatus()
                             == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
                         connectToRoom();
@@ -501,7 +510,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         joinRoomWhenConnectedInAutoTest = true;
                     }
                     String token = SessionManager.getInstance().getString(phoneNumber);
-                    FinLog.v(TAG, "token 存在 ：" + token);
+                    FinLog.v(TAG, "token ：" + token);
                     RongIMClient.connect(token, new RongIMClient.ConnectCallback() {
                         @Override
                         public void onDatabaseOpened(DatabaseOpenStatus code) {}
@@ -529,9 +538,11 @@ public class MainPageActivity extends RongRTCBaseActivity
                         @Override
                         public void onError(RongIMClient.ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
-                            FinLog.e(TAG, "RongIMClient connectForXQ errorcode :" + errorCode);
+                            FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
                                 onTokenIncorrect();
+                            }else if(errorCode == ConnectionErrorCode.RC_CONNECTION_EXIST){
+                                connectToRoom();
                             }
                         }
                     });
@@ -577,9 +588,11 @@ public class MainPageActivity extends RongRTCBaseActivity
                         @Override
                         public void onError(RongIMClient.ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
-                            FinLog.e(TAG, "RongIMClient connectForXQ errorcode :" + errorCode);
+                            FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
                                 onTokenIncorrect();
+                            }else if(errorCode == ConnectionErrorCode.RC_CONNECTION_EXIST){
+                                connectToRoom();
                             }
                         }
                     });
@@ -600,7 +613,7 @@ public class MainPageActivity extends RongRTCBaseActivity
         String mediaServerUrl = SessionManager.getInstance().getString("MediaUrl");
         // 设置media server地址，内部自动化测试使用，开发者一般不需要关心
         if (!TextUtils.isEmpty(mediaServerUrl) && !ServerUtils.usePrivateCloud()) {
-            RongRTCEngine.getInstance().setMediaServerUrl(mediaServerUrl);
+            RCRTCEngine.getInstance().setMediaServerUrl(mediaServerUrl);
         }
 
         isDebug = SessionManager.getInstance().getBoolean(IS_AUTO_TEST);
@@ -643,6 +656,9 @@ public class MainPageActivity extends RongRTCBaseActivity
                     isObserver = true;
                     cbCamera.setChecked(false);
                 } else isObserver = false;
+                break;
+            case R.id.room_cb_quiktest:
+                SessionManager.getInstance().put(QUICK_TEST_KEY,isChecked);
                 break;
             default:
                 break;
@@ -754,7 +770,13 @@ public class MainPageActivity extends RongRTCBaseActivity
     private void startCallActivity(boolean muteVideo, boolean observer) {
         if (mStatus == STATE_JOINED) return;
         mStatus = STATE_JOINED;
-        Intent intent = new Intent(this, CallActivity.class);
+        boolean quickTest=SessionManager.getInstance().getBoolean(QUICK_TEST_KEY);
+        Intent intent = null;
+        if(quickTest){//使用快速测试界面进行音视频
+            intent = new Intent(this, TestActivity.class);
+        }else{//使用会议界面进行音视频
+            intent = new Intent(this, CallActivity.class);
+        }
         // 加入房间之前 置为默认状态
         SessionManager.getInstance().put("VideoModeKey", "smooth");
         //
@@ -1112,7 +1134,8 @@ public class MainPageActivity extends RongRTCBaseActivity
             // Jenkins 配置 Meida Server 地址
             if (!TextUtils.isEmpty(UserUtils.MEDIA_SERVER)
                     && UserUtils.MEDIA_SERVER.startsWith("http")) {
-                RongMediaSignalClient.setMediaServerUrl(UserUtils.MEDIA_SERVER);
+                SessionManager.getInstance().put("QuickTestMeidaServerUrl",UserUtils.MEDIA_SERVER);
+                RCRTCEngine.getInstance().setMediaServerUrl(UserUtils.MEDIA_SERVER);
             }
         }
         return true;

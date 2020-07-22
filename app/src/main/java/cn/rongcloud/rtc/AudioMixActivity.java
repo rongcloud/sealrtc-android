@@ -25,7 +25,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.rongcloud.rtc.api.RCRTCAudioMixer;
-import cn.rongcloud.rtc.stream.local.RongRTCCapture;
+import cn.rongcloud.rtc.api.RCRTCEngine;
+
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -95,7 +96,7 @@ public class AudioMixActivity extends AppCompatActivity implements SeekBar.OnSee
         tv_mix_local_vol.setText(String.valueOf(mixLocalVol));
         sb_mix_local_vol.setProgress(mixLocalVol);
 
-        int recordingVol = RongRTCCapture.getInstance().getRecordingVolume();
+        int recordingVol = RCRTCEngine.getInstance().getDefaultAudioStream().getRecordingVolume();
         tv_mic_vol.setText(String.valueOf(recordingVol));
         sb_mic_vol.setProgress(recordingVol);
 
@@ -239,7 +240,7 @@ public class AudioMixActivity extends AppCompatActivity implements SeekBar.OnSee
         switch (seekBar.getId()) {
             case R.id.sb_mic_vol:
                 tv_mic_vol.setText(String.valueOf(progress));
-                RongRTCCapture.getInstance().adjustRecordingVolume(progress);
+                RCRTCEngine.getInstance().getDefaultAudioStream().adjustRecordingVolume(progress);
                 break;
             case R.id.sb_mix_local_vol:
                 tv_mix_local_vol.setText(String.valueOf(progress));

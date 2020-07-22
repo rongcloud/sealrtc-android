@@ -9,9 +9,9 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.rtc.faceunity.utils.MiscUtil;
-import cn.rongcloud.rtc.stream.local.RongRTCCapture;
 
 public class LocalVideoView extends RCRTCVideoView {
 
@@ -82,8 +82,8 @@ public class LocalVideoView extends RCRTCVideoView {
             rectF.top = touchY - radius;
             rectF.right = touchX + radius;
             rectF.bottom = touchY + radius;
-            RongRTCCapture.getInstance().setCameraFocusPositionInPreview(touchX, touchY);
-            RongRTCCapture.getInstance().setCameraExposurePositionInPreview(touchX, touchY);
+            RCRTCEngine.getInstance().getDefaultVideoStream().setCameraFocusPositionInPreview(touchX, touchY);
+            RCRTCEngine.getInstance().getDefaultVideoStream().setCameraExposurePositionInPreview(touchX, touchY);
             postInvalidate();
         }
         return true;

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/rel_data"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_marginLeft="15dp"
+  android:layout_marginRight="15dp"
+  android:padding="20dp"
+  android:background="@drawable/shape_dialog_whitebg"
+  android:gravity="center">
+
+  <LinearLayout
+    android:id="@+id/linear_appid"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/linear_token"
+    android:orientation="vertical">
+
+    <EditText
+      android:id="@+id/edit_appid"
+      style="@style/editStyle" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="2dp"
+      android:layout_marginBottom="2dp"
+      android:text="MediaServer"
+      android:textColor="#aaaaaa"
+      android:textSize="15sp" />
+
+  </LinearLayout>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:layout_marginTop="10dp"
+    android:layout_below="@+id/linear_appid"
+    android:gravity="center_vertical">
+
+    <Button
+      android:id="@+id/btn_ok"
+      style="?android:attr/borderlessButtonStyle"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginRight="5dp"
+      android:layout_toLeftOf="@+id/viewTag"
+      android:background="@drawable/btn_clickbg"
+      android:gravity="center"
+      android:text="@string/settings_text_confirm"
+      android:textColor="@color/blink_black"
+      android:textSize="17sp" />
+    <Button
+      android:id="@+id/btn_cancel"
+      style="?android:attr/borderlessButtonStyle"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginLeft="5dp"
+      android:layout_toRightOf="@+id/viewTag"
+      android:background="@drawable/btn_clickbg"
+      android:gravity="center"
+      android:text="@string/settings_text_cancel"
+      android:textColor="@color/blink_black"
+      android:textSize="17sp" />
+
+    <View
+      android:id="@+id/viewTag"
+      android:layout_width="1px"
+      android:layout_height="match_parent"
+      android:layout_centerInParent="true" />
+
+</RelativeLayout>
+</RelativeLayout>

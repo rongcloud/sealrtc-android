@@ -19,7 +19,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import cn.rongcloud.rtc.CenterManager;
 import cn.rongcloud.rtc.LoadDialog;
 import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.device.adapter.AVSettingsDataSource;
@@ -133,9 +132,9 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
                 startActivityForResult(intent, REQUEST_CODE_SETTING_PREVIEW);
                 break;
 
-            case R.id.setting_menu_export:
-                exportAVSettings();
-                break;
+//            case R.id.setting_menu_export:
+//                exportAVSettings();
+//                break;
 
             case android.R.id.home:
             default:
@@ -146,27 +145,27 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
         return super.onOptionsItemSelected(item);
     }
 
-    private void exportAVSettings() {
-        if (null == CenterManager.getInstance().getCenterConfig()) {
-            return;
-        }
-        String avParameters = CenterManager.getInstance().getCenterConfig().toJsonString();
-
-        String platformString = null;
-        try {
-            JSONObject platformJson = new JSONObject();
-            platformJson.put("deviceModel", Build.MODEL);
-            platformJson.put("deviceVersion", Build.VERSION.SDK_INT);
-            platformJson.put("sdkVersion", BuildVersion.SDK_VERSION);
-            platformString = platformJson.toString(4);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        FileUtils.saveText(this.getApplicationContext(), "", "platform.json", platformString);
-        FileUtils.saveText(this.getApplicationContext(), "", "AVParameters.json", avParameters);
-        Toast.makeText(this, "参数设置已导出至 /sdcard/SealRTC/", Toast.LENGTH_SHORT).show();
-    }
+//    private void exportAVSettings() {
+//        if (null == CenterManager.getInstance().getCenterConfig()) {
+//            return;
+//        }
+//        String avParameters = CenterManager.getInstance().getCenterConfig().toJsonString();
+//
+//        String platformString = null;
+//        try {
+//            JSONObject platformJson = new JSONObject();
+//            platformJson.put("deviceModel", Build.MODEL);
+//            platformJson.put("deviceVersion", Build.VERSION.SDK_INT);
+//            platformJson.put("sdkVersion", BuildVersion.SDK_VERSION);
+//            platformString = platformJson.toString(4);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        FileUtils.saveText(this.getApplicationContext(), "", "platform.json", platformString);
+//        FileUtils.saveText(this.getApplicationContext(), "", "AVParameters.json", avParameters);
+//        Toast.makeText(this, "参数设置已导出至 /sdcard/SealRTC/", Toast.LENGTH_SHORT).show();
+//    }
 
     private void initView() {
         mLinear_audioLayout = (LinearLayout) findViewById(R.id.linear_audioLayout);

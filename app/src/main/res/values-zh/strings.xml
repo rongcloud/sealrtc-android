@@ -76,6 +76,9 @@
     <string name="rtc_dialog_forbidden_by_server">您被禁止加入该房间!</string>
     <string name="rtc_toast_switch_to_speaker">已切到扬声器</string>
     <string name="rtc_toast_switch_to_receiver">已切到听筒</string>
+    <string name="rtc_resolution_ultrahigh">超高清</string>
+    <string name="rtc_resolution_high">高清</string>
+    <string name="rtc_resolution_standard">标清</string>
 
 
     <string name="get_code">重新获取验证码</string>
@@ -198,4 +201,5 @@
     <string name="mix_mode_play_only">本地播放，不混音</string>
     <string name="mix_mode_replace">本地播放，混音，禁止麦克</string>
     <string name="mix_file_not_support">此文件无法播放/混音，请换其他文件重试</string>
+    <string name="MediaServerStr">MediaServerStr</string>
 </resources>

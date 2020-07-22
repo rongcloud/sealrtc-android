@@ -1120,7 +1120,9 @@ public class CallActivity extends RongRTCBaseActivity
     private void intendToLeave(boolean initiative) {
         FinLog.i(TAG, "intendToLeave()-> " + initiative);
         callFUDestroyed();
-        cancelScreenCast(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cancelScreenCast(true);
+        }
         if (mIsLive) {
             unpublishLiveData();
         }
@@ -1320,7 +1322,7 @@ public class CallActivity extends RongRTCBaseActivity
 
         if (mUsbCameraCapturer != null) mUsbCameraCapturer.release();
         RCRTCEngine.getInstance().getDefaultAudioStream().setAudioDataListener(null);
-        RCRTCEngine.getInstance().getDefaultVideoStream().setVideoFrameListener(true, null);
+        RCRTCEngine.getInstance().getDefaultVideoStream().setVideoFrameListener(null);
         if (mSoundPool != null) {
             mSoundPool.release();
         }
@@ -1449,10 +1451,7 @@ public class CallActivity extends RongRTCBaseActivity
             localUser = room.getLocalUser();
             renderViewManager.setRongRTCRoom(room);
 
-            boolean acquisitionMode =
-                    SessionManager.getInstance().getBoolean(Consts.ACQUISITION_MODE_KEY, true);
-            RCRTCEngine.getInstance().getDefaultVideoStream()
-                .setVideoFrameListener(acquisitionMode, videoOutputFrameListener);
+            RCRTCEngine.getInstance().getDefaultVideoStream().setVideoFrameListener(videoOutputFrameListener);
             RCRTCEngine.getInstance().getDefaultAudioStream().setAudioDataListener(audioDataListener);
 
             publishResource(); // 发布资源
@@ -2019,7 +2018,9 @@ public class CallActivity extends RongRTCBaseActivity
     private void disconnect() {
         isConnected = false;
         LoadDialog.show(CallActivity.this);
-        room.deleteRoomAttributes(Collections.singletonList(myUserId), null, null);
+        if(room != null){
+            room.deleteRoomAttributes(Collections.singletonList(myUserId), null, null);
+        }
         deleteRTCWhiteBoardAttribute();
         RCRTCEngine.getInstance().leaveRoom(new IRCRTCResultCallback() {
             @Override
@@ -2384,6 +2385,7 @@ public class CallActivity extends RongRTCBaseActivity
 
                 break;
             case R.id.call_btn_hangup:
+                FinLog.i(TAG, "intendToLeave()-> call_btn_hangup");
                 intendToLeave(true);
                 break;
             case R.id.menu_switch:
@@ -2576,7 +2578,7 @@ public class CallActivity extends RongRTCBaseActivity
                 break;
             case R.id.btn_switch_videosize:
                 if (mVideoSizeDialog == null) {
-                    mVideoSizeDialog = VideoSizeListDialog.newInstance();
+                    mVideoSizeDialog = VideoSizeListDialog.newInstance(getApplicationContext());
                     mVideoSizeDialog.setOnItemClickListener(new OnItemClickListener() {
                         @Override
                         public void onItemClick(RCRTCVideoStreamConfig config) {
@@ -2760,6 +2762,7 @@ public class CallActivity extends RongRTCBaseActivity
                     public void run() {
                         btnCustomStream.setSelected(false);
                         renderViewManager.removeVideoView(true, myUserId, stream.getTag());
+                        localUser.unpublishStream(stream, null);
                     }
                 });
             }
@@ -3449,7 +3452,7 @@ public class CallActivity extends RongRTCBaseActivity
 
     private void deleteRTCWhiteBoardAttribute() {
         // rtc room里最后一个用户清除白板属性
-        if (whiteBoardRoomInfo != null
+        if (whiteBoardRoomInfo != null && room !=null
             && (room.getRemoteUsers() == null
             || room.getRemoteUsers().size() == 0
             || allObserver())) {

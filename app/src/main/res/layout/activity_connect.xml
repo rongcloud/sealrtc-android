@@ -220,6 +220,14 @@
                     android:textColor="@color/blink_text_grey"
                     android:textSize="14sp"/>
 
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/room_cb_quiktest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="快速测试"
+                    android:textColor="@color/blink_text_grey"
+                    android:textSize="14sp"/>
+
                 <Button
                     android:id="@+id/connect_button"
                     android:layout_width="match_parent"

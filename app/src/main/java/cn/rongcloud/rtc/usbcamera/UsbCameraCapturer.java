@@ -3,7 +3,6 @@ package cn.rongcloud.rtc.usbcamera;
 import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoOutputStream;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
-import cn.rongcloud.rtc.stream.local.RongRTCAVOutputStream;
 
 /** Created by wangw on 2019/4/29. */
 public interface UsbCameraCapturer {
