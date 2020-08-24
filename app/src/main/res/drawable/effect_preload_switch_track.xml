@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
+    <item android:state_checked="true">
+        <aapt:attr name="android:drawable">
+            <layer-list>
+                <item android:left="6dp" android:right="3dp" android:top="4dp" android:bottom="4dp">
+                    <shape android:shape="rectangle" >
+                        <size android:height="5dp" android:width="10dp"/>
+                        <solid android:color="@color/blink_light_blue"/>
+                        <corners android:radius="10dp"/>
+                    </shape>
+                </item>
+            </layer-list>
+        </aapt:attr>
+    </item>
+
+    <item android:state_checked="false">
+        <aapt:attr name="android:drawable">
+            <layer-list>
+                <item android:left="6dp" android:right="3dp" android:top="4dp" android:bottom="4dp">
+                    <shape android:shape="rectangle" >
+                        <size android:height="5dp" android:width="10dp"/>
+                        <solid android:color="@color/blink_dark_gray"/>
+                        <corners android:radius="10dp"/>
+                    </shape>
+                </item>
+            </layer-list>
+        </aapt:attr>
+    </item>
+</selector>

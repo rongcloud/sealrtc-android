@@ -180,8 +180,8 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
         // 合流布局视频输出配置
         RCRTCMixConfig.MediaConfig.VideoConfig video = new RCRTCMixConfig.MediaConfig.VideoConfig();
         // 视频layout配置
-        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videolayout =
-            new RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout();
+        VideoLayout videolayout =
+            new VideoLayout();
 
         RCRTCVideoStreamConfig videoConfig = RCRTCEngine.getInstance().getDefaultVideoStream().getVideoConfig();
         videolayout.setBitrate(videoConfig.getMaxRate());
@@ -256,7 +256,7 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
     }
 
     private void onSubmit() {
-        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videoLayout =
+        VideoLayout videoLayout =
             mConfig.getMediaConfig().getVideoConfig().getVideoLayout();
 //        videoLayout.setWidth(Integer.parseInt(mEvW.getText().toString()));
 //        videoLayout.setHeight(Integer.parseInt(mEvH.getText().toString()));

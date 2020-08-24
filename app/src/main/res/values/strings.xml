@@ -271,4 +271,17 @@
     <string name="mix_mode_replace">Playing and mixing, disable mic</string>
     <string name="mix_file_not_support">This data cannot be played or mixed. Please change other data and try again.</string>
     <string name="MediaServerStr">MediaServerStr</string>
+
+    <string name="settings_audio_encryption">audio encryption</string>
+    <string name="settings_video_encryption">video encryption</string>
+    <string name="settings_yes">Yes</string>
+    <string name="settings_no">No</string>
+
+    <string name="effect_name_1">effect&#160;1</string>
+    <string name="effect_name_2">effect&#160;2</string>
+    <string name="effect_name_3">effect&#160;3</string>
+    <string name="effect_stop_all">Stop All</string>
+    <string name="effect_global_volume">Global Volume</string>
+    <string name="effect_cyclic_count">Loop Count</string>
+
 </resources>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textColor="@android:color/white"
+            android:text="@string/mix_select_audio_file"/>
+
+
+        <Button
+            android:id="@+id/btn_select_music"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:text="BGM.mp3"
+            android:textAllCaps="false"
+            android:background="@android:color/transparent"
+            android:drawableRight="@drawable/icon_arrow"/>
+
+
+        <ImageButton
+            android:id="@+id/img_btn_play_pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/mix_play_pause_selector"/>
+
+        <ImageButton
+            android:id="@+id/img_btn_stop"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/mix_stop"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textColor="@android:color/white"
+            android:text="@string/mix_local_volume"/>
+
+        <SeekBar
+            android:id="@+id/sb_mix_local_vol"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:maxHeight="50dp"
+            android:minHeight="50dp"
+            android:layout_weight="1"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:max="100"
+            tools:progress="50"
+            android:progressDrawable="@drawable/seekbar_progress_drawable"
+            android:thumb="@drawable/seekbar_thumb"/>
+
+        <TextView
+            android:id="@+id/tv_mix_local_vol"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            tools:text="50"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textColor="@android:color/white"
+            android:text="@string/mix_remote_volume"/>
+
+        <SeekBar
+            android:id="@+id/sb_mix_remote_vol"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:max="100"
+            tools:progress="50"
+            android:progressDrawable="@drawable/seekbar_progress_drawable"
+            android:thumb="@drawable/seekbar_thumb"/>
+
+        <TextView
+            android:id="@+id/tv_mix_remote_vol"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            tools:text="50"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textColor="@android:color/white"
+            android:text="@string/mix_mic_volume"/>
+
+        <SeekBar
+            android:id="@+id/sb_mic_vol"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:max="100"
+            tools:progress="50"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:progressDrawable="@drawable/seekbar_progress_drawable"
+            android:thumb="@drawable/seekbar_thumb"/>
+
+        <TextView
+            android:id="@+id/tv_mic_vol"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            tools:text="50"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textColor="@android:color/white"
+            android:text="@string/mix_mix_mode"/>
+
+        <Button
+            android:id="@+id/btn_change_mode"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            tools:text="1.本地播放|混音"
+            android:background="@android:color/transparent"
+            android:textAllCaps="false"
+            android:gravity="left|center_vertical"
+            android:drawableRight="@drawable/icon_arrow"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

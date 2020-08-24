@@ -27,16 +27,16 @@ public class AudioSourceAdapter extends RecyclerView.Adapter<AudioSourceAdapter.
     }
 
     @Override
-    public AudioSourceAdapter.ColorFormatHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ColorFormatHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view =
                 LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.device_layout_colorformat_item, parent, false);
-        return new AudioSourceAdapter.ColorFormatHolder(view);
+        return new ColorFormatHolder(view);
     }
 
     @Override
     public void onBindViewHolder(
-            final AudioSourceAdapter.ColorFormatHolder holder, final int position) {
+            final ColorFormatHolder holder, final int position) {
         String currentName = audioSourceInfos.get(position).getName();
         int currentCode = audioSourceInfos.get(position).getCode();
 

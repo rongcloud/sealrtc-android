@@ -65,6 +65,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import cn.rongcloud.rtc.ActionState;
 import cn.rongcloud.rtc.AudioMixActivity;
+import cn.rongcloud.rtc.AudioMixFragment;
 import cn.rongcloud.rtc.BuildConfig;
 import cn.rongcloud.rtc.DebugInfoAdapter;
 import cn.rongcloud.rtc.LiveDataOperator;
@@ -877,9 +878,9 @@ public class CallActivity extends RongRTCBaseActivity
     };
 
     private void initAudioMixing() {
-        AudioMixActivity.mixing = false;
-        AudioMixActivity.mixMode = AudioMixActivity.MODE_PLAY_MIX;
-        AudioMixActivity.audioPath = AudioMixActivity.DEFAULT_AUDIO_PATH;
+        AudioMixFragment.mixing = false;
+        AudioMixFragment.mixMode = AudioMixFragment.MODE_PLAY_MIX;
+        AudioMixFragment.audioPath = AudioMixFragment.DEFAULT_AUDIO_PATH;
         RCRTCAudioMixer.getInstance().setMixingVolume(100);
         RCRTCAudioMixer.getInstance().setPlaybackVolume(100);
         RCRTCEngine.getInstance().getDefaultAudioStream().adjustRecordingVolume(100);
@@ -1134,11 +1135,8 @@ public class CallActivity extends RongRTCBaseActivity
         } else {
             kicked = true;
         }
-        if (localUser != null) {
-            localUser.unpublishStream(fileVideoOutputStream, null);
-        }
         RCRTCAudioMixer.getInstance().stop();
-        AudioMixActivity.mixing = false;
+        AudioMixFragment.mixing = false;
         // 当前用户是观察者 或 离开房间时还有其他用户存在，直接退出
         if (screenOutputStream == null) {
             disconnect();
@@ -1263,9 +1261,6 @@ public class CallActivity extends RongRTCBaseActivity
         }
         RCRTCEngine.getInstance().unregisterStatusReportListener();
         if (isConnected) {
-            if (localUser != null) {
-                localUser.unpublishStream(fileVideoOutputStream, null);
-            }
             RCRTCAudioMixer.getInstance().stop();
             if (room != null) {
                 room.deleteRoomAttributes(Arrays.asList(myUserId), null, null);
@@ -2737,7 +2732,7 @@ public class CallActivity extends RongRTCBaseActivity
         }
         btnCustomStream.setSelected(true);
         RCRTCAudioMixer.getInstance().stop();
-        AudioMixActivity.mixing = false;
+        AudioMixFragment.mixing = false;
         btnCustomAudioStream.setSelected(false);
         if (localUser == null) {
             return;
@@ -2760,9 +2755,13 @@ public class CallActivity extends RongRTCBaseActivity
                 btnCustomStream.post(new Runnable() {
                     @Override
                     public void run() {
-                        btnCustomStream.setSelected(false);
-                        renderViewManager.removeVideoView(true, myUserId, stream.getTag());
-                        localUser.unpublishStream(stream, null);
+                        //如果是 activity 退出过程中，不需要先取消发布资源
+                        //在调用 leaveRoom 退出房间前也不需要先取消当前发布的资源
+                        if (!isFinishing()) {
+                            btnCustomStream.setSelected(false);
+                            renderViewManager.removeVideoView(true, myUserId, stream.getTag());
+                            localUser.unpublishStream(stream, null);
+                        }
                     }
                 });
             }
@@ -2977,7 +2976,7 @@ public class CallActivity extends RongRTCBaseActivity
     @Override
     protected void onResume() {
         super.onResume();
-        btnCustomAudioStream.setSelected(AudioMixActivity.alive);
+        btnCustomAudioStream.setSelected(AudioMixFragment.alive);
     }
 
     private void startBluetoothSco() {
@@ -3561,7 +3560,7 @@ public class CallActivity extends RongRTCBaseActivity
         public void onSwitchAudioOptions(boolean isOn) {
             SessionManager.getInstance().put(SettingActivity.IS_AUDIO_MUSIC, isOn);
             AudioScenario audioScenario = isOn ? AudioScenario.MUSIC : AudioScenario.DEFAULT;
-            RCRTCEngine.getInstance().getDefaultAudioStream().changeAudioScenario(audioScenario);
+            RCRTCEngine.getInstance().getDefaultAudioStream().changeAudioScenario(audioScenario, null);
         }
 
         @Override

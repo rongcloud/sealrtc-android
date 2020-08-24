@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:textColor="@android:color/white"
+            android:text="@string/effect_name_1"/>
+
+        <Switch
+            android:id="@+id/switch_effect0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumb="@drawable/effect_preload_switch_thumb"
+            android:track="@drawable/effect_preload_switch_track"/>
+
+        <SeekBar
+            android:id="@+id/sb_effect0_vol"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:maxHeight="50dp"
+            android:minHeight="50dp"
+            android:layout_weight="1"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:max="100"
+            tools:progress="50"
+            android:progressDrawable="@drawable/seekbar_progress_drawable"
+            android:thumb="@drawable/seekbar_thumb"/>
+
+        <ImageButton
+            android:id="@+id/img_btn_effect0_play_pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            android:onClick="onClick"
+            app:srcCompat="@drawable/mix_play_pause_selector"/>
+
+        <ImageButton
+            android:id="@+id/img_btn_effect0_stop"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            android:onClick="onClick"
+            app:srcCompat="@drawable/mix_stop"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:textColor="@android:color/white"
+            android:text="@string/effect_name_2"/>
+
+
+        <Switch
+            android:id="@+id/switch_effect1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumb="@drawable/effect_preload_switch_thumb"
+            android:track="@drawable/effect_preload_switch_track"/>
+
+        <SeekBar
+            android:id="@+id/sb_effect1_vol"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:max="100"
+            tools:progress="50"
+            android:progressDrawable="@drawable/seekbar_progress_drawable"
+            android:thumb="@drawable/seekbar_thumb"/>
+
+        <ImageButton
+            android:id="@+id/img_btn_effect1_play_pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            android:onClick="onClick"
+            app:srcCompat="@drawable/mix_play_pause_selector"/>
+
+        <ImageButton
+            android:id="@+id/img_btn_effect1_stop"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            android:onClick="onClick"
+            app:srcCompat="@drawable/mix_stop"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:textColor="@android:color/white"
+            android:text="@string/effect_name_3"/>
+
+
+        <Switch
+            android:id="@+id/switch_effect2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumb="@drawable/effect_preload_switch_thumb"
+            android:track="@drawable/effect_preload_switch_track"/>
+
+        <SeekBar
+            android:id="@+id/sb_effect2_vol"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:max="100"
+            tools:progress="50"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:progressDrawable="@drawable/seekbar_progress_drawable"
+            android:thumb="@drawable/seekbar_thumb"/>
+
+        <ImageButton
+            android:id="@+id/img_btn_effect2_play_pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            android:onClick="onClick"
+            app:srcCompat="@drawable/mix_play_pause_selector"/>
+
+        <ImageButton
+            android:id="@+id/img_btn_effect2_stop"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"
+            android:onClick="onClick"
+            app:srcCompat="@drawable/mix_stop"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textColor="@android:color/white"
+            android:text="@string/effect_global_volume"/>
+
+        <SeekBar
+            android:id="@+id/sb_global_vol"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:max="100"
+            tools:progress="50"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:progressDrawable="@drawable/seekbar_progress_drawable"
+            android:thumb="@drawable/seekbar_thumb"/>
+
+        <TextView
+            android:id="@+id/tv_global_vol"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            tools:text="50"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textColor="@android:color/white"
+            android:text="@string/effect_cyclic_count"/>
+
+        <EditText
+            android:id="@+id/tv_cyclic_count"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:inputType="number"
+            android:cursorVisible="false"
+            tools:text="10"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btn_stop_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/effect_stop_all"/>
+
+    </LinearLayout>
+
+</LinearLayout>

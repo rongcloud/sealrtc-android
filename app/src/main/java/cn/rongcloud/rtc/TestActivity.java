@@ -3,7 +3,6 @@ package cn.rongcloud.rtc;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -13,7 +12,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import cn.rongcloud.rtc.api.RCRTCAudioMixer;
 import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.api.RCRTCLocalUser;
@@ -35,9 +33,7 @@ import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
 import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.util.SessionManager;
-import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.utils.FinLog;
-import cn.rongcloud.rtclib.BuildConfig;
 import io.rong.imlib.model.Message;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,15 +41,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** @author huichao li */
-public class TestActivity extends RongRTCBaseActivity
-        implements View.OnClickListener, OnSubscribeListener {
+/**
+ * @author huichao li
+ */
+public class TestActivity extends RongRTCBaseActivity implements View.OnClickListener, OnSubscribeListener {
 
     private static final String TAG = TestActivity.class.getSimpleName();
     private RelativeLayout localContainer, localCustomContainer;
     private TextView resultView;
-    private Button audioButton, videoButton, audioAndVideoButton, customVideoButton, quitRoomButton,test_mediaServerButton;
-    private Button cameraButton,micButton;
+    private Button audioButton, videoButton, audioAndVideoButton, customVideoButton, quitRoomButton, test_mediaServerButton;
+    private Button cameraButton, micButton;
     private RCRTCRoom rtcRoom;
     boolean audioPublished, videoPublished, avPublished, customVideoPublished = false;
     private LinearLayout remoteVideoContainer;
@@ -65,7 +62,7 @@ public class TestActivity extends RongRTCBaseActivity
     private RCRTCVideoView localCustomVideoView;
     RCRTCFileVideoOutputStream fileVideoOutputStream = null;
     private boolean startCamera = false;
-    private boolean microphoneDisable =true;
+    private boolean microphoneDisable = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +78,10 @@ public class TestActivity extends RongRTCBaseActivity
         quitRoomButton = findViewById(R.id.test_quit);
         remoteVideoContainer = findViewById(R.id.test_remote_video_container);
         streamListView = findViewById(R.id.test_remote_resource_list);
-        test_mediaServerButton=findViewById(R.id.test_mediaServer);
-        test_mediaServerButton.setVisibility(BuildConfig.DEBUG ? View.VISIBLE:View.GONE);
-        cameraButton=findViewById(R.id.test_Camera);
-        micButton=findViewById(R.id.test_Mic);
+        test_mediaServerButton = findViewById(R.id.test_mediaServer);
+        test_mediaServerButton.setVisibility(BuildConfig.DEBUG ? View.VISIBLE : View.GONE);
+        cameraButton = findViewById(R.id.test_Camera);
+        micButton = findViewById(R.id.test_Mic);
 
         setupListeners();
 
@@ -96,16 +93,7 @@ public class TestActivity extends RongRTCBaseActivity
         streamAdapter.notifyDataSetChanged();
         localVideoView = new RCRTCVideoView(TestActivity.this.getApplicationContext());
         localCustomVideoView = new RCRTCVideoView(TestActivity.this.getApplicationContext());
-        fileVideoOutputStream =
-                RCRTCEngine.getInstance()
-                        .createFileVideoOutputStream(
-                                "file:///android_asset/video_1.mp4",
-                                false,
-                                true,
-                                "FileVideo",
-                                RCRTCVideoStreamConfig.Builder.create()
-                                        .setVideoResolution(RCRTCVideoResolution.RESOLUTION_360_640)
-                                        .build());
+        fileVideoOutputStream = RCRTCEngine.getInstance().createFileVideoOutputStream("file:///android_asset/video_1.mp4", false, true, "FileVideo", RCRTCVideoStreamConfig.Builder.create().setVideoResolution(RCRTCVideoResolution.RESOLUTION_360_640).build());
         camera(false);
     }
 
@@ -148,33 +136,33 @@ public class TestActivity extends RongRTCBaseActivity
                 @Override
                 public void onSuccess() {
                     TestActivity.this.finish();
-                    Toast.makeText( TestActivity.this, "退出成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TestActivity.this, "退出成功", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onFailed(final RTCErrorCode errorCode) {
                     TestActivity.this.finish();
-                    Toast.makeText( TestActivity.this, "退出失败："+errorCode.getReason(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TestActivity.this, "退出失败：" + errorCode.getReason(), Toast.LENGTH_SHORT).show();
                 }
             });
-        }else if(view==test_mediaServerButton){
+        } else if (view == test_mediaServerButton) {
             showDialog();
-        }else if(view==cameraButton){
-            if(startCamera){
+        } else if (view == cameraButton) {
+            if (startCamera) {
                 Toast.makeText(this, "关闭摄像头", Toast.LENGTH_SHORT).show();
                 RCRTCEngine.getInstance().getDefaultVideoStream().stopCamera();
                 camera(false);
-            }else {
+            } else {
                 Toast.makeText(this, "打开摄像头", Toast.LENGTH_SHORT).show();
-                RCRTCEngine.getInstance().getDefaultVideoStream().startCamera(-1,false,null);
+                RCRTCEngine.getInstance().getDefaultVideoStream().startCamera(-1, false, null);
                 camera(true);
             }
-        }else if(view==micButton){
-            if(microphoneDisable){
+        } else if (view == micButton) {
+            if (microphoneDisable) {
                 mic(false);
                 Toast.makeText(this, "关闭Mic", Toast.LENGTH_SHORT).show();
                 RCRTCEngine.getInstance().getDefaultAudioStream().setMicrophoneDisable(microphoneDisable);
-            }else{
+            } else {
                 mic(true);
                 Toast.makeText(this, "打开Mic", Toast.LENGTH_SHORT).show();
                 RCRTCEngine.getInstance().getDefaultAudioStream().setMicrophoneDisable(microphoneDisable);
@@ -182,14 +170,14 @@ public class TestActivity extends RongRTCBaseActivity
         }
     }
 
-    private void mic(boolean val){
+    private void mic(boolean val) {
         microphoneDisable = val;
-        micButton.setText(microphoneDisable?"打开Mic":"关闭Mic");
+        micButton.setText(microphoneDisable ? "打开Mic" : "关闭Mic");
     }
 
-    private void camera(boolean val){
+    private void camera(boolean val) {
         startCamera = val;
-        cameraButton.setText(startCamera?"关闭摄像头":"打开摄像头");
+        cameraButton.setText(startCamera ? "关闭摄像头" : "打开摄像头");
     }
 
     private Dialog mDialog;
@@ -214,9 +202,7 @@ public class TestActivity extends RongRTCBaseActivity
 
         mDialog = new Dialog(TestActivity.this, R.style.loadingdata_dialog);
         mDialog.setCancelable(false);//bu可以用“返回键”取消
-        mDialog.setContentView(layout, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
+        mDialog.setContentView(layout, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         mDialog.setContentView(layout);// 设置布局
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.setCancelable(false);
@@ -225,7 +211,7 @@ public class TestActivity extends RongRTCBaseActivity
         }
     }
 
-    private View.OnClickListener btnClickListener=new View.OnClickListener() {
+    private View.OnClickListener btnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.btn_ok) {
@@ -257,36 +243,32 @@ public class TestActivity extends RongRTCBaseActivity
         }
         if (isPublish) {
             mic(false);
-            localUser.publishStream(
-                    localUser.getDefaultAudioStream(),
-                    new IRCRTCResultCallback() {
-                        @Override
-                        public void onSuccess() {
-                            resultView.setText("音频发布成功");
-                            audioButton.setText("取消音频");
-                        }
+            localUser.publishStream(localUser.getDefaultAudioStream(), new IRCRTCResultCallback() {
+                @Override
+                public void onSuccess() {
+                    resultView.setText("音频发布成功");
+                    audioButton.setText("取消音频");
+                }
 
-                        @Override
-                        public void onFailed(RTCErrorCode errorCode) {
-                            resultView.setText("音频发布失败: " + errorCode);
-                        }
-                    });
+                @Override
+                public void onFailed(RTCErrorCode errorCode) {
+                    resultView.setText("音频发布失败: " + errorCode);
+                }
+            });
         } else {
             mic(true);
-            localUser.unpublishStream(
-                    localUser.getDefaultAudioStream(),
-                    new IRCRTCResultCallback() {
-                        @Override
-                        public void onSuccess() {
-                            resultView.setText("音频取消发布成功");
-                            audioButton.setText("音频");
-                        }
+            localUser.unpublishStream(localUser.getDefaultAudioStream(), new IRCRTCResultCallback() {
+                @Override
+                public void onSuccess() {
+                    resultView.setText("音频取消发布成功");
+                    audioButton.setText("音频");
+                }
 
-                        @Override
-                        public void onFailed(RTCErrorCode errorCode) {
-                            resultView.setText("音频取消发布失败: " + errorCode);
-                        }
-                    });
+                @Override
+                public void onFailed(RTCErrorCode errorCode) {
+                    resultView.setText("音频取消发布失败: " + errorCode);
+                }
+            });
         }
     }
 
@@ -296,47 +278,42 @@ public class TestActivity extends RongRTCBaseActivity
             if (isPublish) {
                 RCRTCEngine.getInstance().getDefaultVideoStream().startCamera(null);
                 camera(true);
-                localUser.publishStream(
-                        localUser.getDefaultVideoStream(),
-                        new IRCRTCResultCallback() {
-                            @Override
-                            public void onSuccess() {
-                                resultView.setText("视频发布成功");
-                                videoButton.setText("取消视频");
-                                localUser.getDefaultVideoStream().setVideoView(localVideoView);
-                                localContainer.removeAllViews();
-                                localContainer.addView(localVideoView);
-                            }
+                localUser.publishStream(localUser.getDefaultVideoStream(), new IRCRTCResultCallback() {
+                    @Override
+                    public void onSuccess() {
+                        resultView.setText("视频发布成功");
+                        videoButton.setText("取消视频");
+                        localUser.getDefaultVideoStream().setVideoView(localVideoView);
+                        localContainer.removeAllViews();
+                        localContainer.addView(localVideoView);
+                    }
 
-                            @Override
-                            public void onFailed(RTCErrorCode errorCode) {
-                                resultView.setText("视频发布失败: " + errorCode);
-                            }
-                        });
+                    @Override
+                    public void onFailed(RTCErrorCode errorCode) {
+                        resultView.setText("视频发布失败: " + errorCode);
+                    }
+                });
             } else {
-                runOnUiThread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                localContainer.removeAllViews();
-                            }
-                        });
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        localContainer.removeAllViews();
+                    }
+                });
                 RCRTCEngine.getInstance().getDefaultVideoStream().stopCamera();
                 camera(false);
-                localUser.unpublishStream(
-                        localUser.getDefaultVideoStream(),
-                        new IRCRTCResultCallback() {
-                            @Override
-                            public void onSuccess() {
-                                resultView.setText("视频取消发布成功");
-                                videoButton.setText("视频");
-                            }
+                localUser.unpublishStream(localUser.getDefaultVideoStream(), new IRCRTCResultCallback() {
+                    @Override
+                    public void onSuccess() {
+                        resultView.setText("视频取消发布成功");
+                        videoButton.setText("视频");
+                    }
 
-                            @Override
-                            public void onFailed(RTCErrorCode errorCode) {
-                                resultView.setText("视频取消发布失败: " + errorCode);
-                            }
-                        });
+                    @Override
+                    public void onFailed(RTCErrorCode errorCode) {
+                        resultView.setText("视频取消发布失败: " + errorCode);
+                    }
+                });
             }
         }
     }
@@ -350,205 +327,194 @@ public class TestActivity extends RongRTCBaseActivity
             RCRTCEngine.getInstance().getDefaultVideoStream().startCamera(null);
             camera(true);
             mic(false);
-            localUser.publishDefaultStreams(
-                    new IRCRTCResultCallback() {
-                        @Override
-                        public void onSuccess() {
-                            resultView.setText("发布音视频成功");
-                            audioAndVideoButton.setText("取消音视频");
-                            localUser.getDefaultVideoStream().setVideoView(localVideoView);
-                            localContainer.removeAllViews();
-                            localContainer.addView(localVideoView);
-                        }
+            localUser.publishDefaultStreams(new IRCRTCResultCallback() {
+                @Override
+                public void onSuccess() {
+                    resultView.setText("发布音视频成功");
+                    audioAndVideoButton.setText("取消音视频");
+                    localUser.getDefaultVideoStream().setVideoView(localVideoView);
+                    localContainer.removeAllViews();
+                    localContainer.addView(localVideoView);
+                }
 
-                        @Override
-                        public void onFailed(RTCErrorCode errorCode) {
-                            resultView.setText("发布音视频失败: " + errorCode);
-                        }
-                    });
+                @Override
+                public void onFailed(RTCErrorCode errorCode) {
+                    resultView.setText("发布音视频失败: " + errorCode);
+                }
+            });
         } else {
-            runOnUiThread(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            localContainer.removeAllViews();
-                        }
-                    });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    localContainer.removeAllViews();
+                }
+            });
             RCRTCEngine.getInstance().getDefaultVideoStream().stopCamera();
             camera(false);
             mic(true);
-            localUser.unpublishDefaultStreams(
-                    new IRCRTCResultCallback() {
-                        @Override
-                        public void onSuccess() {
-                            resultView.setText("取消发布音视频成功");
-                            audioAndVideoButton.setText("音视频");
-                        }
+            localUser.unpublishDefaultStreams(new IRCRTCResultCallback() {
+                @Override
+                public void onSuccess() {
+                    resultView.setText("取消发布音视频成功");
+                    audioAndVideoButton.setText("音视频");
+                }
 
-                        @Override
-                        public void onFailed(RTCErrorCode errorCode) {
-                            resultView.setText("取消发布音视频失败: " + errorCode);
-                        }
-                    });
+                @Override
+                public void onFailed(RTCErrorCode errorCode) {
+                    resultView.setText("取消发布音视频失败: " + errorCode);
+                }
+            });
         }
     }
 
     private void publishCustomStream(final boolean isPubllish) {
         if (isPubllish) {
-            fileVideoOutputStream.setOnSendListener(
-                    new IRCRTCOnStreamSendListener() {
+            fileVideoOutputStream.setOnSendListener(new IRCRTCOnStreamSendListener() {
+                @Override
+                public void onStart(final RCRTCVideoOutputStream stream) {
+                    runOnUiThread(new Runnable() {
                         @Override
-                        public void onStart(final RCRTCVideoOutputStream stream) {
-                            runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            customVideoButton.setText("取消自定义");
-                                            resultView.setText("发布自定义视频成功");
-                                            stream.setVideoView(localCustomVideoView);
-                                            localCustomContainer.removeAllViews();
-                                            localCustomContainer.addView(localCustomVideoView);
-                                        }
-                                    });
-                        }
-
-                        @Override
-                        public void onComplete(final RCRTCVideoOutputStream stream) {
-                            runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            customVideoButton.setText("自定义");
-                                            resultView.setText("自定义视频发送完成");
-                                            localCustomContainer.removeAllViews();
-                                        }
-                                    });
-                        }
-
-                        @Override
-                        public void onFailed() {
-                            runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            customVideoButton.setText("取消自定义");
-                                            resultView.setText("发布自定义视频失败");
-                                        }
-                                    });
+                        public void run() {
+                            customVideoButton.setText("取消自定义");
+                            resultView.setText("发布自定义视频成功");
+                            stream.setVideoView(localCustomVideoView);
+                            localCustomContainer.removeAllViews();
+                            localCustomContainer.addView(localCustomVideoView);
                         }
                     });
-            rtcRoom.getLocalUser()
-                    .publishStream(
-                            fileVideoOutputStream,
-                            new IRCRTCResultCallback() {
-                                @Override
-                                public void onSuccess() {}
+                }
 
-                                @Override
-                                public void onFailed(RTCErrorCode errorCode) {}
-                            });
+                @Override
+                public void onComplete(final RCRTCVideoOutputStream stream) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            customVideoButton.setText("自定义");
+                            resultView.setText("自定义视频发送完成");
+                            localCustomContainer.removeAllViews();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailed() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            customVideoButton.setText("取消自定义");
+                            resultView.setText("发布自定义视频失败");
+                        }
+                    });
+                }
+            });
+            rtcRoom.getLocalUser().publishStream(fileVideoOutputStream, new IRCRTCResultCallback() {
+                @Override
+                public void onSuccess() {
+                }
+
+                @Override
+                public void onFailed(RTCErrorCode errorCode) {
+                }
+            });
         } else {
-            rtcRoom.getLocalUser()
-                    .unpublishStream(
-                            fileVideoOutputStream,
-                            new IRCRTCResultCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    customVideoButton.setText("自定义");
-                                    resultView.setText("取消发布自定义视频成功");
-                                    localCustomContainer.removeAllViews();
-                                }
+            rtcRoom.getLocalUser().unpublishStream(fileVideoOutputStream, new IRCRTCResultCallback() {
+                @Override
+                public void onSuccess() {
+                    customVideoButton.setText("自定义");
+                    resultView.setText("取消发布自定义视频成功");
+                    localCustomContainer.removeAllViews();
+                }
 
-                                @Override
-                                public void onFailed(RTCErrorCode errorCode) {
-                                    runOnUiThread(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    resultView.setText("取消发布自定义视频失败");
-                                                }
-                                            });
-                                }
-                            });
+                @Override
+                public void onFailed(RTCErrorCode errorCode) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            resultView.setText("取消发布自定义视频失败");
+                        }
+                    });
+                }
+            });
         }
     }
 
-    IRCRTCRoomEventsListener roomEventsListener =
-            new IRCRTCRoomEventsListener() {
-                @Override
-                public void onRemoteUserPublishResource(
-                        RCRTCRemoteUser remoteUser, List<RCRTCInputStream> publishResource) {
-                    streamAdapter.updateData(getRemoteUsers());
-                    streamAdapter.notifyDataSetChanged();
+    IRCRTCRoomEventsListener roomEventsListener = new IRCRTCRoomEventsListener() {
+        @Override
+        public void onRemoteUserPublishResource(RCRTCRemoteUser remoteUser, List<RCRTCInputStream> publishResource) {
+            streamAdapter.updateData(getRemoteUsers());
+            streamAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onRemoteUserMuteAudio(RCRTCRemoteUser remoteUser, RCRTCInputStream stream, boolean mute) {
+        }
+
+        @Override
+        public void onRemoteUserMuteVideo(RCRTCRemoteUser remoteUser, RCRTCInputStream stream, boolean mute) {
+        }
+
+        @Override
+        public void onRemoteUserUnpublishResource(RCRTCRemoteUser remoteUser, List<RCRTCInputStream> unPublishResource) {
+            streamAdapter.updateData(getRemoteUsers());
+            streamAdapter.notifyDataSetChanged();
+            for (RCRTCInputStream inputStream : unPublishResource) {
+                if (inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
+                    removeVideoView(remoteUser.getUserId(), inputStream.getTag());
                 }
+            }
+        }
 
-                @Override
-                public void onRemoteUserMuteAudio(
-                        RCRTCRemoteUser remoteUser, RCRTCInputStream stream, boolean mute) {}
+        @Override
+        public void onUserJoined(RCRTCRemoteUser remoteUser) {
+        }
 
-                @Override
-                public void onRemoteUserMuteVideo(
-                        RCRTCRemoteUser remoteUser, RCRTCInputStream stream, boolean mute) {}
+        @Override
+        public void onUserLeft(RCRTCRemoteUser remoteUser) {
+            streamAdapter.updateData(getRemoteUsers());
+            streamAdapter.notifyDataSetChanged();
+            removeVideoView(remoteUser.getUserId(), "");
+        }
 
-                @Override
-                public void onRemoteUserUnpublishResource(
-                        RCRTCRemoteUser remoteUser, List<RCRTCInputStream> unPublishResource) {
-                    streamAdapter.updateData(getRemoteUsers());
-                    streamAdapter.notifyDataSetChanged();
-                    for (RCRTCInputStream inputStream : unPublishResource) {
-                        if (inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
-                            removeVideoView(remoteUser.getUserId(), inputStream.getTag());
-                        }
-                    }
-                }
+        @Override
+        public void onUserOffline(RCRTCRemoteUser remoteUser) {
+            streamAdapter.updateData(getRemoteUsers());
+            streamAdapter.notifyDataSetChanged();
+            removeVideoView(remoteUser.getUserId(), "");
+        }
 
-                @Override
-                public void onUserJoined(RCRTCRemoteUser remoteUser) {
-                    streamAdapter.updateData(getRemoteUsers());
-                    streamAdapter.notifyDataSetChanged();
-                }
+        @Override
+        public void onVideoTrackAdd(String userId, String tag) {
+        }
 
-                @Override
-                public void onUserLeft(RCRTCRemoteUser remoteUser) {
-                    streamAdapter.updateData(getRemoteUsers());
-                    streamAdapter.notifyDataSetChanged();
-                    removeVideoView(remoteUser.getUserId(), "");
-                }
+        @Override
+        public void onLeaveRoom(int reasonCode) {
+        }
 
-                @Override
-                public void onUserOffline(RCRTCRemoteUser remoteUser) {
-                    streamAdapter.updateData(getRemoteUsers());
-                    streamAdapter.notifyDataSetChanged();
-                    removeVideoView(remoteUser.getUserId(), "");
-                }
+        @Override
+        public void onReceiveMessage(Message message) {
+        }
 
-                @Override
-                public void onVideoTrackAdd(String userId, String tag) {}
+        @Override
+        public void onKickedByServer() {
+        }
+    };
 
-                @Override
-                public void onLeaveRoom(int reasonCode) {}
+    IRCRTCStatusReportListener statusReportListener = new IRCRTCStatusReportListener() {
+        @Override
+        public void onAudioReceivedLevel(HashMap<String, String> audioLevel) {
+        }
 
-                @Override
-                public void onReceiveMessage(Message message) {}
+        @Override
+        public void onAudioInputLevel(String audioLevel) {
+        }
 
-                @Override
-                public void onKickedByServer() {}
-            };
-
-    IRCRTCStatusReportListener statusReportListener =
-            new IRCRTCStatusReportListener() {
-                @Override
-                public void onAudioReceivedLevel(HashMap<String, String> audioLevel) {}
-
-                @Override
-                public void onAudioInputLevel(String audioLevel) {}
-
-                @Override
-                public void onConnectionStats(final StatusReport statusReport) {
-                    if (streamAdapter != null) {
-                        streamAdapter.updateStatusReport(statusReport);
-                    }
-                }
-            };
+        @Override
+        public void onConnectionStats(final StatusReport statusReport) {
+            if (streamAdapter != null) {
+                streamAdapter.updateStatusReport(statusReport);
+            }
+        }
+    };
 
     @Override
     public void onSubscribe(String userId, final RCRTCInputStream inputStream) {
@@ -556,8 +522,7 @@ public class TestActivity extends RongRTCBaseActivity
             return;
         }
         synchronized (viewContainerLock) {
-            RCRTCVideoView videoView =
-                    new RCRTCVideoView(TestActivity.this.getApplicationContext());
+            RCRTCVideoView videoView = new RCRTCVideoView(TestActivity.this.getApplicationContext());
             viewMap.put(userId + inputStream.getTag(), videoView);
             ((RCRTCVideoInputStream) inputStream).setVideoView(videoView);
             remoteVideoContainer.addView(videoView, 150, 150);

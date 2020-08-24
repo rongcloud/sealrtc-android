@@ -69,7 +69,7 @@ public class DiscreteSeekBar extends View {
      * manipulate the value seen by the user
      *
      * @see #setIndicatorFormatter(String)
-     * @see #setNumericTransformer(DiscreteSeekBar.NumericTransformer)
+     * @see #setNumericTransformer(NumericTransformer)
      */
     public abstract static class NumericTransformer {
         /**
@@ -307,7 +307,7 @@ public class DiscreteSeekBar extends View {
      *
      * @param formatter
      * @see String#format(String, Object...)
-     * @see #setNumericTransformer(DiscreteSeekBar.NumericTransformer)
+     * @see #setNumericTransformer(NumericTransformer)
      */
     public void setIndicatorFormatter(@Nullable String formatter) {
         mIndicatorFormatter = formatter;
@@ -315,7 +315,7 @@ public class DiscreteSeekBar extends View {
     }
 
     /**
-     * Sets the current {@link DiscreteSeekBar.NumericTransformer}
+     * Sets the current {@link NumericTransformer}
      *
      * @param transformer
      * @see #getNumericTransformer()
@@ -328,7 +328,7 @@ public class DiscreteSeekBar extends View {
     }
 
     /**
-     * Retrieves the current {@link DiscreteSeekBar.NumericTransformer}
+     * Retrieves the current {@link NumericTransformer}
      *
      * @return NumericTransformer
      * @see #setNumericTransformer
@@ -426,7 +426,7 @@ public class DiscreteSeekBar extends View {
      * Also provides notifications of when the DiscreteSeekBar shows/hides the bubble indicator.
      *
      * @param listener The seek bar notification listener
-     * @see DiscreteSeekBar.OnProgressChangeListener
+     * @see OnProgressChangeListener
      */
     public void setOnProgressChangeListener(@Nullable OnProgressChangeListener listener) {
         mPublicChangeListener = listener;
@@ -567,7 +567,7 @@ public class DiscreteSeekBar extends View {
      * When the {@link DiscreteSeekBar} value changes this method is called
      *
      * <p>Subclasses may override this to add functionality around this event without having to
-     * specify a {@link DiscreteSeekBar.OnProgressChangeListener}
+     * specify a {@link OnProgressChangeListener}
      */
     protected void onValueChanged(int value) {}
 

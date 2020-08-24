@@ -1181,6 +1181,91 @@
               android:layout_width="match_parent"
               android:layout_height="0.5dp"
               android:background="#dddddd" />
+
+            <!--自定义音频加密-->
+            <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="40dp">
+
+                <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentBottom="true"
+                  android:layout_marginBottom="6dp"
+                  android:layout_marginLeft="12dp"
+                  android:text="@string/settings_audio_encryption"
+                  android:textColor="#aaaaaa" />
+            </RelativeLayout>
+
+            <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="0.5dp"
+              android:background="#dddddd" />
+            <RelativeLayout
+              android:id="@+id/setting_option_audio_encryption"
+              android:layout_width="match_parent"
+              android:layout_height="50dp"
+              android:background="#ffffff">
+
+                <TextView
+                  android:id="@+id/tv_setting_option_audio_encryption"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerVertical="true"
+                  android:layout_marginLeft="12dp"
+                  android:textColor="#000000"
+                  android:text="@string/settings_no"
+                  android:textSize="20sp" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="0.5dp"
+              android:background="#dddddd" />
+
+            <!--自定义视频加密-->
+            <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="40dp">
+
+                <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentBottom="true"
+                  android:layout_marginBottom="6dp"
+                  android:layout_marginLeft="12dp"
+                  android:text="@string/settings_video_encryption"
+                  android:textColor="#aaaaaa" />
+            </RelativeLayout>
+
+            <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="0.5dp"
+              android:background="#dddddd" />
+            <RelativeLayout
+              android:id="@+id/setting_option_video_encryption"
+              android:layout_width="match_parent"
+              android:layout_height="50dp"
+              android:background="#ffffff">
+
+                <TextView
+                  android:id="@+id/tv_setting_option_video_encryption"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerVertical="true"
+                  android:layout_marginLeft="12dp"
+                  android:textColor="#000000"
+                  android:text="@string/settings_no"
+                  android:textSize="20sp" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="0.5dp"
+              android:background="#dddddd" />
+
         </LinearLayout>
 
     </ScrollView>

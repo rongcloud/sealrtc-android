@@ -69,6 +69,8 @@ public class SettingActivity extends RongRTCBaseActivity
      */
     public static final String IS_MIRROR = "is_mirror_videoframe";
 
+    public static final String IS_AUDIO_ENCRYPTION = "AUDIO_ENCRYPTION";
+    public static final String IS_VIDEO_ENCRYPTION = "VIDEO_ENCRYPTION";
 
     public static final String IS_STEREO = "is_stereo";
     public static final String IS_AUDIO_MUSIC = "is_musicMode";
@@ -98,6 +100,8 @@ public class SettingActivity extends RongRTCBaseActivity
         list_mirror,
         list_isLive,
         list_stereo,
+        listAudioEncryption,
+        listVideoEncryption,
             list_audio_process;
 
     private int defaultBitrateMinIndex = 0;
@@ -120,6 +124,8 @@ public class SettingActivity extends RongRTCBaseActivity
     private static final int REQUEST_CODE_IS_AUDIO_PROCESS = 26;
     private static final int REQUEST_CODE_IS_LIVE = 27;
     private static final int REQUEST_CODE_IS_MIRROR = 28;
+    private static final int REQUEST_CODE_IS_AUDIO_ENCRYPTION = 29;
+    private static final int REQUEST_CODE_IS_VIDEO_ENCRYPTION = 30;
 
     private int tapStep = 0;
     private long lastClickTime = 0;
@@ -141,6 +147,8 @@ public class SettingActivity extends RongRTCBaseActivity
             setting_audio_process,
             setting_islive,
                 setting_userId,
+                settingAudioEncryption,
+                settingVideoEncryption,
                 setting_mirrror;
     private LinearLayout settings_Modify;
     private LinearLayout linear_connection_settings;
@@ -230,6 +238,27 @@ public class SettingActivity extends RongRTCBaseActivity
                 SessionManager.getInstance().getBoolean(IS_AUTO_TEST)
                         ? list_streamTiny[1]
                         : list_streamTiny[0]);
+        //自定义音频流开关
+        listAudioEncryption = new String[] {
+            getResources().getString(R.string.settings_no),
+            getResources().getString(R.string.settings_yes)
+        };
+        settingAudioEncryption = (TextView) findViewById(R.id.tv_setting_option_audio_encryption);
+        settingAudioEncryption.setText(
+            SessionManager.getInstance().getBoolean(IS_AUDIO_ENCRYPTION)
+                ? listAudioEncryption[1]
+                : listAudioEncryption[0]);
+
+        //自定义视频流开关
+        listVideoEncryption = new String[] {
+            getResources().getString(R.string.settings_no),
+            getResources().getString(R.string.settings_yes)
+        };
+        settingVideoEncryption = (TextView) findViewById(R.id.tv_setting_option_video_encryption);
+        settingVideoEncryption.setText(
+            SessionManager.getInstance().getBoolean(IS_VIDEO_ENCRYPTION)
+                ? listVideoEncryption[1]
+                : listVideoEncryption[0]);
 
         list_isLive =
                 new String[] {
@@ -577,6 +606,14 @@ public class SettingActivity extends RongRTCBaseActivity
                 });
 
         audioSwitch.setOnCheckedChangeListener(this);
+        findViewById(R.id.setting_option_audio_encryption)
+            .setOnClickListener(
+                new OnOptionViewClickListener(
+                    R.string.settings_audio_encryption, listAudioEncryption, REQUEST_CODE_IS_AUDIO_ENCRYPTION));
+        findViewById(R.id.setting_option_video_encryption)
+            .setOnClickListener(
+                new OnOptionViewClickListener(
+                    R.string.settings_video_encryption, listVideoEncryption, REQUEST_CODE_IS_VIDEO_ENCRYPTION));
     }
 
     private void copyToClipBoard(String content) {
@@ -744,6 +781,14 @@ public class SettingActivity extends RongRTCBaseActivity
                 SessionManager.getInstance()
                         .put(IS_AUDIO_PROCESS, list_audio_process[1].equals(result));
                 Log.d(TAG, "audio process option = " + list_audio_process[1].equals(result));
+                break;
+            case REQUEST_CODE_IS_AUDIO_ENCRYPTION:
+                settingAudioEncryption.setText(result);
+                SessionManager.getInstance().put(IS_AUDIO_ENCRYPTION, listAudioEncryption[1].equals(result));
+                break;
+            case REQUEST_CODE_IS_VIDEO_ENCRYPTION:
+                settingVideoEncryption.setText(result);
+                SessionManager.getInstance().put(IS_VIDEO_ENCRYPTION, listVideoEncryption[1].equals(result));
                 break;
             default:
                 break;

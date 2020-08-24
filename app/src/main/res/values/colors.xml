@@ -7,6 +7,8 @@
     <color name="blink_launcher_grey">#666666</color>
     <color name="blink_text_green">#33CCFF</color>
     <color name="blink_blue">#3A83F5</color>
+    <color name="blink_light_blue">#663A83F5</color>
+    <color name="blink_dark_gray">#656565</color>
     <color name="blink_yellow">#EEC900</color>
     <color name="dialog_bg_color">#00ffffff</color>
     <color name="colorWhite">#FFFFFF</color>

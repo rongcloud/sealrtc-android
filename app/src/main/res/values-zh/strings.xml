@@ -201,5 +201,18 @@
     <string name="mix_mode_play_only">本地播放，不混音</string>
     <string name="mix_mode_replace">本地播放，混音，禁止麦克</string>
     <string name="mix_file_not_support">此文件无法播放/混音，请换其他文件重试</string>
+
+    <string name="effect_name_1">音效&#160;1</string>
+    <string name="effect_name_2">音效&#160;2</string>
+    <string name="effect_name_3">音效&#160;3</string>
+    <string name="effect_stop_all">停止所有音效</string>
+    <string name="effect_global_volume">全局音量</string>
+    <string name="effect_cyclic_count">循环次数</string>
+
     <string name="MediaServerStr">MediaServerStr</string>
+
+    <string name="settings_audio_encryption">自定义音频加解密</string>
+    <string name="settings_video_encryption">自定义视频加解密</string>
+    <string name="settings_yes">是</string>
+    <string name="settings_no">否</string>
 </resources>

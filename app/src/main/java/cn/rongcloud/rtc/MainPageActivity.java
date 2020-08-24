@@ -15,7 +15,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -33,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.rongcloud.rtc.util.CustomizedEncryptionUtil;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
@@ -80,7 +80,6 @@ import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.FinLog;
-import cn.rongcloud.rtclib.BuildConfig;
 import io.rong.common.RLog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ConnectionErrorCode;
@@ -187,6 +186,8 @@ public class MainPageActivity extends RongRTCBaseActivity
 
 
         Builder configBuilder = Builder.create();
+        boolean audioEncryption = false;
+        boolean videoEncryption = false;
         if (sm.getBoolean(getResources().getString(R.string.key_use_av_setting), false)) {
             boolean enableStereo = sm.getBoolean(Consts.SP_AUDIO_STEREO_ENABLE, false);
             int audioBitrate = sm.getInt(Consts.SP_AUDIO_TRANSPORT_BIT_RATE, 30);
@@ -201,6 +202,8 @@ public class MainPageActivity extends RongRTCBaseActivity
             } else {
                 videoBitrateMode = VideoBitrateMode.CBR;
             }
+            audioEncryption = sm.getBoolean(SettingActivity.IS_AUDIO_ENCRYPTION, false);
+            videoEncryption = sm.getBoolean(SettingActivity.IS_VIDEO_ENCRYPTION,  false);
             /* 是否启动 AudioRecord */
             configBuilder.enableMicrophone(true)
                     /* 是否采用双声道 */
@@ -220,9 +223,17 @@ public class MainPageActivity extends RongRTCBaseActivity
                     .enableHardwareDecoder(sm.getBoolean(Consts.SP_DECODER_TYPE_KEY, true))
                     .setHardwareDecoderColor(sm.getInt(Consts.SP_DECODER_COLOR_FORMAT_VAL_KEY, 0))
                     /* 编码码率控制模式 */
-                    .setHardwareEncoderBitrateMode(videoBitrateMode);
+                    .setHardwareEncoderBitrateMode(videoBitrateMode)
+                    /* 开启自定义音频加解密 */
+                    .enableAudioEncryption(audioEncryption)
+                    /* 开启自定义视频加解密 */
+                    .enableVideoEncryption(videoEncryption);
         }
         RCRTCEngine.getInstance().unInit();
+        //自定义加解密 so 加载
+        if(audioEncryption|| videoEncryption){
+            CustomizedEncryptionUtil.getInstance().init();
+        }
         RLog.d(TAG, "initOrUpdateRTCEngine: ");
         RCRTCEngine.getInstance().init(getApplicationContext(), configBuilder.build());
 
@@ -400,7 +411,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         connectToRoom();
                     }
                 } else if (connectionStatus ==
-                        RongIMClient.ConnectionStatusListener.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
+                        ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
                     EventBus.getDefault().post(new KickedOfflineEvent());
                     showDialog();
                 }
@@ -536,7 +547,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         }
 
                         @Override
-                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+                        public void onError(ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
                             FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
@@ -586,7 +597,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         }
 
                         @Override
-                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+                        public void onError(ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
                             FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
@@ -886,10 +897,12 @@ public class MainPageActivity extends RongRTCBaseActivity
             }
 
             @Override
-            public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+            public void onError(ConnectionErrorCode errorCode) {
                 Toast.makeText(MainPageActivity.this, "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
                 if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
                     onTokenIncorrect();
+                }else if(errorCode == ConnectionErrorCode.RC_CONNECTION_EXIST){
+                    connectToRoom();
                 }
             }
         });
@@ -1028,7 +1041,7 @@ public class MainPageActivity extends RongRTCBaseActivity
 
                                     @Override
                                     public void onError(
-                                        RongIMClient.ConnectionErrorCode errorCode) {
+                                        ConnectionErrorCode errorCode) {
                                         LoadDialog.dismiss(MainPageActivity.this);
                                         Toast.makeText(MainPageActivity.this,
                                             "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
@@ -1125,18 +1138,6 @@ public class MainPageActivity extends RongRTCBaseActivity
 
             RongIMClient.setServerInfo(SessionManager.getInstance().getString(APP_KEY), UserUtils.FILE_SERVER);
             RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
-            /*
-             * 设置建立 Https 连接时，是否使用自签证书。
-             * 公有云用户无需调用此方法，私有云用户使用自签证书时调用此方法设置
-             */
-            /*configBuilder = new RongRTCConfig.Builder();
-            configBuilder.enableHttpsSelfCertificate(true);*/
-            // Jenkins 配置 Meida Server 地址
-            if (!TextUtils.isEmpty(UserUtils.MEDIA_SERVER)
-                    && UserUtils.MEDIA_SERVER.startsWith("http")) {
-                SessionManager.getInstance().put("QuickTestMeidaServerUrl",UserUtils.MEDIA_SERVER);
-                RCRTCEngine.getInstance().setMediaServerUrl(UserUtils.MEDIA_SERVER);
-            }
         }
         return true;
     }

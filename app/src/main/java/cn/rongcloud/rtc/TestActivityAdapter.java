@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
@@ -13,37 +14,33 @@ import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
 import cn.rongcloud.rtc.api.report.StatusBean;
 import cn.rongcloud.rtc.api.report.StatusReport;
 import cn.rongcloud.rtc.api.stream.RCRTCInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoInputStream;
 import cn.rongcloud.rtc.base.RCRTCMediaType;
 import cn.rongcloud.rtc.base.RCRTCStream;
+import cn.rongcloud.rtc.base.RCRTCStreamType;
 import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.utils.FinLog;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TestActivityAdapter extends BaseAdapter {
+
     private final String TAG = TestActivityAdapter.class.getSimpleName();
-    private ConcurrentHashMap<String, View> viewMap = new ConcurrentHashMap<String, View>();
-    private List<RCRTCRemoteUser> remoteUsers;
-    private Context context;
-    private OnSubscribeListener onSubscribeListener;
     private final String resourceVideo = "视频";
     private final String resourceAudio = "音频";
     private final String resourceCustom = "自定义";
     private final String subscribeString = "订阅";
     private final String unsubscribeString = "取消订阅";
-    private final String subscribingString = "订阅中";
-    private int[] subscribe_ids = {
-        R.id.test_item_resource_subscribe_audio,
-        R.id.test_item_resource_subscribe_video,
-        R.id.test_item_resource_subscribe_custom
-    };
+    private final String subscribeNormalString = "切大流";
+    private final String subscribeTinyString = "切小流";
+    private ConcurrentHashMap<String, View> viewMap = new ConcurrentHashMap<String, View>();
+    private List<RCRTCRemoteUser> remoteUsers;
+    private Context context;
+    private OnSubscribeListener onSubscribeListener;
+    private int[] subscribe_ids = {R.id.test_item_resource_subscribe_audio, R.id.test_item_resource_subscribe_video, R.id.test_item_resource_subscribe_custom};
     private StatusReport statusReport;
 
-    public TestActivityAdapter(
-            Context context,
-            List<RCRTCRemoteUser> remoteUsers,
-            OnSubscribeListener onSubscribeListener) {
+    public TestActivityAdapter(Context context, List<RCRTCRemoteUser> remoteUsers, OnSubscribeListener onSubscribeListener) {
         this.context = context;
         this.remoteUsers = remoteUsers;
         this.onSubscribeListener = onSubscribeListener;
@@ -74,39 +71,27 @@ public class TestActivityAdapter extends BaseAdapter {
                 }
                 String tag = "";
                 for (RCRTCInputStream inputStream : remoteUser.getStreams()) {
-                    if (statusBean.id.equals(inputStream.getStreamId())
-                            && inputStream
-                                    .getMediaType()
-                                    .getDescription()
-                                    .equals(statusBean.mediaType)) {
+                    if (statusBean.id.equals(inputStream.getStreamId()) && inputStream.getMediaType().getDescription().equals(statusBean.mediaType)) {
                         tag = inputStream.getTag();
-                        FinLog.d(TAG, " tag == " + tag);
                         break;
                     }
                 }
 
                 final String finalTag = tag;
-                Runnable runnable =
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                if (finalTag.equals(RCRTCStream.RONG_TAG)) {
-                                    // 默认视频
-                                    ((TextView)
-                                                    viewMap.get(statusBean.uid)
-                                                            .findViewById(
-                                                                    R.id.test_item_resource_bite_video))
-                                            .setText(String.valueOf(statusBean.bitRate));
-                                } else {
-                                    // 自定义视频
-                                    ((TextView)
-                                                    viewMap.get(statusBean.uid)
-                                                            .findViewById(
-                                                                    R.id.test_item_resource_bite_custom))
-                                            .setText(String.valueOf(statusBean.bitRate));
-                                }
-                            }
-                        };
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (finalTag.equals(RCRTCStream.RONG_TAG)) {
+                            // 默认视频
+                            ((TextView) viewMap.get(statusBean.uid).findViewById(R.id.test_item_resource_bite_video)).setText(
+                                String.valueOf(statusBean.bitRate) + "   " + statusBean.frameHeight + "x" + statusBean.frameWidth);
+                        } else {
+                            // 自定义视频
+                            ((TextView) viewMap.get(statusBean.uid).findViewById(R.id.test_item_resource_bite_custom)).setText(
+                                String.valueOf(statusBean.bitRate) + "   " + statusBean.frameHeight + "x" + statusBean.frameWidth);
+                        }
+                    }
+                };
                 runOnUiThread(runnable);
             }
             Object[] statusAudioRcvs = statusReport.statusAudioRcvs.values().toArray();
@@ -115,17 +100,12 @@ public class TestActivityAdapter extends BaseAdapter {
                 if (!viewMap.containsKey(statusBean.uid)) {
                     break;
                 }
-                Runnable runnable =
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                ((TextView)
-                                                viewMap.get(statusBean.uid)
-                                                        .findViewById(
-                                                                R.id.test_item_resource_bite_audio))
-                                        .setText(String.valueOf(statusBean.bitRate));
-                            }
-                        };
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView) viewMap.get(statusBean.uid).findViewById(R.id.test_item_resource_bite_audio)).setText(String.valueOf(statusBean.bitRate));
+                    }
+                };
                 runOnUiThread(runnable);
             }
         } catch (Exception e) {
@@ -142,7 +122,6 @@ public class TestActivityAdapter extends BaseAdapter {
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        viewMap.clear();
     }
 
     @Override
@@ -166,102 +145,107 @@ public class TestActivityAdapter extends BaseAdapter {
             return null;
         }
         final RCRTCRemoteUser remoteUser = (RCRTCRemoteUser) getItem(i);
-        View layoutView = LayoutInflater.from(context).inflate(R.layout.activity_test_item, null);
+        final View layoutView = LayoutInflater.from(context).inflate(R.layout.activity_test_item, null);
         viewMap.put(remoteUser.getUserId(), layoutView);
         ((TextView) layoutView.findViewById(R.id.test_item_id)).setText(remoteUser.getUserId());
         List<RCRTCInputStream> streamList = remoteUser.getStreams();
         for (final RCRTCInputStream inputStream : streamList) {
-            int subscribeIdIndex;
+            final int subscribeIdIndex;
             // 设置资源类型
             if (inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
                 if (inputStream.getTag().equals(RCRTCStream.RONG_TAG)) {
-                    ((TextView) layoutView.findViewById(R.id.test_item_resource_video))
-                            .setText(resourceVideo);
-                    layoutView
-                            .findViewById(R.id.test_item_resource_video_container)
-                            .setVisibility(View.VISIBLE);
+                    ((TextView) layoutView.findViewById(R.id.test_item_resource_video)).setText(resourceVideo);
+                    layoutView.findViewById(R.id.test_item_resource_video_container).setVisibility(View.VISIBLE);
                     subscribeIdIndex = 1;
+                    //切换小流
+                    layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny).setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(final View view) {
+                            if (!((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video)).getText().toString().equals(unsubscribeString)) {
+                                FinLog.e(TAG, "还未订阅视频前，不允许切换大小流");
+                                return;
+                            }
+                            if (((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).getText().toString().equals(subscribeNormalString)) {
+                                remoteUser.switchToNormalStream(new IRCRTCResultCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeTinyString);
+                                    }
+
+                                    @Override
+                                    public void onFailed(RTCErrorCode errorCode) {
+
+                                    }
+                                });
+                            } else {
+                                remoteUser.switchToTinyStream(new IRCRTCResultCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeNormalString);
+                                    }
+
+                                    @Override
+                                    public void onFailed(RTCErrorCode errorCode) {
+
+                                    }
+                                });
+                            }
+                        }
+                    });
                 } else {
-                    ((TextView) layoutView.findViewById(R.id.test_item_resource_custom))
-                            .setText(resourceCustom);
-                    layoutView
-                            .findViewById(R.id.test_item_resource_custom_container)
-                            .setVisibility(View.VISIBLE);
+                    ((TextView) layoutView.findViewById(R.id.test_item_resource_custom)).setText(resourceCustom);
+                    layoutView.findViewById(R.id.test_item_resource_custom_container).setVisibility(View.VISIBLE);
                     subscribeIdIndex = 2;
                 }
             } else {
-                layoutView
-                        .findViewById(R.id.test_item_resource_audio_container)
-                        .setVisibility(View.VISIBLE);
-                ((TextView) layoutView.findViewById(R.id.test_item_resource_audio))
-                        .setText(resourceAudio);
+                layoutView.findViewById(R.id.test_item_resource_audio_container).setVisibility(View.VISIBLE);
+                ((TextView) layoutView.findViewById(R.id.test_item_resource_audio)).setText(resourceAudio);
                 subscribeIdIndex = 0;
             }
-            String subscribeDes = subscribeString;
+            final String subscribeDes = subscribeString;
             // 设置订阅状态
-            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex]))
-                    .setText(subscribeDes);
-            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex]))
-                    .setTag(subscribeDes);
-            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex]))
-                    .setOnClickListener(
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(final View view) {
-                                    if (view.getTag().equals(subscribeString)) {
-                                        List<RCRTCInputStream> subscribedStreams =
-                                                new ArrayList<>();
-                                        subscribedStreams.add(inputStream);
-                                        final String userId = remoteUser.getUserId();
-                                        RCRTCEngine.getInstance()
-                                                .getRoom()
-                                                .getLocalUser()
-                                                .subscribeStreams(
-                                                        subscribedStreams,
-                                                        new IRCRTCResultCallback() {
-                                                            @Override
-                                                            public void onSuccess() {
-                                                                ((TextView) view)
-                                                                        .setText(unsubscribeString);
-                                                                ((TextView) view)
-                                                                        .setTag(unsubscribeString);
-                                                                onSubscribeListener.onSubscribe(
-                                                                        userId, inputStream);
-                                                            }
+            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex])).setText(subscribeDes);
+            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex])).setTag(subscribeDes);
+            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex])).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    if (view.getTag().equals(subscribeString)) {
+                        final String userId = remoteUser.getUserId();
+                        RCRTCEngine.getInstance().getRoom().getLocalUser().subscribeStream(inputStream, new IRCRTCResultCallback() {
+                            @Override
+                            public void onSuccess() {
+                                ((TextView) view).setText(unsubscribeString);
+                                view.setTag(unsubscribeString);
+                                onSubscribeListener.onSubscribe(userId, inputStream);
+                            }
 
-                                                            @Override
-                                                            public void onFailed(
-                                                                    RTCErrorCode errorCode) {}
-                                                        });
-                                    } else if (view.getTag().equals(unsubscribeString)) {
-                                        List<RCRTCInputStream> unsubscribedStreams =
-                                                new ArrayList<>();
-                                        unsubscribedStreams.add(inputStream);
-                                        final String userId = remoteUser.getUserId();
-                                        RCRTCEngine.getInstance()
-                                                .getRoom()
-                                                .getLocalUser()
-                                                .unsubscribeStreams(
-                                                        unsubscribedStreams,
-                                                        new IRCRTCResultCallback() {
-                                                            @Override
-                                                            public void onSuccess() {
-                                                                ((TextView) view)
-                                                                        .setText(subscribeString);
-                                                                ((TextView) view)
-                                                                        .setTag(subscribeString);
-                                                                onSubscribeListener.onUnsubscribe(
-                                                                        userId, inputStream);
-                                                            }
-
-                                                            @Override
-                                                            public void onFailed(
-                                                                    RTCErrorCode errorCode) {}
-                                                        });
-                                    }
+                            @Override
+                            public void onFailed(RTCErrorCode errorCode) {
+                            }
+                        });
+                    } else if (view.getTag().equals(unsubscribeString)) {
+                        final String userId = remoteUser.getUserId();
+                        RCRTCEngine.getInstance().getRoom().getLocalUser().unsubscribeStream(inputStream, new IRCRTCResultCallback() {
+                            @Override
+                            public void onSuccess() {
+                                ((TextView) view).setText(subscribeString);
+                                view.setTag(subscribeString);
+                                onSubscribeListener.onUnsubscribe(userId, inputStream);
+                                if (subscribeIdIndex == 1) {
+                                    ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeNormalString);
                                 }
-                            });
+                            }
+
+                            @Override
+                            public void onFailed(RTCErrorCode errorCode) {
+                            }
+                        });
+                    }
+                }
+            });
         }
         return layoutView;
     }
+
+
 }

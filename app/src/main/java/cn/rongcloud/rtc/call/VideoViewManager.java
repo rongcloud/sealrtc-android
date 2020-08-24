@@ -111,7 +111,7 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
     }
 
     public void onCreateEglFailed(String userId, String tag) {
-        VideoViewManager.RenderHolder renderHolder = getViewHolder(userId, tag);
+        RenderHolder renderHolder = getViewHolder(userId, tag);
         Log.i(TAG, "onCreateEglFailed() renderHolder = " + renderHolder);
         if (renderHolder != null) {
             renderHolder.coverView.onCreateEglFailed();
@@ -431,7 +431,7 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
 
     // todo delete
     public void onTrackadd(String userId, String tag) {
-        VideoViewManager.RenderHolder renderHolder = getViewHolder(userId, tag);
+        RenderHolder renderHolder = getViewHolder(userId, tag);
         Log.i(TAG, "onTrackadd() renderHolder = " + renderHolder);
         if (renderHolder != null) {
             renderHolder.coverView.setTrackisAdded();
@@ -439,7 +439,7 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
     }
 
     public void onFirstFrameDraw(String userId, String tag) {
-        VideoViewManager.RenderHolder renderHolder = getViewHolder(userId, tag);
+        RenderHolder renderHolder = getViewHolder(userId, tag);
         Log.i(TAG, "onFirstFrameDraw() renderHolder = " + renderHolder);
         if (renderHolder != null) {
             renderHolder.coverView.setFirstDraw();
@@ -781,36 +781,36 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
         selectedUserid.remove(userid);
     }
 
-    public List<VideoViewManager.RenderHolder> idQueryHolder(String userid) {
-        List<VideoViewManager.RenderHolder> renderHolderList = new ArrayList<>();
+    public List<RenderHolder> idQueryHolder(String userid) {
+        List<RenderHolder> renderHolderList = new ArrayList<>();
         //        connectedVideoViewEntity connectedVideoViewEntity=new
         // connectedVideoViewEntity(renderHolder,RongIMClient.getInstance().getCurrentUserId());
         for (int i = 0; i < connectedUsers.size(); i++) {
             if (null != connectedUsers.get(i)
                 && !TextUtils.isEmpty(connectedUsers.get(i).getUserId())
                 && connectedUsers.get(i).getUserId().equals(userid)) {
-                VideoViewManager.RenderHolder renderHolder = connectedUsers.get(i).getRenderHolder();
+                RenderHolder renderHolder = connectedUsers.get(i).getRenderHolder();
                 renderHolderList.add(renderHolder);
             }
         }
         return renderHolderList;
     }
 
-    public List<VideoViewManager.RenderHolder> getViewHolderByUserId(String userid) {
-        List<VideoViewManager.RenderHolder> renderHolderList = new ArrayList<>();
+    public List<RenderHolder> getViewHolderByUserId(String userid) {
+        List<RenderHolder> renderHolderList = new ArrayList<>();
         for (int i = 0; i < connectedUsers.size(); i++) {
             if (null != connectedUsers.get(i)
                 && !TextUtils.isEmpty(connectedUsers.get(i).getUserId())
                 && connectedUsers.get(i).getUserId().equals(userid)) {
-                VideoViewManager.RenderHolder renderHolder = connectedUsers.get(i).getRenderHolder();
+                RenderHolder renderHolder = connectedUsers.get(i).getRenderHolder();
                 renderHolderList.add(renderHolder);
             }
         }
         return renderHolderList;
     }
 
-    public VideoViewManager.RenderHolder getViewHolder(String userId, String tag) {
-        VideoViewManager.RenderHolder renderHolder = null;
+    public RenderHolder getViewHolder(String userId, String tag) {
+        RenderHolder renderHolder = null;
         for (int i = 0; i < connectedUsers.size(); i++) {
             if (null != connectedUsers.get(i)
                 && !TextUtils.isEmpty(connectedUsers.get(i).getUserId())
@@ -823,7 +823,7 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
         return renderHolder;
     }
 
-    public VideoViewManager.RenderHolder getViewHolder(String userId) {
+    public RenderHolder getViewHolder(String userId) {
         if (connectedRemoteRenders == null || TextUtils.isEmpty(userId)) {
             return null;
         }
@@ -832,7 +832,7 @@ public class VideoViewManager implements ContainerLayoutGestureEvents {
             Map.Entry entry = (Map.Entry) it.next();
             String key = (String) entry.getKey();
             if (!TextUtils.isEmpty(key) && key.startsWith(userId)) {
-                return (VideoViewManager.RenderHolder) entry.getValue();
+                return (RenderHolder) entry.getValue();
             }
 
         }

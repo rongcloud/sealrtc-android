@@ -69,7 +69,7 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
             EventBus.getDefault().register(this);
         }
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.activity_toolbar);
             super.setSupportActionBar(toolbar);
         }

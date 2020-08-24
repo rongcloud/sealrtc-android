@@ -1,7 +1,8 @@
 package cn.rongcloud.rtc.util;
 
 import android.text.TextUtils;
-
+import android.view.View;
+import cn.rongcloud.rtc.BuildConfig;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,13 +18,18 @@ public class UserUtils {
     public static final String COUNTRY = "country";
     public static final String USER_ID = "user_id";
 
-//    public static final String TOKNE_KEY = "TOKEN_KEY";
-public static final String USERNAME_KEY = "USER_NAME";
-    public static final String BASE_URL = "";
+    //    public static final String TOKNE_KEY = "TOKEN_KEY";
+    public static final String USERNAME_KEY = "USER_NAME";
     public static final String URL_LOGIN = "user/login";
     public static final String URL_GET_TOKEN = "user/get_token";
     public static final String URL_GET_TOKEN_NEW = "user/get_token_new";
-    public static final String APP_KEY = "请通过开发者后台申请";
+
+    /**
+     * Demo中通过短信验证码获取Token用到，
+     * 开发者直接在{@link cn.rongcloud.rtc.MainPageActivity#onClick(View)} 方法中RongIMClient.connect(token,..)IM 连接处直接填写Token即可
+     */
+    public static final String BASE_URL = ;
+    public static final String APP_KEY = 通过开发者后台申请;
     public static final String NAV_SERVER = "nav.cn.ronghub.com";
     public static final String FILE_SERVER = "up.qbox.me";
 
@@ -40,10 +46,7 @@ public static final String USERNAME_KEY = "USER_NAME";
 
     public static final String URL_GET_COUNTRY = "http://api.sealtalk.im/user/regionlist";
 
-    /**
-     * 0:公有云
-     * 1:私有云
-     */
+    /** 0:公有云 1:私有云 */
     public static int USE_PRIVATE_CLOUD = 0;
 
     public static boolean isNumber(String string) {
@@ -94,7 +97,7 @@ public static final String USERNAME_KEY = "USER_NAME";
     }
 
     /**
-     * 是否符合中英文 空格  ,主要判断emoji表情
+     * 是否符合中英文 空格 ,主要判断emoji表情
      *
      * @param str
      * @return true：符合
@@ -110,9 +113,7 @@ public static final String USERNAME_KEY = "USER_NAME";
         }
     }
 
-    /**
-     *
-     */
+    /** */
     public static boolean containsEmoji(String source) {
         int len = source.length();
         boolean isEmoji = false;
@@ -136,7 +137,15 @@ public static final String USERNAME_KEY = "USER_NAME";
                     return true;
                 } else if (0x3297 <= hs && hs <= 0x3299) {
                     return true;
-                } else if (hs == 0xa9 || hs == 0xae || hs == 0x303d || hs == 0x3030 || hs == 0x2b55 || hs == 0x2b1c || hs == 0x2b1b || hs == 0x2b50 || hs == 0x231a) {
+                } else if (hs == 0xa9
+                        || hs == 0xae
+                        || hs == 0x303d
+                        || hs == 0x3030
+                        || hs == 0x2b55
+                        || hs == 0x2b1c
+                        || hs == 0x2b1b
+                        || hs == 0x2b50
+                        || hs == 0x231a) {
                     return true;
                 }
                 if (!isEmoji && source.length() > 1 && i < source.length() - 1) {
@@ -195,14 +204,18 @@ public static final String USERNAME_KEY = "USER_NAME";
         int strLength = str.length();
         try {
             switch (strType(str)) {
-                case 0://全英文最多5字母 遇空格抛掉
-                    userName = str.substring(strLength - (strLength > 5 ? 5 : strLength), strLength).trim();
+                case 0: // 全英文最多5字母 遇空格抛掉
+                    userName =
+                            str.substring(strLength - (strLength > 5 ? 5 : strLength), strLength)
+                                    .trim();
                     if (userName.indexOf(" ") != -1) {
                         userName = userName.substring(userName.indexOf(' ') + 1);
                     }
                     break;
                 case 1:
-                    userName = str.substring(strLength - (strLength > 2 ? 2 : strLength), strLength).trim();
+                    userName =
+                            str.substring(strLength - (strLength > 2 ? 2 : strLength), strLength)
+                                    .trim();
                     break;
                 case 2:
                     userName = hybridCapture(str);
@@ -245,9 +258,7 @@ public static final String USERNAME_KEY = "USER_NAME";
         return userNameCount;
     }
 
-    /**
-     * 中英文混合不超过5个字节，
-     */
+    /** 中英文混合不超过5个字节， */
     private static String hybridCapture(String str) {
         String name = " ";
         try {

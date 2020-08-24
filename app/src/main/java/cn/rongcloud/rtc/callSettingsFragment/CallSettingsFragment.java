@@ -17,7 +17,7 @@ import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.SettingActivity;
 import cn.rongcloud.rtc.util.SessionManager;
 
-public class CallSettingsFragment extends android.app.DialogFragment
+public class CallSettingsFragment extends DialogFragment
         implements RadioGroup.OnCheckedChangeListener,
                 CallSettingsPagerView.CallSettingsPagerListener {
 
