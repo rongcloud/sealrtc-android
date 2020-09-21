@@ -238,11 +238,6 @@ public class SettingActivity extends RongRTCBaseActivity
                 SessionManager.getInstance().getBoolean(IS_AUTO_TEST)
                         ? list_streamTiny[1]
                         : list_streamTiny[0]);
-        // release 版本自定义音视频加解密功能关闭状态
-        if (BuildConfig.DEBUG) {
-            findViewById(R.id.setting_audio_encryption).setVisibility(View.VISIBLE);
-            findViewById(R.id.setting_video_encryption).setVisibility(View.VISIBLE);
-        }
         //自定义音频流开关
         listAudioEncryption = new String[] {
             getResources().getString(R.string.settings_no),

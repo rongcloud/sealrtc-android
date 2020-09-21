@@ -20,7 +20,6 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
-import cn.rongcloud.rtc.instrumentationtest.RTCResultCallbackWrapper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,8 +180,8 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
         // 合流布局视频输出配置
         RCRTCMixConfig.MediaConfig.VideoConfig video = new RCRTCMixConfig.MediaConfig.VideoConfig();
         // 视频layout配置
-        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videolayout =
-            new RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout();
+        VideoLayout videolayout =
+            new VideoLayout();
 
         RCRTCVideoStreamConfig videoConfig = RCRTCEngine.getInstance().getDefaultVideoStream().getVideoConfig();
         videolayout.setBitrate(videoConfig.getMaxRate());
@@ -257,7 +256,7 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
     }
 
     private void onSubmit() {
-        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videoLayout =
+        VideoLayout videoLayout =
             mConfig.getMediaConfig().getVideoConfig().getVideoLayout();
 //        videoLayout.setWidth(Integer.parseInt(mEvW.getText().toString()));
 //        videoLayout.setHeight(Integer.parseInt(mEvH.getText().toString()));
@@ -268,15 +267,15 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
         if (mConfig.getLayoutMode() == MixLayoutMode.CUSTOM) {
             updateCustomMixLayout();
         }
-        mLiveInfo.setMixConfig(mConfig, new RTCResultCallbackWrapper(getActivity()) {
+        mLiveInfo.setMixConfig(mConfig, new IRCRTCResultCallback() {
             @Override
-            public void onUISuccess() {
+            public void onSuccess() {
                 Toast.makeText(getActivity(), "更新成功", Toast.LENGTH_LONG).show();
                 dismiss();
             }
 
             @Override
-            public void onUIFailed(RTCErrorCode errorCode) {
+            public void onFailed(RTCErrorCode errorCode) {
                 Log.d(TAG, "onUiFailed: " + errorCode);
                 Toast.makeText(getActivity(), "更新失败: " + errorCode, Toast.LENGTH_LONG).show();
             }

@@ -10,7 +10,6 @@ import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.SettingActivity;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.device.privatecloud.ServerUtils;
-import cn.rongcloud.rtc.instrumentationtest.RTCInstrumentationTestActivity;
 
 /** Created by suancaicai on 2016/9/27. */
 public class LauncherActivity extends RongRTCBaseActivity {
@@ -42,26 +41,19 @@ public class LauncherActivity extends RongRTCBaseActivity {
         ServerUtils.NAV_SERVER = SessionManager.getInstance().getString(ServerUtils.NAV_SERVER_KEY);
         ServerUtils.APP_SECRET = SessionManager.getInstance().getString(ServerUtils.APP_SECRET_KEY);
         ServerUtils.API_SERVER = SessionManager.getInstance().getString(ServerUtils.API_SERVER_KEY);
-        if (getIntent().getBooleanExtra("unitTest", false)) {
-            skipToInstrumentationTestPage();
-        } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    skipToMainPage();
-                }
-            }, 1000);
-        }
+        new Handler()
+                .postDelayed(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                skipToMainPage();
+                            }
+                        },
+                        1000);
     }
 
     private void skipToMainPage() {
         Intent intent = new Intent(this, MainPageActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void skipToInstrumentationTestPage() {
-        Intent intent = new Intent(this, RTCInstrumentationTestActivity.class);
         startActivity(intent);
         finish();
     }

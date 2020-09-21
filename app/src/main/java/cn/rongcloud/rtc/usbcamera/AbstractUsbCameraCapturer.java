@@ -19,7 +19,7 @@ import cn.rongcloud.rtc.R;
 import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
 import cn.rongcloud.rtc.core.EglBase;
 import cn.rongcloud.rtc.core.GlUtil;
-import cn.rongcloud.rtc.engine.RTCEngineImpl;
+import cn.rongcloud.rtc.engine.view.RongRTCVideoViewManager;
 import cn.rongcloud.rtc.utils.FinLog;
 import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IStatusCallback;
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,7 +57,6 @@ public abstract class AbstractUsbCameraCapturer
     protected int mReqHeight;
     private int mSelectWidth;
     private int mSelectHeight;
-    private CountDownLatch countDownLatch;
 
     public AbstractUsbCameraCapturer(Context context, RCRTCVideoResolution videoResolution) {
         mContext = context;
@@ -80,9 +78,6 @@ public abstract class AbstractUsbCameraCapturer
     private void onInit() {
         mUSBMonitor = new USBMonitor(mContext, this);
         mUSBMonitor.register();
-        if (countDownLatch != null) {
-            countDownLatch.countDown();
-        }
     }
 
     protected final synchronized void queueEvent(final Runnable task) {
@@ -205,7 +200,7 @@ public abstract class AbstractUsbCameraCapturer
 
     private void createTexture() throws Exception {
         try {
-            mEglBase = EglBase.create(EglBase.create(RTCEngineImpl.getInstance().getEglBaseContext()).getEglBaseContext(), EglBase.CONFIG_PIXEL_BUFFER);
+            mEglBase = EglBase.create(EglBase.create(RongRTCVideoViewManager.getInstance().getBaseContext()).getEglBaseContext(), EglBase.CONFIG_PIXEL_BUFFER);
             // Both these statements have been observed to fail on rare occasions, see
             // BUG=RongRTC:5682.
             mEglBase.createDummyPbufferSurface();
@@ -365,7 +360,6 @@ public abstract class AbstractUsbCameraCapturer
             }
             mWorkerHandler = null;
         }
-        countDownLatch = null;
     }
 
     /** 释放Camera */
@@ -453,27 +447,5 @@ public abstract class AbstractUsbCameraCapturer
         public int compare(T t1, T t2) {
             return diff(t1) - diff(t2);
         }
-    }
-
-    /**
-     * 判断是否有USB camera 连接
-     */
-    public boolean isUSBCameraConnected() {
-        if (mUSBMonitor == null) {
-            countDownLatch = new CountDownLatch(1);
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-            }
-        }
-        if (mUSBMonitor != null) {
-            List<UsbDevice> deviceList = mUSBMonitor.getDeviceList();
-            if (deviceList == null || deviceList.isEmpty()) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
     }
 }

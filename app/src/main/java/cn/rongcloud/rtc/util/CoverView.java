@@ -174,7 +174,7 @@ public class CoverView extends RelativeLayout {
         }
         if (tv_userName != null) {
             if (!TextUtils.isEmpty(tag) && TextUtils
-                .equals(tag, UserUtils.CUSTOM_FILE_TAG)) {
+                .equals(tag, "FileVideo")) {
                 tv_userName.setText(
                     name + "-" + mContext.getResources().getString(R.string.user_video_custom));
             } else if (!TextUtils.isEmpty(tag)

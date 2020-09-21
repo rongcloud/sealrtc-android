@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.Toast;
-import cn.rongcloud.rtc.LoadDialog;
 
 public class RongRTCBaseActivity extends Activity {
 
@@ -32,19 +31,14 @@ public class RongRTCBaseActivity extends Activity {
         return res;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        LoadDialog.dismiss(this);
-    }
-
     protected void postShowToast(final String msg) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showToast(msg);
-            }
-        });
+        runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast(msg);
+                    }
+                });
     }
 
     protected void showToast(final String msg) {
@@ -52,21 +46,6 @@ public class RongRTCBaseActivity extends Activity {
             @Override
             public void run() {
                 Toast.makeText(RongRTCBaseActivity.this, msg, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    protected void postUIThread(final Runnable runnable) {
-        if (isDestroyed() || isFinishing()) {
-            return;
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (isDestroyed() || isFinishing()) {
-                    return;
-                }
-                runnable.run();
             }
         });
     }

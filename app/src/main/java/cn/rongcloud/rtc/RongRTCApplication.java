@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.multidex.MultiDexApplication;
 import cn.rongcloud.rtc.api.RCRTCEngine;
-import cn.rongcloud.rtc.engine.RTCEngineImpl;
 import cn.rongcloud.rtc.faceunity.FURenderer;
 import cn.rongcloud.rtc.message.RoomInfoMessage;
 import cn.rongcloud.rtc.message.RoomKickOffMessage;
@@ -43,16 +42,16 @@ public class RongRTCApplication extends MultiDexApplication {
         // 初始化Bugly
         CrashReport.initCrashReport(this, "3612cc23a8", false, strategy);
         if (getApplicationInfo().packageName.equals(Utils.getCurProcessName(this))) {
-            try {
-                RongIMClient.registerMessageType(RoomInfoMessage.class);
-                RongIMClient.registerMessageType(WhiteBoardInfoMessage.class);
-                RongIMClient.registerMessageType(RoomKickOffMessage.class);
-            } catch (AnnotationNotFoundException e) {
-                e.printStackTrace();
-            }
+          try {
+            RongIMClient.registerMessageType(RoomInfoMessage.class);
+            RongIMClient.registerMessageType(WhiteBoardInfoMessage.class);
+            RongIMClient.registerMessageType(RoomKickOffMessage.class);
+          } catch (AnnotationNotFoundException e) {
+            e.printStackTrace();
+          }
 
-            // 相芯SDK 初始化
-            FURenderer.initFURenderer(this);
+          // 相芯SDK 初始化
+          FURenderer.initFURenderer(this);
         }
 
         registerLifecycleCallbacks();

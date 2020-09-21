@@ -9,9 +9,9 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 import android.widget.Toast;
 import cn.rongcloud.rtc.R;
-import cn.rongcloud.rtc.util.http.HttpClient;
-import cn.rongcloud.rtc.util.http.Request;
-import cn.rongcloud.rtc.util.http.RequestMethod;
+import cn.rongcloud.rtc.media.http.HttpClient;
+import cn.rongcloud.rtc.media.http.Request;
+import cn.rongcloud.rtc.media.http.RequestMethod;
 import org.json.JSONException;
 import org.json.JSONObject;
 

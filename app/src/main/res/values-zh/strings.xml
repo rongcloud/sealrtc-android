@@ -201,7 +201,6 @@
     <string name="mix_mode_play_only">本地播放，不混音</string>
     <string name="mix_mode_replace">本地播放，混音，禁止麦克</string>
     <string name="mix_file_not_support">此文件无法播放/混音，请换其他文件重试</string>
-    <string name="mix_audio_tips">目前混音仅支持 Android5.0 及以上版本</string>
 
     <string name="effect_name_1">音效&#160;1</string>
     <string name="effect_name_2">音效&#160;2</string>
@@ -216,5 +215,4 @@
     <string name="settings_video_encryption">自定义视频加解密</string>
     <string name="settings_yes">是</string>
     <string name="settings_no">否</string>
-    <string name="usb_camera_not_connected">未连接USB摄像头</string>
 </resources>

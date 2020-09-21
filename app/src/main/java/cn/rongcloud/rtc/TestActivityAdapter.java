@@ -2,8 +2,6 @@ package cn.rongcloud.rtc;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,7 +20,6 @@ import cn.rongcloud.rtc.base.RCRTCStream;
 import cn.rongcloud.rtc.base.RCRTCStreamType;
 import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.utils.FinLog;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -172,12 +169,7 @@ public class TestActivityAdapter extends BaseAdapter {
                                 remoteUser.switchToNormalStream(new IRCRTCResultCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeTinyString);
-                                            }
-                                        });
+                                        ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeTinyString);
                                     }
 
                                     @Override
@@ -189,12 +181,7 @@ public class TestActivityAdapter extends BaseAdapter {
                                 remoteUser.switchToTinyStream(new IRCRTCResultCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeNormalString);
-                                            }
-                                        });
+                                        ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeNormalString);
                                     }
 
                                     @Override
@@ -217,96 +204,48 @@ public class TestActivityAdapter extends BaseAdapter {
             }
             final String subscribeDes = subscribeString;
             // 设置订阅状态
-            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex]))
-                    .setText(subscribeDes);
-            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex]))
-                    .setTag(subscribeDes);
-            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex]))
-                    .setOnClickListener(
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(final View view) {
-                                    if (view.getTag().equals(subscribeString)) {
-                                        List<RCRTCInputStream> subscribedStreams =
-                                                new ArrayList<>();
-                                        subscribedStreams.add(inputStream);
-                                        final String userId = remoteUser.getUserId();
-                                        RCRTCEngine.getInstance()
-                                                .getRoom()
-                                                .getLocalUser()
-                                                .subscribeStreams(
-                                                        subscribedStreams,
-                                                        new IRCRTCResultCallback() {
-                                                            @Override
-                                                            public void onSuccess() {
-                                                                runOnUiThread(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        ((TextView) view).setText(unsubscribeString);
-                                                                        ((TextView) view).setTag(unsubscribeString);
-                                                                        onSubscribeListener.onSubscribe(userId, inputStream);
-                                                                    }
-                                                                });
-                                                            }
+            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex])).setText(subscribeDes);
+            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex])).setTag(subscribeDes);
+            ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex])).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    if (view.getTag().equals(subscribeString)) {
+                        final String userId = remoteUser.getUserId();
+                        RCRTCEngine.getInstance().getRoom().getLocalUser().subscribeStream(inputStream, new IRCRTCResultCallback() {
+                            @Override
+                            public void onSuccess() {
+                                ((TextView) view).setText(unsubscribeString);
+                                view.setTag(unsubscribeString);
+                                onSubscribeListener.onSubscribe(userId, inputStream);
+                            }
 
-                                                            @Override
-                                                            public void onFailed(
-                                                                    RTCErrorCode errorCode) {}
-                                                        });
-                                    } else if (view.getTag().equals(unsubscribeString)) {
-                                        List<RCRTCInputStream> unsubscribedStreams =
-                                                new ArrayList<>();
-                                        unsubscribedStreams.add(inputStream);
-                                        final String userId = remoteUser.getUserId();
-                                        RCRTCEngine.getInstance()
-                                                .getRoom()
-                                                .getLocalUser()
-                                                .unsubscribeStreams(
-                                                        unsubscribedStreams,
-                                                        new IRCRTCResultCallback() {
-                                                            @Override
-                                                            public void onSuccess() {
-                                                                runOnUiThread(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        ((TextView) view).setText(subscribeString);
-                                                                        ((TextView) view).setTag(subscribeString);
-                                                                        onSubscribeListener.onUnsubscribe(userId, inputStream);
-                                                                    }
-                                                                });
-                                                            }
-
-                                                            @Override
-                                                            public void onFailed(RTCErrorCode errorCode) {
-                                                            }
-                                                        });
-                                    } else if (view.getTag().equals(unsubscribeString)) {
-                                        final String userId = remoteUser.getUserId();
-                                        RCRTCEngine.getInstance().getRoom().getLocalUser().unsubscribeStream(inputStream, new IRCRTCResultCallback() {
-                                            @Override
-                                            public void onSuccess() {
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        ((TextView) view).setText(subscribeString);
-                                                        view.setTag(subscribeString);
-                                                        onSubscribeListener.onUnsubscribe(userId, inputStream);
-                                                        if (subscribeIdIndex == 1) {
-                                                            ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeNormalString);
-                                                        }
-                                                    }
-                                                });
-                                            }
-
-                                            @Override
-                                            public void onFailed(RTCErrorCode errorCode) {
-                                            }
-                                        });
-                                    }
+                            @Override
+                            public void onFailed(RTCErrorCode errorCode) {
+                            }
+                        });
+                    } else if (view.getTag().equals(unsubscribeString)) {
+                        final String userId = remoteUser.getUserId();
+                        RCRTCEngine.getInstance().getRoom().getLocalUser().unsubscribeStream(inputStream, new IRCRTCResultCallback() {
+                            @Override
+                            public void onSuccess() {
+                                ((TextView) view).setText(subscribeString);
+                                view.setTag(subscribeString);
+                                onSubscribeListener.onUnsubscribe(userId, inputStream);
+                                if (subscribeIdIndex == 1) {
+                                    ((TextView) layoutView.findViewById(R.id.test_item_resource_subscribe_video_tiny)).setText(subscribeNormalString);
                                 }
-                            });
+                            }
+
+                            @Override
+                            public void onFailed(RTCErrorCode errorCode) {
+                            }
+                        });
+                    }
+                }
+            });
         }
         return layoutView;
     }
+
 
 }

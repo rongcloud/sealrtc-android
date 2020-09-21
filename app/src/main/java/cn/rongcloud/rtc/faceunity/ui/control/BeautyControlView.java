@@ -602,16 +602,16 @@ public class BeautyControlView extends FrameLayout
             extends RecyclerView.Adapter<FilterRecyclerAdapter.HomeRecyclerHolder> {
 
         @Override
-        public FilterRecyclerAdapter.HomeRecyclerHolder onCreateViewHolder(
+        public HomeRecyclerHolder onCreateViewHolder(
                 ViewGroup parent, int viewType) {
-            return new FilterRecyclerAdapter.HomeRecyclerHolder(
+            return new HomeRecyclerHolder(
                     LayoutInflater.from(mContext)
                             .inflate(R.layout.layout_beauty_control_recycler, parent, false));
         }
 
         @Override
         public void onBindViewHolder(
-                FilterRecyclerAdapter.HomeRecyclerHolder holder, final int position) {
+                HomeRecyclerHolder holder, final int position) {
             final List<Filter> filters = mFilters;
             holder.filterImg.setImageResource(filters.get(position).getIconId());
             holder.filterName.setText(filters.get(position).getNameId());
