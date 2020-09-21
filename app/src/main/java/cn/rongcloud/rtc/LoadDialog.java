@@ -90,7 +90,7 @@ public class LoadDialog extends Dialog {
      */
     private static void show(Context context, String message, boolean isCancel) {
         if (context instanceof Activity) {
-            if (((Activity) context).isFinishing()) {
+            if (((Activity) context).isFinishing() || ((Activity) context).isDestroyed()) {
                 return;
             }
         }
@@ -104,13 +104,6 @@ public class LoadDialog extends Dialog {
     /** dismiss the mDialogTextView */
     public static void dismiss(Context context) {
         try {
-            if (context instanceof Activity) {
-                if (((Activity) context).isFinishing()) {
-                    loadDialog = null;
-                    return;
-                }
-            }
-
             if (loadDialog != null && loadDialog.isShowing()) {
                 Context loadContext = loadDialog.getContext();
                 if (loadContext != null && loadContext instanceof Activity) {

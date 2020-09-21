@@ -14,13 +14,13 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.rongcloud.rtc.api.RCRTCConfig;
 import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
-import cn.rongcloud.rtc.api.callback.IRCRTCResultDataCallback;
-import cn.rongcloud.rtc.api.stream.RCRTCInputStream;
+import cn.rongcloud.rtc.api.callback.RCRTCLiveCallback;
+import cn.rongcloud.rtc.api.stream.RCRTCAudioInputStream;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoInputStream;
-import cn.rongcloud.rtc.base.RCRTCMediaType;
-import cn.rongcloud.rtc.base.RCRTCRoomType;
+import cn.rongcloud.rtc.base.RCRTCAVStreamType;
 import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.call.AppRTCAudioManager;
@@ -50,6 +50,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_live_list);
+        RCRTCEngine.getInstance().init(getApplicationContext(), RCRTCConfig.Builder.create().build());
         initViews();
         LiveDataOperator.getInstance().query(null);
         initAudioManager();
@@ -146,7 +147,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
             @Override
             public void onSuccess(String result) {
                 parseQueryResult(result);
-                runOnUiThread(new Runnable() {
+                postUIThread(new Runnable() {
                     @Override
                     public void run() {
                         liveListAdapter.notifyDataSetChanged();
@@ -161,31 +162,44 @@ public class LiveListActivity extends RongRTCBaseActivity {
 
     private void joinLive(String liveUrl) {
         liveVideoLayout.setVisibility(View.VISIBLE);
-        RCRTCEngine.getInstance().subscribeLiveStream(
-            liveUrl, RCRTCRoomType.LIVE_AUDIO_VIDEO, new IRCRTCResultDataCallback<List<RCRTCInputStream>>() {
-                @Override
-                public void onSuccess(List<RCRTCInputStream> streams) {
-                    for (RCRTCInputStream inputStream : streams) {
-                        if (inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
-                            showToast("开始观看视频直播");
-                            videoView = new RCRTCVideoView(LiveListActivity.this);
-                            RCRTCVideoInputStream videoInputStream = (RCRTCVideoInputStream) inputStream;
-                            videoInputStream.setVideoView(videoView);
-                            liveVideoContainer.addView(videoView, -1, -1);
-                        } else if (inputStream.getMediaType() == RCRTCMediaType.AUDIO) {
-                            showToast("收到音频流");
-                            TextView view = new TextView(getApplicationContext());
-                            view.setText("收到音频");
-                            liveVideoContainer.addView(view);
-                        }
-                    }
-                }
+        RCRTCEngine.getInstance().subscribeLiveStream(liveUrl, RCRTCAVStreamType.AUDIO_VIDEO, new RCRTCLiveCallback() {
+            @Override
+            public void onSuccess() {
+                postShowToast("订阅成功");
+            }
 
-                @Override
-                public void onFailed(RTCErrorCode errorCode) {
-                    showToast("打开直播失败！" + errorCode);
-                }
-            });
+            @Override
+            public void onVideoStreamReceived(final RCRTCVideoInputStream stream) {
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast("开始观看视频直播");
+                        videoView = new RCRTCVideoView(LiveListActivity.this);
+                        RCRTCVideoInputStream videoInputStream = (RCRTCVideoInputStream) stream;
+                        videoInputStream.setVideoView(videoView);
+                        liveVideoContainer.addView(videoView, -1, -1);
+                    }
+                });
+            }
+
+            @Override
+            public void onAudioStreamReceived(RCRTCAudioInputStream stream) {
+                postUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast("收到音频流");
+                        TextView view = new TextView(getApplicationContext());
+                        view.setText("收到音频");
+                        liveVideoContainer.addView(view);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailed(RTCErrorCode errorCode) {
+
+            }
+        });
     }
 
     private void quitLive() {
@@ -198,7 +212,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
         RCRTCEngine.getInstance().unsubscribeLiveStream(liveUrl, new IRCRTCResultCallback() {
             @Override
             public void onSuccess() {
-                runOnUiThread(new Runnable() {
+                postUIThread(new Runnable() {
                     @Override
                     public void run() {
                         showToast("退出观看成功");
@@ -208,7 +222,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
 
             @Override
             public void onFailed(final RTCErrorCode errorCode) {
-                runOnUiThread(new Runnable() {
+                postUIThread(new Runnable() {
                     @Override
                     public void run() {
                         showToast("退出观看失败: " + errorCode);

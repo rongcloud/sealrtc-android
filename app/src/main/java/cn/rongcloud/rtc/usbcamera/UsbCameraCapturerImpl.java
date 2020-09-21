@@ -20,34 +20,12 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
     private RCRTCLocalUser mLocalUser;
     private volatile IRCVideoConsumer videoConsumer;
     private volatile boolean observerEnabled = false;
+    private RCRTCVideoResolution videoResolution;
 
     public UsbCameraCapturerImpl(Context context, RCRTCLocalUser localUser, RCRTCVideoResolution videoResolution) {
         super(context, videoResolution);
         mLocalUser = localUser;
-        RCRTCVideoStreamConfig.Builder videoConfigBuilder = RCRTCVideoStreamConfig.Builder.create();
-        videoConfigBuilder.setVideoResolution(videoResolution);
-        mOutputStream = RCRTCEngine.getInstance().createVideoStream(STREAM_TAG, videoConfigBuilder.build());
-        mOutputStream.setSource(new IRCRTCVideoSource() {
-            @Override
-            public void onInit(IRCVideoConsumer observer) {
-                videoConsumer = observer;
-            }
-
-            @Override
-            public void onStart() {
-                observerEnabled = true;
-            }
-
-            @Override
-            public void onStop() {
-                videoConsumer = null;
-            }
-
-            @Override
-            public void onDispose() {
-                observerEnabled = false;
-            }
-        });
+        this.videoResolution = videoResolution;
     }
 
     /** 开始捕获数据 */
@@ -103,7 +81,7 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
     public void publishVideoStream(IRCRTCResultCallback callBack) {
         log("publishVideoStream", "");
         if (mLocalUser == null) return;
-        mLocalUser.publishStream(mOutputStream, callBack);
+        mLocalUser.publishStream(getVideoOutputStream(), callBack);
     }
 
     /**
@@ -115,22 +93,45 @@ public class UsbCameraCapturerImpl extends AbstractUsbCameraCapturer implements 
     public void unPublishVideoStream(IRCRTCResultCallback callBack) {
         log("unPublishVideoStream", "");
         if (mLocalUser == null) return;
-        mLocalUser.unpublishStream(mOutputStream, callBack);
+        mLocalUser.unpublishStream(getVideoOutputStream(), callBack);
     }
 
     @Override
     public void release() {
         log("release", "");
         setState(STATE_IDLE);
-        if (mOutputStream != null) {
-            mOutputStream.release();
-        }
         mOutputStream = null;
         onRelease();
     }
 
     @Override
     public RCRTCVideoOutputStream getVideoOutputStream() {
+        if (mOutputStream == null) {
+            RCRTCVideoStreamConfig.Builder videoConfigBuilder = RCRTCVideoStreamConfig.Builder.create();
+            videoConfigBuilder.setVideoResolution(videoResolution);
+            mOutputStream = RCRTCEngine.getInstance().createVideoStream(STREAM_TAG, videoConfigBuilder.build());
+            mOutputStream.setSource(new IRCRTCVideoSource() {
+                @Override
+                public void onInit(IRCVideoConsumer observer) {
+                    videoConsumer = observer;
+                }
+
+                @Override
+                public void onStart() {
+                    observerEnabled = true;
+                }
+
+                @Override
+                public void onStop() {
+                    videoConsumer = null;
+                }
+
+                @Override
+                public void onDispose() {
+                    observerEnabled = false;
+                }
+            });
+        }
         return mOutputStream;
     }
 

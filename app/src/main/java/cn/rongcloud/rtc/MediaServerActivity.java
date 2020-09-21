@@ -19,9 +19,9 @@ import android.widget.TextView;
 
 import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
+import cn.rongcloud.rtc.util.http.HttpClient;
+import cn.rongcloud.rtc.util.http.Request;
+import cn.rongcloud.rtc.util.http.RequestMethod;
 import cn.rongcloud.rtc.util.SessionManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -166,7 +166,7 @@ public class MediaServerActivity extends RongRTCBaseActivity {
 
     public static class MediaUrlListDialog extends DialogFragment {
         private RecyclerView recyclerView;
-        private Adapter adapter;
+        private MediaUrlListDialog.Adapter adapter;
         private OnItemClickListener onItemClickListener;
         private List<Model> models;
 
@@ -180,7 +180,7 @@ public class MediaServerActivity extends RongRTCBaseActivity {
             Context context = view.getContext();
             recyclerView = (RecyclerView) view.findViewById(R.id.recycler_media_url);
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(adapter = new Adapter(context));
+            recyclerView.setAdapter(adapter = new MediaUrlListDialog.Adapter(context));
             if (models != null) {
                 adapter.setData(models);
             }
@@ -207,7 +207,7 @@ public class MediaServerActivity extends RongRTCBaseActivity {
             this.onItemClickListener = onItemClickListener;
         }
 
-        private class Adapter extends RecyclerView.Adapter<ViewHolder> {
+        private class Adapter extends RecyclerView.Adapter<MediaUrlListDialog.ViewHolder> {
 
             private Context mContext;
             private List<Model> models = new ArrayList<>();
@@ -222,17 +222,17 @@ public class MediaServerActivity extends RongRTCBaseActivity {
             }
 
             @Override
-            public ViewHolder onCreateViewHolder(
+            public MediaUrlListDialog.ViewHolder onCreateViewHolder(
                     ViewGroup parent, int viewType) {
                 View view =
                         LayoutInflater.from(mContext)
                                 .inflate(R.layout.item_media_url, parent, false);
-                ViewHolder holder = new ViewHolder(view);
+                MediaUrlListDialog.ViewHolder holder = new MediaUrlListDialog.ViewHolder(view);
                 return holder;
             }
 
             @Override
-            public void onBindViewHolder(ViewHolder holder, final int position) {
+            public void onBindViewHolder(MediaUrlListDialog.ViewHolder holder, final int position) {
                 holder.update(models.get(position));
                 holder.itemView.setOnClickListener(
                         new View.OnClickListener() {

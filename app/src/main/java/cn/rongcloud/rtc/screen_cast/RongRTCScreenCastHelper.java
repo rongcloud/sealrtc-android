@@ -11,14 +11,14 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.view.Surface;
+import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.api.callback.IRCRTCVideoSource;
 import cn.rongcloud.rtc.api.callback.IRCRTCVideoSource.IRCVideoConsumer;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoOutputStream;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoViewManager;
 
 public class RongRTCScreenCastHelper {
     private static final String TAG = "RongRTCScreenSender";
-    public static final String VIDEO_TAG = "RongRTCScreenVideo";
+    public static final String VIDEO_TAG = "RongRTCScreenShare";
 
     private static final int DISPLAY_FLAGS =
             DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC
@@ -43,8 +43,7 @@ public class RongRTCScreenCastHelper {
         RCRTCVideoOutputStream outputStream, Intent mediaProjectionData, int width, int height) {
 
         this.mOutputStream = outputStream;
-        this.mSurfaceTextureHelper = RongRTCSurfaceTextureHelper
-            .create("ScreenCapturer", RongRTCVideoViewManager.getInstance().getBaseContext());
+        this.mSurfaceTextureHelper = RongRTCSurfaceTextureHelper.create("ScreenCapturer", ((RTCEngineImpl) RCRTCEngine.getInstance()).getEglBaseContext());
 
         this.mMediaProjectionData = mediaProjectionData;
 

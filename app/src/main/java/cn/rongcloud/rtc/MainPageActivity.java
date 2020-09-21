@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -41,7 +42,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -70,9 +70,9 @@ import cn.rongcloud.rtc.device.utils.Consts;
 import cn.rongcloud.rtc.entity.CountryInfo;
 import cn.rongcloud.rtc.entity.KickEvent;
 import cn.rongcloud.rtc.entity.KickedOfflineEvent;
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
+import cn.rongcloud.rtc.util.http.HttpClient;
+import cn.rongcloud.rtc.util.http.Request;
+import cn.rongcloud.rtc.util.http.RequestMethod;
 import cn.rongcloud.rtc.message.RoomInfoMessage;
 import cn.rongcloud.rtc.updateapk.UpDateApkHelper;
 import cn.rongcloud.rtc.util.PromptDialog;
@@ -80,6 +80,7 @@ import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.UserUtils;
 import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.FinLog;
+//import cn.rongcloud.rtclib.BuildConfig;
 import io.rong.common.RLog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ConnectionErrorCode;
@@ -111,7 +112,6 @@ public class MainPageActivity extends RongRTCBaseActivity
     private static final String TAG = "MainPageActivity";
     private static final int CONNECTION_REQUEST = 1;
     private static final long KICK_SILENT_PERIOD = 5 * 60 * 1000L;
-    private static InputStream cerStream = null;
     private EditText roomEditText, edit_UserName, edit_room_phone, userNameEditText;
     private Button connectButton;
     private ImageView settingButton;
@@ -134,7 +134,11 @@ public class MainPageActivity extends RongRTCBaseActivity
     private String roomId;
     private String username;
     private boolean isDebug;
+    //设置>自动化测试开关，自动化测试时，IM未连接状态，监听IM连接状态，连接成功再加入房间
+    //这个变量专门为自动化测试加
     private boolean joinRoomWhenConnectedInAutoTest;
+    //IM 是非 CONNECTED,调用connect接口会返回RC_CONNECTION_EXIST，需要监听setConnectionStatusListener加入房间
+    private boolean joinRoomWhenReconnected;
     List<String> unGrantedPermissions;
     private static final String[] MANDATORY_PERMISSIONS = {
         "android.permission.MODIFY_AUDIO_SETTINGS",
@@ -148,14 +152,6 @@ public class MainPageActivity extends RongRTCBaseActivity
         "android.permission.BLUETOOTH"
     };
 
-    public static final String CR_720x1280 = "720x1280";
-    public static final String CR_1080x1920 = "1088x1920";
-    public static final String CR_480x720 = "480x720";
-    public static final String CR_480x640 = "480x640";
-    public static final String CR_368x640 = "368x640";
-    public static final String CR_368x480 = "368x480";
-    public static final String CR_240x320 = "240x320";
-    public static final String CR_144x256 = "144x256";
     private int tapStep = 0;
     private long lastClickTime = 0;
     private View mLiveView;
@@ -235,7 +231,9 @@ public class MainPageActivity extends RongRTCBaseActivity
             CustomizedEncryptionUtil.getInstance().init();
         }
         RLog.d(TAG, "initOrUpdateRTCEngine: ");
+        FinLog.d(TAG + "", "init --> enter");
         RCRTCEngine.getInstance().init(getApplicationContext(), configBuilder.build());
+        FinLog.d(TAG + "", "init --> over");
 
         RCRTCAudioStreamConfig.Builder audioConfigBuilder = RCRTCAudioStreamConfig.Builder.create();
         if (sm.getBoolean(getResources().getString(R.string.key_use_av_setting), false)) {
@@ -260,6 +258,7 @@ public class MainPageActivity extends RongRTCBaseActivity
             boolean isMusicMode = sm.getBoolean(SettingActivity.IS_AUDIO_MUSIC, false);
             RCRTCAudioStreamConfig audioStreamConfig = isMusicMode ?
                     audioConfigBuilder.buildMusicMode() : audioConfigBuilder.buildDefaultMode();
+            FinLog.d(TAG + "", "Audio --> enter");
             RCRTCEngine.getInstance().getDefaultAudioStream().setAudioConfig(audioStreamConfig);
         }
 
@@ -405,25 +404,21 @@ public class MainPageActivity extends RongRTCBaseActivity
                 // 点击"开始会议"按钮时，IM为非CONNECTED时会主动connect，如果还是失败，自动化测试case失败
                 // 监听IM连接状态，做1次自动加入房间的尝试，开发者可以忽略此修改
                 if (ConnectionStatus.CONNECTED.equals(connectionStatus)) {
-                    if (isDebug && joinRoomWhenConnectedInAutoTest) {
+                    if ((isDebug && joinRoomWhenConnectedInAutoTest) ||
+                        joinRoomWhenReconnected) {
                         joinRoomWhenConnectedInAutoTest = false;
+                        joinRoomWhenReconnected = false;
                         FinLog.d(TAG, "RongLog IM connected, Join Room");
                         connectToRoom();
                     }
                 } else if (connectionStatus ==
-                        ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
+                        RongIMClient.ConnectionStatusListener.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
                     EventBus.getDefault().post(new KickedOfflineEvent());
                     showDialog();
                 }
             }
         });
     }
-
-    private void clearCer() {
-        cerStream = null;
-    }
-
-    private String cerUrl = null;
 
     @Override
     public void onClick(View v) {
@@ -432,6 +427,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                 startSetting();
                 break;
             case R.id.connect_button:
+                FinLog.d(TAG, "connect button clicked,trying to join rtc room,roomId = " + roomEditText.getText().toString());
                 if (Utils.isFastDoubleClick()) {
                     return;
                 }
@@ -541,19 +537,40 @@ public class MainPageActivity extends RongRTCBaseActivity
                         @Override
                         public void onSuccess(String s) {
                             SessionManager.getInstance().put(UserUtils.PHONE, phoneNumber);
+                            //自动化测试时，通过监听IM setConnectionStatusListener加入房间
                             if (!autoTest) {
                                 connectToRoom();
+                            } else if (!isFinishing() && !isDestroyed()) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainPageActivity.this);
+                                builder.setMessage("加入房间失败: IM 连接状态异常").show();
                             }
                         }
 
                         @Override
-                        public void onError(ConnectionErrorCode errorCode) {
+                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
                             FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
                                 onTokenIncorrect();
-                            }else if(errorCode == ConnectionErrorCode.RC_CONNECTION_EXIST){
-                                connectToRoom();
+                            } else if (errorCode == ConnectionErrorCode.RC_CONNECTION_EXIST) {
+                                //IM CONNECTED 或者 CONNECTING 都可能报这个错误码，也就是已经主动调用了一次 connect，
+                                // 第二次调用时会报 RC_CONNECTION_EXIST，IM SDK 内部会做自动重连
+                                joinRoomWhenReconnected = true;
+                                LoadDialog.show(MainPageActivity.this);
+                                Handler handler = new Handler();
+                                //IM 可能长时间连接不成功，增加一个计时器，2s 不成功，取消IM连接成功时的加入房间逻辑
+                                //原因:用户在当前页面，若突然自动加入房间，对用户不友好
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (joinRoomWhenReconnected && RongIMClient.getInstance().getCurrentConnectionStatus()
+                                            != RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
+                                            Toast.makeText(MainPageActivity.this, R.string.im_connect_failed, Toast.LENGTH_SHORT).show();
+                                            LoadDialog.dismiss(MainPageActivity.this);
+                                        }
+                                        joinRoomWhenReconnected = false;
+                                    }
+                                }, 2000);
                             }
                         }
                     });
@@ -597,7 +614,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         }
 
                         @Override
-                        public void onError(ConnectionErrorCode errorCode) {
+                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
                             FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
@@ -618,7 +635,6 @@ public class MainPageActivity extends RongRTCBaseActivity
     protected void onResume() {
         super.onResume();
         updateCamerCheck();
-        initOrUpdateRTCEngine();
         updateRoomType();
 
         String mediaServerUrl = SessionManager.getInstance().getString("MediaUrl");
@@ -693,6 +709,7 @@ public class MainPageActivity extends RongRTCBaseActivity
         if (RongIMClient.getInstance().getCurrentConnectionStatus()
                 == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
             LoadDialog.show(this);
+            initOrUpdateRTCEngine();
             final String roomId = roomEditText.getText().toString();
 
             RCRTCRoomType roomType;
@@ -897,12 +914,10 @@ public class MainPageActivity extends RongRTCBaseActivity
             }
 
             @Override
-            public void onError(ConnectionErrorCode errorCode) {
+            public void onError(RongIMClient.ConnectionErrorCode errorCode) {
                 Toast.makeText(MainPageActivity.this, "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
                 if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
                     onTokenIncorrect();
-                }else if(errorCode == ConnectionErrorCode.RC_CONNECTION_EXIST){
-                    connectToRoom();
                 }
             }
         });
@@ -1041,7 +1056,7 @@ public class MainPageActivity extends RongRTCBaseActivity
 
                                     @Override
                                     public void onError(
-                                        ConnectionErrorCode errorCode) {
+                                        RongIMClient.ConnectionErrorCode errorCode) {
                                         LoadDialog.dismiss(MainPageActivity.this);
                                         Toast.makeText(MainPageActivity.this,
                                             "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
@@ -1138,6 +1153,12 @@ public class MainPageActivity extends RongRTCBaseActivity
 
             RongIMClient.setServerInfo(SessionManager.getInstance().getString(APP_KEY), UserUtils.FILE_SERVER);
             RongIMClient.init(getApplication(), ServerUtils.getAppKey(), false);
+            // Jenkins 配置 Meida Server 地址
+            if (!TextUtils.isEmpty(UserUtils.MEDIA_SERVER)
+                    && UserUtils.MEDIA_SERVER.startsWith("http")) {
+                SessionManager.getInstance().put("QuickTestMeidaServerUrl",UserUtils.MEDIA_SERVER);
+                RCRTCEngine.getInstance().setMediaServerUrl(UserUtils.MEDIA_SERVER);
+            }
         }
         return true;
     }

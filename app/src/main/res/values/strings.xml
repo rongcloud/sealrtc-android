@@ -271,6 +271,7 @@
     <string name="mix_mode_replace">Playing and mixing, disable mic</string>
     <string name="mix_file_not_support">This data cannot be played or mixed. Please change other data and try again.</string>
     <string name="MediaServerStr">MediaServerStr</string>
+    <string name="mix_audio_tips">Audio mixer only support Android5.0 and above</string>
 
     <string name="settings_audio_encryption">audio encryption</string>
     <string name="settings_video_encryption">video encryption</string>
@@ -283,5 +284,7 @@
     <string name="effect_stop_all">Stop All</string>
     <string name="effect_global_volume">Global Volume</string>
     <string name="effect_cyclic_count">Loop Count</string>
+
+    <string name="usb_camera_not_connected">USB camera not connected</string>
 
 </resources>

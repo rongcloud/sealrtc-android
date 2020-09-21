@@ -45,14 +45,13 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomVideoFrameEncryptor_nativeCustomVideoFrameEncryptor(JNIEnv *env,
                                                                                     jobject thiz) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
-
     CustomVideoFrameEncryptor * customVideoFrameEncryptor = new CustomVideoFrameEncryptor;
     //开发者不能修改如下两行代码，RTCLib java层方法和 native层映射
     jclass clazz = env->FindClass("cn/rongcloud/rtc/crypto/CustomVideoFrameEncryptor");
     jfieldID fieldID  = env->GetFieldID(clazz, "nativeVideoFrameEncryptor","J");
     env->SetLongField(thiz, fieldID, reinterpret_cast<long>(customVideoFrameEncryptor));
-    LOGI("custom_crypto %s, %d %lld ", __func__, __LINE__, customVideoFrameEncryptor);
+    LOGI("debugleak custom_crypto %s, %d %p ", __func__, __LINE__, customVideoFrameEncryptor);
+    env->DeleteLocalRef(clazz);
 }
 
 /**
@@ -63,13 +62,13 @@ Java_cn_rongcloud_rtc_crypto_CustomVideoFrameEncryptor_nativeCustomVideoFrameEnc
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomAudioFrameEncryptor_nativeCustomAudioFrameEncryptor(JNIEnv *env,
                                                                                  jobject thiz) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
     CustomAudioFrameEncryptor * customAudioFrameEncryptor = new CustomAudioFrameEncryptor;
     //开发者不能修改如下两行代码，RTCLib java层方法和 native层映射
     jclass clazz = env->FindClass("cn/rongcloud/rtc/crypto/CustomAudioFrameEncryptor");
     jfieldID fieldID  = env->GetFieldID(clazz, "nativeAudioFrameEncryptor","J");
     env->SetLongField(thiz, fieldID, reinterpret_cast<long>(customAudioFrameEncryptor));
-    LOGI("custom_crypto %s, %d %lld", __func__, __LINE__, customAudioFrameEncryptor);
+    LOGI("debugleak custom_crypto %s, %d %p", __func__, __LINE__, customAudioFrameEncryptor);
+    env->DeleteLocalRef(clazz);
 }
 
 /**
@@ -80,14 +79,13 @@ Java_cn_rongcloud_rtc_crypto_CustomAudioFrameEncryptor_nativeCustomAudioFrameEnc
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomVideoFrameDecryptor_nativeCustomVideoFrameDecryptor(JNIEnv *env,
                                                                                        jobject thiz) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
-
     CustomVideoFrameDecryptor * customVideoFrameDecryptor = new CustomVideoFrameDecryptor;
     //开发者不能修改如下两行代码，RTCLib java层方法和 native层映射
     jclass clazz = env->FindClass("cn/rongcloud/rtc/crypto/CustomVideoFrameDecryptor");
     jfieldID fieldID  = env->GetFieldID(clazz, "nativeVideoFrameDecryptor","J");
     env->SetLongField(thiz, fieldID, reinterpret_cast<long>(customVideoFrameDecryptor));
-    LOGI("custom_crypto %s, %d %lld ", __func__, __LINE__, customVideoFrameDecryptor);
+    LOGI("debugleak custom_crypto %s, %d %p ", __func__, __LINE__, customVideoFrameDecryptor);
+    env->DeleteLocalRef(clazz);
 }
 
 /**
@@ -98,49 +96,49 @@ Java_cn_rongcloud_rtc_crypto_CustomVideoFrameDecryptor_nativeCustomVideoFrameDec
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomAudioFrameDecryptor_nativeCustomAudioFrameDecryptor(JNIEnv *env,
                                                                                        jobject thiz) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
     CustomAudioFrameDecryptor * customAudioFrameDecryptor = new CustomAudioFrameDecryptor;
     //开发者不能修改如下两行代码，RTCLib java层方法和 native层映射
     jclass clazz = env->FindClass("cn/rongcloud/rtc/crypto/CustomAudioFrameDecryptor");
     jfieldID fieldID  = env->GetFieldID(clazz, "nativeAudioFrameDecryptor","J");
     env->SetLongField(thiz, fieldID, reinterpret_cast<long>(customAudioFrameDecryptor));
-    LOGI("custom_crypto %s, %d %lld", __func__, __LINE__, customAudioFrameDecryptor);
+    LOGI("debugleak custom_crypto %s, %d %p", __func__, __LINE__, customAudioFrameDecryptor);
+    env->DeleteLocalRef(clazz);
 }
 
 //////////////////////////////////////////////////
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomVideoFrameEncryptor_release(JNIEnv *env, jobject thiz,
                                                                jlong native_pointer) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
     CustomVideoFrameEncryptor* customVideoFrameEncryptor = reinterpret_cast<CustomVideoFrameEncryptor*>(
             native_pointer);
+    LOGI("debugleak custom_crypto %s, %d %p", __func__, __LINE__, customVideoFrameEncryptor);
     delete customVideoFrameEncryptor;
 }
 
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomAudioFrameEncryptor_release(JNIEnv *env, jobject thiz,
                                                             jlong native_pointer) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
     CustomAudioFrameEncryptor* customAudioFrameEncryptor = reinterpret_cast<CustomAudioFrameEncryptor*>(
             native_pointer);
+    LOGI("debugleak custom_crypto %s, %d %p", __func__, __LINE__, customAudioFrameEncryptor);
     delete customAudioFrameEncryptor;
 }
 
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomVideoFrameDecryptor_release(JNIEnv *env, jobject thiz,
                                                                jlong native_pointer) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
     CustomVideoFrameDecryptor* customVideoFrameDecryptor = reinterpret_cast<CustomVideoFrameDecryptor*>(
             native_pointer);
+    LOGI("debugleak custom_crypto %s, %d %p", __func__, __LINE__, customVideoFrameDecryptor);
     delete customVideoFrameDecryptor;
 }
 
 JNIEXPORT void JNICALL
 Java_cn_rongcloud_rtc_crypto_CustomAudioFrameDecryptor_release(JNIEnv *env, jobject thiz,
                                                                jlong native_pointer) {
-    LOGI("custom_crypto %s, %d ", __func__, __LINE__);
     CustomAudioFrameDecryptor* customAudioFrameDecryptor = reinterpret_cast<CustomAudioFrameDecryptor*>(
             native_pointer);
+    LOGI("debugleak custom_crypto %s, %d %p", __func__, __LINE__, customAudioFrameDecryptor);
     delete customAudioFrameDecryptor;
 }
 

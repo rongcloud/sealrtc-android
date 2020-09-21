@@ -91,7 +91,9 @@ dependencies {
     implementation "com.android.support:appcompat-v7:26.0.0"
     implementation "com.android.support:design:26.0.0"
     implementation "com.android.support:support-v4:26.0.0"
-    implementation 'com.github.bumptech.glide:glide:4.0.0'
+    implementation("com.github.bumptech.glide:glide:4.9.0") {
+        exclude group: "com.android.support"
+    }
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.code.gson:gson:2.8.1'
@@ -107,8 +109,8 @@ dependencies {
     androidTestImplementation 'junit:junit:4.12'
     implementation 'de.hdodenhof:circleimageview:3.0.0'
 
-    api 'cn.rongcloud.sdk:im_lib:4.0.2'
-    api 'cn.rongcloud.sdk:rtc_lib:4.0.2'
+    api 'cn.rongcloud.sdk:im_lib:4.0.3'
+    api 'cn.rongcloud.sdk:rtc_lib:4.0.3'
 }
 
 configurations.all {
@@ -116,7 +118,7 @@ configurations.all {
         def requested = details.requested
         if (requested.group == 'com.android.support') {
             if (!requested.name.startsWith("multidex")) {
-                details.useVersion '25.2.0'
+                details.useVersion '26.0.0'
             }
         }
     }
