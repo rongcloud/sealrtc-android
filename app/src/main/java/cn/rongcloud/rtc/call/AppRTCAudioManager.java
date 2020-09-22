@@ -400,7 +400,7 @@ public class AppRTCAudioManager {
 
     private AudioFocusRequest requestAudioFocus(AudioManager audioManager) {
         AudioFocusRequest request = null;
-        if (Build.VERSION.SDK_INT >= VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             request = getAudioFocusRequest();
             audioManager.requestAudioFocus(request);
         } else {
@@ -413,7 +413,7 @@ public class AppRTCAudioManager {
     private AudioFocusRequest getAudioFocusRequest() {
         AudioFocusRequest request = null;
         AudioAttributes audioAttributes = null;
-        if (Build.VERSION.SDK_INT >= VERSION_CODES.O) {
+        if (android.os.Build.VERSION.SDK_INT >= VERSION_CODES.O) {
             audioAttributes = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
                 .build();
@@ -457,7 +457,7 @@ public class AppRTCAudioManager {
     };
 
     private void abandonAudioFocus(AudioManager audioManager) {
-        if (Build.VERSION.SDK_INT >= VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (audioFocusRequest == null) {
                 audioFocusRequest = getAudioFocusRequest();
             }

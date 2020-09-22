@@ -29,7 +29,7 @@ import cn.rongcloud.rtc.faceunity.ui.widget.seekbar.internal.drawable.MarkerDraw
  * @see #showIndicator(View, Rect)
  * @see #dismiss()
  * @see #dismissComplete()
- * @see Floater
+ * @see PopupIndicator.Floater
  */
 public class PopupIndicator {
 

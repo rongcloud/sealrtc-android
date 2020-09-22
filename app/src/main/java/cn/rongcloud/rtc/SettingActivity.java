@@ -53,7 +53,7 @@ public class SettingActivity extends RongRTCBaseActivity
     public static final String BIT_RATE_MAX = "BIT_RATE_MAX";
     public static final String IS_OBSERVER = "IS_OBSERVER";
     public static final String IS_GPUIMAGEFILTER = "IS_GPUIMAGEFILTER";
-    public static final String IS_SRTP = "IS_SRTP";
+    private static final String IS_SRTP = "IS_SRTP";
     public static final String IS_RONGRTC_CONNECTIONMODE = "IS_RONGRTC_CONNECTIONMODE";
     public static final String MEDIA_URL = "media_url";
     /** 保存的bool值 true：大小流开启，false 关闭* */
@@ -71,6 +71,7 @@ public class SettingActivity extends RongRTCBaseActivity
 
     public static final String IS_AUDIO_ENCRYPTION = "AUDIO_ENCRYPTION";
     public static final String IS_VIDEO_ENCRYPTION = "VIDEO_ENCRYPTION";
+    public static final String IS_SRTP_ENABLED = "IS_SRTP_ENABLED";
 
     public static final String IS_STEREO = "is_stereo";
     public static final String IS_AUDIO_MUSIC = "is_musicMode";
@@ -94,14 +95,7 @@ public class SettingActivity extends RongRTCBaseActivity
     private String[] list_observer,
             list_gpuImageFilter,
             list_connectionType,
-            list_streamTiny,
-            list_autotest,
-            list_water,
-        list_mirror,
-        list_isLive,
-        list_stereo,
-        listAudioEncryption,
-        listVideoEncryption,
+            list_streamTiny, list_autotest, list_water, list_mirror, list_isLive, list_stereo, listAudioEncryption, listVideoEncryption, listSRTP,
             list_audio_process;
 
     private int defaultBitrateMinIndex = 0;
@@ -115,7 +109,6 @@ public class SettingActivity extends RongRTCBaseActivity
     private static final int REQUEST_CODE_BITRATE_MIN = 17;
     private static final int REQUEST_CODE_IS_OBSERVER = 18;
     private static final int REQUEST_CODE_IS_GPUIMAGEFILTER = 19;
-    private static final int REQUEST_CODE_IS_SRTP = 20;
     private static final int REQUEST_CODE_IS_CONNECTIONTYPE = 21;
     private static final int REQUEST_CODE_IS_STREAM_TINY = 22;
     private static final int REQUEST_CODE_IS_AUTO_TEST = 23;
@@ -126,6 +119,7 @@ public class SettingActivity extends RongRTCBaseActivity
     private static final int REQUEST_CODE_IS_MIRROR = 28;
     private static final int REQUEST_CODE_IS_AUDIO_ENCRYPTION = 29;
     private static final int REQUEST_CODE_IS_VIDEO_ENCRYPTION = 30;
+    private static final int REQUEST_CODE_IS_SRTP_ENABLE = 31;
 
     private int tapStep = 0;
     private long lastClickTime = 0;
@@ -140,15 +134,7 @@ public class SettingActivity extends RongRTCBaseActivity
             settingOptionSRTP,
             settingOptionConnectionType,
             setting_option_streamTiny,
-            setting_autotest,
-            setting_water,
-            settingOptionMediaUrl,
-            setting_stereo,
-            setting_audio_process,
-            setting_islive,
-                setting_userId,
-                settingAudioEncryption,
-                settingVideoEncryption,
+            setting_autotest, setting_water, settingOptionMediaUrl, setting_stereo, setting_audio_process, setting_islive, setting_userId, settingAudioEncryption, settingVideoEncryption, settingSRTP,
                 setting_mirrror;
     private LinearLayout settings_Modify;
     private LinearLayout linear_connection_settings;
@@ -238,6 +224,11 @@ public class SettingActivity extends RongRTCBaseActivity
                 SessionManager.getInstance().getBoolean(IS_AUTO_TEST)
                         ? list_streamTiny[1]
                         : list_streamTiny[0]);
+        // release 版本自定义音视频加解密功能关闭状态
+        if (BuildConfig.DEBUG) {
+            findViewById(R.id.setting_audio_encryption).setVisibility(View.VISIBLE);
+            findViewById(R.id.setting_video_encryption).setVisibility(View.VISIBLE);
+        }
         //自定义音频流开关
         listAudioEncryption = new String[] {
             getResources().getString(R.string.settings_no),
@@ -259,6 +250,10 @@ public class SettingActivity extends RongRTCBaseActivity
             SessionManager.getInstance().getBoolean(IS_VIDEO_ENCRYPTION)
                 ? listVideoEncryption[1]
                 : listVideoEncryption[0]);
+        // SRTP 开关
+        listSRTP = new String[]{getResources().getString(R.string.settings_no), getResources().getString(R.string.settings_yes)};
+        settingSRTP = (TextView) findViewById(R.id.tv_setting_option_srtp);
+        settingSRTP.setText(SessionManager.getInstance().getBoolean(IS_SRTP_ENABLED) ? listSRTP[1] : listSRTP[0]);
 
         list_isLive =
                 new String[] {
@@ -456,12 +451,6 @@ public class SettingActivity extends RongRTCBaseActivity
         //                                R.string.settings_text_gpufliter,
         //                                list_gpuImageFilter,
         //                                REQUEST_CODE_IS_GPUIMAGEFILTER));
-        findViewById(R.id.setting_option_9)
-                .setOnClickListener(
-                        new OnOptionViewClickListener(
-                                R.string.settings_text_srtp,
-                                list_gpuImageFilter,
-                                REQUEST_CODE_IS_SRTP));
         findViewById(R.id.setting_option_connectiontype)
                 .setOnClickListener(
                         new OnOptionViewClickListener(
@@ -614,6 +603,7 @@ public class SettingActivity extends RongRTCBaseActivity
             .setOnClickListener(
                 new OnOptionViewClickListener(
                     R.string.settings_video_encryption, listVideoEncryption, REQUEST_CODE_IS_VIDEO_ENCRYPTION));
+        findViewById(R.id.setting_option_srtp).setOnClickListener(new OnOptionViewClickListener(R.string.settings_text_srtp, listSRTP, REQUEST_CODE_IS_SRTP_ENABLE));
     }
 
     private void copyToClipBoard(String content) {
@@ -731,10 +721,6 @@ public class SettingActivity extends RongRTCBaseActivity
                 //                        .put(IS_GPUIMAGEFILTER,
                 // result.equals(list_gpuImageFilter[1]));
                 //                break;
-            case REQUEST_CODE_IS_SRTP:
-                settingOptionSRTP.setText(result);
-                SessionManager.getInstance().put(IS_SRTP, result.equals(list_gpuImageFilter[1]));
-                break;
             case REQUEST_CODE_IS_CONNECTIONTYPE:
                 settingOptionConnectionType.setText(result);
                 if (list_connectionType[0].equals(result)) {
@@ -789,6 +775,10 @@ public class SettingActivity extends RongRTCBaseActivity
             case REQUEST_CODE_IS_VIDEO_ENCRYPTION:
                 settingVideoEncryption.setText(result);
                 SessionManager.getInstance().put(IS_VIDEO_ENCRYPTION, listVideoEncryption[1].equals(result));
+                break;
+            case REQUEST_CODE_IS_SRTP_ENABLE:
+                settingSRTP.setText(result);
+                SessionManager.getInstance().put(IS_SRTP_ENABLED, listSRTP[1].equals(result));
                 break;
             default:
                 break;

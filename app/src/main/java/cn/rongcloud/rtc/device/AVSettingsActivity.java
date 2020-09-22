@@ -28,13 +28,12 @@ import cn.rongcloud.rtc.device.entity.AVConfigInfo;
 import cn.rongcloud.rtc.device.entity.CodecInfo;
 import cn.rongcloud.rtc.device.entity.EventBusInfo;
 import cn.rongcloud.rtc.device.entity.MediaType;
-import cn.rongcloud.rtc.device.utils.FileUtils;
 import cn.rongcloud.rtc.device.utils.OnItemClickListener;
 import cn.rongcloud.rtc.util.SessionManager;
 import cn.rongcloud.rtc.util.Utils;
 import cn.rongcloud.rtc.utils.BuildVersion;
 import cn.rongcloud.rtc.utils.FinLog;
-import cn.rongcloud.rtc.utils.debug.RTCCodecInfo;
+import cn.rongcloud.rtc.utils.RTCCodecInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
@@ -42,8 +41,6 @@ import java.util.List;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class AVSettingsActivity extends AppCompatActivity implements OnItemClickListener {
     private static final String TAG = "AVSettingsActivity";
@@ -69,7 +66,7 @@ public class AVSettingsActivity extends AppCompatActivity implements OnItemClick
             EventBus.getDefault().register(this);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.activity_toolbar);
             super.setSupportActionBar(toolbar);
         }

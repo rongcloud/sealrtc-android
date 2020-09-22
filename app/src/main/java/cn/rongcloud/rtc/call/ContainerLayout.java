@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import cn.rongcloud.rtc.util.UserUtils;
 import com.bumptech.glide.Glide;
 
 import cn.rongcloud.rtc.R;
@@ -184,7 +185,7 @@ public class ContainerLayout extends RelativeLayout implements ViewContainerGest
         }
         if (videoNameTv != null) {
             if (!TextUtils.isEmpty(tag) && TextUtils
-                .equals(tag, "FileVideo")) {
+                .equals(tag, UserUtils.CUSTOM_FILE_TAG)) {
                 videoNameTv.setText(
                     name + "-" + getResources().getString(R.string.user_video_custom));
             } else if (!TextUtils.isEmpty(tag)

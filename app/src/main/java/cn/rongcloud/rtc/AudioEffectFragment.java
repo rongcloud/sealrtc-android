@@ -2,6 +2,7 @@ package cn.rongcloud.rtc;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -34,7 +35,8 @@ public class AudioEffectFragment extends Fragment implements OnSeekBarChangeList
     private static final String EFFECT_1 = "file:///android_asset/effect1.mp3";
     private static final String EFFECT_2 = "file:///android_asset/effect2.mp3";
 
-    private String[] effects = {EFFECT_0, EFFECT_1, EFFECT_2};
+    private static final String[] effects = {EFFECT_0, EFFECT_1, EFFECT_2};
+    public static final boolean[] preloaded = {false, false, false};
     private ImageButton[] playPauseBtns = new ImageButton[3];
     private ImageButton[] stopBtns = new ImageButton[3];
 
@@ -43,11 +45,12 @@ public class AudioEffectFragment extends Fragment implements OnSeekBarChangeList
     private TextView tv_global_vol;
     private EditText tvCyclicCount;
     private Button btnStopAll;
+    private Handler uiHandler;
 
     public static boolean alive = false;
 
     private IAudioEffectManager effectManager;
-    private int loopCount = 1;
+    public static int loopCount = 1;
 
     public AudioEffectFragment() { }
 
@@ -61,6 +64,7 @@ public class AudioEffectFragment extends Fragment implements OnSeekBarChangeList
         AudioEffectFragment.alive = true;
         this.context = getContext();
         effectManager = RCRTCEngine.getInstance().getAudioEffectManager();
+        uiHandler = new Handler();
     }
 
     @Override
@@ -91,6 +95,15 @@ public class AudioEffectFragment extends Fragment implements OnSeekBarChangeList
         Switch swEffect0 = view.findViewById(R.id.switch_effect0);
         Switch swEffect1 = view.findViewById(R.id.switch_effect1);
         Switch swEffect2 = view.findViewById(R.id.switch_effect2);
+        if (preloaded[0]) {
+            swEffect0.setChecked(true);
+        }
+        if (preloaded[1]) {
+            swEffect1.setChecked(true);
+        }
+        if (preloaded[2]) {
+            swEffect2.setChecked(true);
+        }
         swEffect0.setOnCheckedChangeListener(this);
         swEffect1.setOnCheckedChangeListener(this);
         swEffect2.setOnCheckedChangeListener(this);
@@ -112,7 +125,7 @@ public class AudioEffectFragment extends Fragment implements OnSeekBarChangeList
         sb_effect2.setProgress(effect2Vol > 0 ? effect2Vol : 100);
         sb_global_vol.setProgress(effectsVol);
 
-        tvCyclicCount.setText(String.valueOf(1));
+        tvCyclicCount.setText(String.valueOf(loopCount));
         tvCyclicCount.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -139,9 +152,14 @@ public class AudioEffectFragment extends Fragment implements OnSeekBarChangeList
     }
 
     @Override
-    public void onEffectFinished(int effectId) {
-        playPauseBtns[effectId].setSelected(false);
-        stopBtns[effectId].setEnabled(false);
+    public void onEffectFinished(final int effectId) {
+        uiHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                playPauseBtns[effectId].setSelected(false);
+                stopBtns[effectId].setEnabled(false);
+            }
+        });
     }
 
     @Override
@@ -150,22 +168,28 @@ public class AudioEffectFragment extends Fragment implements OnSeekBarChangeList
             case R.id.switch_effect0:
                 if (checked) {
                     loadEffect(0, compoundButton);
+                    preloaded[0] = true;
                 } else {
                     effectManager.unloadEffect(0);
+                    preloaded[0] = false;
                 }
                 break;
             case R.id.switch_effect1:
                 if (checked) {
                     loadEffect(1, compoundButton);
+                    preloaded[1] = true;
                 } else {
                     effectManager.unloadEffect(1);
+                    preloaded[1] = false;
                 }
                 break;
             case R.id.switch_effect2:
                 if (checked) {
                     loadEffect(2, compoundButton);
+                    preloaded[2] = true;
                 } else {
                     effectManager.unloadEffect(2);
+                    preloaded[2] = true;
                 }
                 break;
         }

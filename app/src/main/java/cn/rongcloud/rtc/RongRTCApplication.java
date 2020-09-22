@@ -42,16 +42,16 @@ public class RongRTCApplication extends MultiDexApplication {
         // 初始化Bugly
         CrashReport.initCrashReport(this, "3612cc23a8", false, strategy);
         if (getApplicationInfo().packageName.equals(Utils.getCurProcessName(this))) {
-          try {
-            RongIMClient.registerMessageType(RoomInfoMessage.class);
-            RongIMClient.registerMessageType(WhiteBoardInfoMessage.class);
-            RongIMClient.registerMessageType(RoomKickOffMessage.class);
-          } catch (AnnotationNotFoundException e) {
-            e.printStackTrace();
-          }
+            try {
+                RongIMClient.registerMessageType(RoomInfoMessage.class);
+                RongIMClient.registerMessageType(WhiteBoardInfoMessage.class);
+                RongIMClient.registerMessageType(RoomKickOffMessage.class);
+            } catch (AnnotationNotFoundException e) {
+                e.printStackTrace();
+            }
 
-          // 相芯SDK 初始化
-          FURenderer.initFURenderer(this);
+            // 相芯SDK 初始化
+            FURenderer.initFURenderer(this);
         }
 
         registerLifecycleCallbacks();

@@ -14,7 +14,12 @@ public interface DropZoomScrollViewListener {
      * @param oldScrollX
      * @param oldScrollY
      */
-    void onScrollChanged(DropZoomScrollView scrollView, int scrollX, int scrollY, int oldScrollX, int oldScrollY);
+    void onScrollChanged(
+            DropZoomScrollView scrollView,
+            int scrollX,
+            int scrollY,
+            int oldScrollX,
+            int oldScrollY);
 
     /**
      * 下拉松开手指

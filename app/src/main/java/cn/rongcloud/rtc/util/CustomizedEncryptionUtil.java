@@ -21,7 +21,7 @@ public class CustomizedEncryptionUtil {
     }
 
     public static CustomizedEncryptionUtil getInstance() {
-        return SingletonHolder.instance;
+        return CustomizedEncryptionUtil.SingletonHolder.instance;
     }
 
     public void init() {

@@ -1,4 +1,4 @@
-package cn.rongcloud.rtc;//package cn.rongcloud.rtc;
+//package cn.rongcloud.rtc;
 //
 //import android.content.Context;
 //import android.support.annotation.NonNull;

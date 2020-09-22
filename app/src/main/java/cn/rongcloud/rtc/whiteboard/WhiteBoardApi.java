@@ -2,9 +2,9 @@ package cn.rongcloud.rtc.whiteboard;
 
 import android.text.TextUtils;
 import cn.rongcloud.rtc.base.RTCErrorCode;
-import cn.rongcloud.rtc.media.http.HttpClient;
-import cn.rongcloud.rtc.media.http.Request;
-import cn.rongcloud.rtc.media.http.RequestMethod;
+import cn.rongcloud.rtc.util.http.HttpClient;
+import cn.rongcloud.rtc.util.http.Request;
+import cn.rongcloud.rtc.util.http.RequestMethod;
 import io.rong.common.RLog;
 import org.json.JSONException;
 import org.json.JSONObject;

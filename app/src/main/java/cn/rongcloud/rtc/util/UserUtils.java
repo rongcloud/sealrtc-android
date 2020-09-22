@@ -1,7 +1,6 @@
 package cn.rongcloud.rtc.util;
 
 import android.text.TextUtils;
-import android.view.View;
 import cn.rongcloud.rtc.BuildConfig;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,15 +22,19 @@ public class UserUtils {
     public static final String URL_LOGIN = "user/login";
     public static final String URL_GET_TOKEN = "user/get_token";
     public static final String URL_GET_TOKEN_NEW = "user/get_token_new";
+    public static final String CUSTOM_FILE_TAG = "RongRTCFileVideo";
+
 
     /**
      * Demo中通过短信验证码获取Token用到，
      * 开发者直接在{@link cn.rongcloud.rtc.MainPageActivity#onClick(View)} 方法中RongIMClient.connect(token,..)IM 连接处直接填写Token即可
      */
-    public static final String BASE_URL = ;
+    public static final String BASE_URL = APP Server 地址;
     public static final String APP_KEY = 通过开发者后台申请;
+
     public static final String NAV_SERVER = "nav.cn.ronghub.com";
     public static final String FILE_SERVER = "up.qbox.me";
+    public static final String MEDIA_SERVER = "";
 
     public static final String URL_SEND_CODE = "user/send_code";
     public static final String URL_VERIFY_CODE = "user/verify_code";
