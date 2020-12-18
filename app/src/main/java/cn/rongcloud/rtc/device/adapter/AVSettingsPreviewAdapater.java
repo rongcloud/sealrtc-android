@@ -44,17 +44,17 @@ public class AVSettingsPreviewAdapater
     }
 
     @Override
-    public AVSettingsPreviewAdapater.CodecViewHolder onCreateViewHolder(
+    public CodecViewHolder onCreateViewHolder(
             ViewGroup parent, int viewType) {
         View view =
                 LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.layout_avsettings_preview_adapter, parent, false);
-        return new AVSettingsPreviewAdapater.CodecViewHolder(view);
+        return new CodecViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(
-            final AVSettingsPreviewAdapater.CodecViewHolder holder, final int position) {
+            final CodecViewHolder holder, final int position) {
         if (avConfigInfoList == null
                 || avConfigInfoList.size() == 0
                 || position < 0

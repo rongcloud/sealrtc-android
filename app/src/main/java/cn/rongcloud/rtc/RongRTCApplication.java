@@ -46,7 +46,7 @@ public class RongRTCApplication extends MultiDexApplication {
                 RongIMClient.registerMessageType(RoomInfoMessage.class);
                 RongIMClient.registerMessageType(WhiteBoardInfoMessage.class);
                 RongIMClient.registerMessageType(RoomKickOffMessage.class);
-            } catch (AnnotationNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

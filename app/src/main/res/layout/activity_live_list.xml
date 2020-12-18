@@ -4,13 +4,48 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     android:orientation="vertical">
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="5dp"
+      android:background="@color/blink_grey"
+      android:orientation="horizontal">
 
+        <Button
+          android:id="@+id/live_button_query"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Query" />
+
+        <Button
+          android:id="@+id/live_button_publish"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="5dp"
+          android:visibility="gone"
+          android:text="Publish" />
+
+        <Button
+          android:id="@+id/live_button_unpublish"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="5dp"
+          android:visibility="gone"
+          android:text="Unpublish" />
+        <Spinner
+          android:id="@+id/live_subscribe_spinner"
+          android:layout_marginLeft="10dp"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:entries="@array/subscribe_type"
+          android:spinnerMode="dropdown" />
+    </LinearLayout>
     <RelativeLayout
         android:id="@+id/live_video_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone">
+      android:visibility="gone">
 
 
         <RelativeLayout
@@ -28,36 +63,15 @@
             android:background="@color/blink_transparent"
             android:text="关闭" />
 
+        <TextView
+          android:layout_marginTop="30dp"
+          android:layout_marginLeft="20dp"
+          android:id="@+id/live_video_status_report"
+          android:layout_width="wrap_content"
+          android:textColor="@color/blink_rad"
+          android:layout_height="wrap_content" />
+
     </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/live_button_query"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Query" />
-
-        <Button
-            android:id="@+id/live_button_publish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:visibility="gone"
-            android:text="Publish" />
-
-        <Button
-            android:id="@+id/live_button_unpublish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:visibility="gone"
-            android:text="Unpublish" />
-    </LinearLayout>
 
     <ListView
         android:id="@+id/live_list"

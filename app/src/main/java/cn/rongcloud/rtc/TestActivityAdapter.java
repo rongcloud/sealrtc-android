@@ -223,7 +223,7 @@ public class TestActivityAdapter extends BaseAdapter {
                     .setTag(subscribeDes);
             ((TextView) layoutView.findViewById(subscribe_ids[subscribeIdIndex]))
                     .setOnClickListener(
-                            new View.OnClickListener() {
+                            new OnClickListener() {
                                 @Override
                                 public void onClick(final View view) {
                                     if (view.getTag().equals(subscribeString)) {

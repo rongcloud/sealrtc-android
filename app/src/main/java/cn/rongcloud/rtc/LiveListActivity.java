@@ -3,30 +3,40 @@ package cn.rongcloud.rtc;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.rongcloud.rtc.api.RCRTCConfig;
 import cn.rongcloud.rtc.api.RCRTCEngine;
 import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
+import cn.rongcloud.rtc.api.callback.IRCRTCStatusReportListener;
 import cn.rongcloud.rtc.api.callback.RCRTCLiveCallback;
+import cn.rongcloud.rtc.api.report.StatusBean;
+import cn.rongcloud.rtc.api.report.StatusReport;
 import cn.rongcloud.rtc.api.stream.RCRTCAudioInputStream;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoInputStream;
 import cn.rongcloud.rtc.base.RCRTCAVStreamType;
+import cn.rongcloud.rtc.base.RCRTCMediaType;
 import cn.rongcloud.rtc.base.RTCErrorCode;
 import cn.rongcloud.rtc.base.RongRTCBaseActivity;
 import cn.rongcloud.rtc.call.AppRTCAudioManager;
 import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.rtc.utils.FinLog;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,6 +55,10 @@ public class LiveListActivity extends RongRTCBaseActivity {
     RCRTCVideoView videoView = null;
     private String liveUrl = "";
     private AppRTCAudioManager audioManager = null;
+    private Spinner subscribeModesSpinner;
+    private RCRTCAVStreamType subscribedStreamType = RCRTCAVStreamType.AUDIO_VIDEO;
+    private IRCRTCStatusReportListener statusReportListener;
+    private TextView statusReportView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +80,28 @@ public class LiveListActivity extends RongRTCBaseActivity {
         liveListView = (ListView) findViewById(R.id.live_list);
         liveListAdapter = new LiveListAdapter(this, liveModelList);
         liveListView.setAdapter(liveListAdapter);
+        statusReportView = findViewById(R.id.live_video_status_report);
+        subscribeModesSpinner = findViewById(R.id.live_subscribe_spinner);
+        subscribeModesSpinner.setSelection(2);
+        subscribeModesSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                subscribedStreamType = RCRTCAVStreamType.values()[i];
+                Toast.makeText(getApplicationContext(), subscribedStreamType.toString(), Toast.LENGTH_SHORT).show();
+                if (!TextUtils.isEmpty(liveUrl)) {
+                    joinLive(liveUrl);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         queryLiveData();
 
-        publishButton.setOnClickListener(new View.OnClickListener() {
+        publishButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 JSONObject jsonObject = new JSONObject();
@@ -83,14 +115,14 @@ public class LiveListActivity extends RongRTCBaseActivity {
                 LiveDataOperator.getInstance().publish(jsonObject.toString(), null);
             }
         });
-        queryButton.setOnClickListener(new View.OnClickListener() {
+        queryButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 queryLiveData();
             }
         });
 
-        unpublishButton.setOnClickListener(new View.OnClickListener() {
+        unpublishButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 JSONObject jsonObject = new JSONObject();
@@ -103,7 +135,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
             }
         });
 
-        liveListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        liveListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(getApplicationContext(), liveModelList.get(i).userName, Toast.LENGTH_SHORT).show();
@@ -112,12 +144,33 @@ public class LiveListActivity extends RongRTCBaseActivity {
             }
         });
 
-        liveVideoClose.setOnClickListener(new View.OnClickListener() {
+        liveVideoClose.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 quitLive();
             }
         });
+
+        statusReportListener = new IRCRTCStatusReportListener() {
+            @Override
+            public void onConnectionStats(final StatusReport statusReport) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        StatusBean audioBean = null;
+                        for (StatusBean bean : statusReport.statusAudioRcvs.values()) {
+                            audioBean = bean;
+                        }
+                        StatusBean videoBean = null;
+                        for (StatusBean bean : statusReport.statusVideoRcvs.values()) {
+                            videoBean = bean;
+                        }
+                        statusReportView.setText("Total: " + statusReport.bitRateRcv + "\n" + "Audio: " + (audioBean == null ? "0" : audioBean.bitRate) + " \n" + "Video: " + (videoBean == null ? "0"
+                            : (videoBean.frameWidth + "x" + videoBean.frameHeight) + "@" + videoBean.frameRate));
+                    }
+                });
+            }
+        };
     }
 
     private void initAudioManager() {
@@ -145,11 +198,11 @@ public class LiveListActivity extends RongRTCBaseActivity {
     private void queryLiveData() {
         LiveDataOperator.getInstance().query(new LiveDataOperator.OnResultCallBack() {
             @Override
-            public void onSuccess(String result) {
-                parseQueryResult(result);
+            public void onSuccess(final String result) {
                 postUIThread(new Runnable() {
                     @Override
                     public void run() {
+                        parseQueryResult(result);
                         liveListAdapter.notifyDataSetChanged();
                     }
                 });
@@ -162,7 +215,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
 
     private void joinLive(String liveUrl) {
         liveVideoLayout.setVisibility(View.VISIBLE);
-        RCRTCEngine.getInstance().subscribeLiveStream(liveUrl, RCRTCAVStreamType.AUDIO_VIDEO, new RCRTCLiveCallback() {
+        RCRTCEngine.getInstance().subscribeLiveStream(liveUrl, subscribedStreamType, new RCRTCLiveCallback() {
             @Override
             public void onSuccess() {
                 postShowToast("订阅成功");
@@ -178,6 +231,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
                         RCRTCVideoInputStream videoInputStream = (RCRTCVideoInputStream) stream;
                         videoInputStream.setVideoView(videoView);
                         liveVideoContainer.addView(videoView, -1, -1);
+                        RCRTCEngine.getInstance().registerStatusReportListener(statusReportListener);
                     }
                 });
             }
@@ -190,6 +244,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
                         showToast("收到音频流");
                         TextView view = new TextView(getApplicationContext());
                         view.setText("收到音频");
+                        view.setTextSize(32);
                         liveVideoContainer.addView(view);
                     }
                 });
@@ -197,7 +252,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
 
             @Override
             public void onFailed(RTCErrorCode errorCode) {
-
+                postShowToast("订阅失败：" + errorCode);
             }
         });
     }
@@ -231,6 +286,7 @@ public class LiveListActivity extends RongRTCBaseActivity {
                 });
             }
         });
+        liveUrl = "";
     }
 
     private void parseQueryResult(String result) {

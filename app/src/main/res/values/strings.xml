@@ -265,6 +265,7 @@
     <string name="mix_remote_volume">Remote Volume</string>
     <string name="mix_mic_volume">Mic Volume</string>
     <string name="mix_mix_mode">Modes</string>
+    <string name="mix_ear_monitor">Ear Monitor Opened</string>
     <string name="mix_mode_play_mix">Playing and mixing</string>
     <string name="mix_mode_mix_only">Only mixing</string>
     <string name="mix_mode_play_only">Only Playing</string>
@@ -286,5 +287,13 @@
     <string name="effect_cyclic_count">Loop Count</string>
 
     <string name="usb_camera_not_connected">USB camera not connected</string>
+
+    <string-array name="subscribe_type">
+        <item>Audio Only</item>
+        <item>Video Only</item>
+        <item>Audio Video</item>
+        <item>Video Tiny</item>
+        <item>Audio Video Tiny</item>
+    </string-array>
 
 </resources>

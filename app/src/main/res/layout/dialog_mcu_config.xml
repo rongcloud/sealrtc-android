@@ -160,9 +160,24 @@
         </RadioGroup>
     </LinearLayout>
 
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal">
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="背景色：0x"
+          android:layout_gravity="center_vertical"
+          android:layout_marginRight="15dp" />
+        <EditText
+          android:id="@+id/bg_color"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <Button
-        android:id="@+id/btn_sub"
+      android:id="@+id/btn_sub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rs_select_btn_blue"

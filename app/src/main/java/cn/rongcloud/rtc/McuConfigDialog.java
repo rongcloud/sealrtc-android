@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
 import cn.rongcloud.rtc.instrumentationtest.RTCResultCallbackWrapper;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +58,7 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
     private RadioButton mRbExparams01;
     private RadioButton mRbExparams02;
     private RadioGroup mRgEx;
+    private EditText bgColorView;
 
     private RCRTCRoom mRTCRoom;
     private RCRTCMixConfig mConfig;
@@ -111,6 +114,7 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
         mRbExparams01 = view.findViewById(R.id.rb_exparams_01);
         mRbExparams02 = view.findViewById(R.id.rb_exparams_02);
         mRgEx = view.findViewById(R.id.rg_ex);
+        bgColorView = view.findViewById(R.id.bg_color);
 
         mRg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -181,8 +185,8 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
         // 合流布局视频输出配置
         RCRTCMixConfig.MediaConfig.VideoConfig video = new RCRTCMixConfig.MediaConfig.VideoConfig();
         // 视频layout配置
-        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videolayout =
-            new RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout();
+        VideoLayout videolayout =
+            new VideoLayout();
 
         RCRTCVideoStreamConfig videoConfig = RCRTCEngine.getInstance().getDefaultVideoStream().getVideoConfig();
         videolayout.setBitrate(videoConfig.getMaxRate());
@@ -190,6 +194,7 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
         videolayout.setHeight(Integer.parseInt(mEvH.getText().toString()));
         videolayout.setFps(videoConfig.getVideoFps().getFps());
         video.setVideoLayout(videolayout);
+//        video.setBackgroundColor(0xFF0000);
 
         //输出扩展配置
         video.setExtend(new RCRTCMixConfig.MediaConfig.VideoConfig.VideoExtend(VideoRenderMode.WHOLE));
@@ -257,14 +262,18 @@ public class McuConfigDialog extends DialogFragment implements View.OnClickListe
     }
 
     private void onSubmit() {
-        RCRTCMixConfig.MediaConfig.VideoConfig.VideoLayout videoLayout =
+        VideoLayout videoLayout =
             mConfig.getMediaConfig().getVideoConfig().getVideoLayout();
-//        videoLayout.setWidth(Integer.parseInt(mEvW.getText().toString()));
-//        videoLayout.setHeight(Integer.parseInt(mEvH.getText().toString()));
 
-        RCRTCVideoStreamConfig videoConfig = RCRTCEngine.getInstance().getDefaultVideoStream().getVideoConfig();
-        videoLayout.setWidth(videoConfig.getVideoResolution().getWidth());
-        videoLayout.setHeight(videoConfig.getVideoResolution().getHeight());
+        videoLayout.setWidth(Integer.parseInt(mEvW.getText().toString()));
+        videoLayout.setHeight(Integer.parseInt(mEvH.getText().toString()));
+        mConfig.setLayoutMode(MixLayoutMode.SUSPENSION);
+        String bgColor = bgColorView.getText().toString().trim();
+        if (!TextUtils.isEmpty(bgColor)) {
+            BigInteger bigint = new BigInteger(bgColor, 16);
+            int numb = bigint.intValue();
+            mConfig.getMediaConfig().getVideoConfig().setBackgroundColor(numb);
+        }
         if (mConfig.getLayoutMode() == MixLayoutMode.CUSTOM) {
             updateCustomMixLayout();
         }

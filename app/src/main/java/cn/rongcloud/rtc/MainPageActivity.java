@@ -15,6 +15,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -233,6 +235,14 @@ public class MainPageActivity extends RongRTCBaseActivity
         }
         RLog.d(TAG, "initOrUpdateRTCEngine: ");
         FinLog.d(TAG + "", "init --> enter");
+        String manufacturer = Build.MANUFACTURER.trim();
+        if (manufacturer.contains("HUAWEI") || manufacturer.contains("vivo")) {
+            configBuilder.setAudioSource(MediaRecorder.AudioSource.MIC);
+//            configBuilder.enableLowLatencyRecording(false);
+        } else {
+//            configBuilder.enableLowLatencyRecording(true);
+        }
+        configBuilder.enableLowLatencyRecording(true);
         RCRTCEngine.getInstance().init(getApplicationContext(), configBuilder.build());
         FinLog.d(TAG + "", "init --> over");
 
@@ -413,7 +423,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         connectToRoom();
                     }
                 } else if (connectionStatus ==
-                        RongIMClient.ConnectionStatusListener.ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
+                        ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
                     EventBus.getDefault().post(new KickedOfflineEvent());
                     showDialog();
                 }
@@ -548,7 +558,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         }
 
                         @Override
-                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+                        public void onError(ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
                             FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
@@ -615,7 +625,7 @@ public class MainPageActivity extends RongRTCBaseActivity
                         }
 
                         @Override
-                        public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+                        public void onError(ConnectionErrorCode errorCode) {
                             mStatus = STATE_FAILED;
                             FinLog.e(TAG, "RongIMClient connect errorCode :" + errorCode);
                             if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
@@ -841,7 +851,7 @@ public class MainPageActivity extends RongRTCBaseActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        room.setRoomAttributeValue(jsonObject.toString(), userId, roomInfoMessage, new IRCRTCResultCallback() {
+        room.setRoomAttribute(userId, jsonObject.toString(), roomInfoMessage, new IRCRTCResultCallback() {
             @Override
             public void onSuccess() {
 
@@ -915,7 +925,7 @@ public class MainPageActivity extends RongRTCBaseActivity
             }
 
             @Override
-            public void onError(RongIMClient.ConnectionErrorCode errorCode) {
+            public void onError(ConnectionErrorCode errorCode) {
                 Toast.makeText(MainPageActivity.this, "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();
                 if (errorCode == ConnectionErrorCode.RC_CONN_TOKEN_INCORRECT) {
                     onTokenIncorrect();
@@ -1057,7 +1067,7 @@ public class MainPageActivity extends RongRTCBaseActivity
 
                                     @Override
                                     public void onError(
-                                        RongIMClient.ConnectionErrorCode errorCode) {
+                                        ConnectionErrorCode errorCode) {
                                         LoadDialog.dismiss(MainPageActivity.this);
                                         Toast.makeText(MainPageActivity.this,
                                             "连接IM失败，请稍后重试", Toast.LENGTH_SHORT).show();

@@ -586,8 +586,8 @@ public class CallActivity extends RongRTCBaseActivity
                                     model.joinTime = userInfo.timestamp;
                                     mMembers.add(model);
 
-                                    List<VideoViewManager.RenderHolder> holders = renderViewManager.getViewHolderByUserId(entry.getKey());
-                                    for (VideoViewManager.RenderHolder holder : holders) {
+                                    List<RenderHolder> holders = renderViewManager.getViewHolderByUserId(entry.getKey());
+                                    for (RenderHolder holder : holders) {
                                         if (TextUtils.equals(entry.getKey(), myUserId)) {
                                             holder.updateUserInfo(getResources().getString(R.string.room_actor_me));
                                         } else {
@@ -699,8 +699,8 @@ public class CallActivity extends RongRTCBaseActivity
                         userInfo.timestamp = roomInfoMessage.getTimeStamp();
                         mMembersMap.put(roomInfoMessage.getUserId(), userInfo);
 
-                        List<VideoViewManager.RenderHolder> holders = renderViewManager.getViewHolderByUserId(roomInfoMessage.getUserId());
-                        for (VideoViewManager.RenderHolder holder : holders) {
+                        List<RenderHolder> holders = renderViewManager.getViewHolderByUserId(roomInfoMessage.getUserId());
+                        for (RenderHolder holder : holders) {
                             if (!TextUtils.equals(roomInfoMessage.getUserId(), myUserId)) {
                                 holder.updateUserInfo(roomInfoMessage.getUserName());
                             }
@@ -1423,6 +1423,7 @@ public class CallActivity extends RongRTCBaseActivity
     public void onToggleMic(boolean mute) {
         muteMicrophone = mute;
         RCRTCEngine.getInstance().getDefaultAudioStream().setMicrophoneDisable(muteMicrophone);
+//        RCRTCEngine.getInstance().getDefaultAudioStream().enableEarMonitoring(muteMicrophone);
     }
 
     public void onToggleSwitchSpeechMusic(boolean isMusic) {
@@ -2302,7 +2303,7 @@ public class CallActivity extends RongRTCBaseActivity
             @Override
             public void run() {
                 if (null != renderViewManager && null != renderViewManager.connectedRemoteRenders && renderViewManager.getViewHolder(key) != null) {
-                    VideoViewManager.RenderHolder renderHolder = renderViewManager.getViewHolder(key);
+                    RenderHolder renderHolder = renderViewManager.getViewHolder(key);
                     if (val > 0) {
                         if (key.equals(RongIMClient.getInstance().getCurrentUserId()) && muteMicrophone) {
                             renderHolder.coverView.closeAudioLevel();
@@ -3094,7 +3095,7 @@ public class CallActivity extends RongRTCBaseActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        room.setRoomAttributeValue(jsonObject.toString(), userInfo.userId, roomInfoMessage, null);
+        room.setRoomAttribute(userInfo.userId, jsonObject.toString(), roomInfoMessage, null);
     }
 
     private void updateMembersDialog() {
@@ -3572,7 +3573,7 @@ public class CallActivity extends RongRTCBaseActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        room.setRoomAttributeValue(jsonObject.toString(), WhiteBoardApi.WHITE_BOARD_KEY, whiteBoardInfoMessage,
+        room.setRoomAttribute(WhiteBoardApi.WHITE_BOARD_KEY, jsonObject.toString(), whiteBoardInfoMessage,
             new IRCRTCResultCallback() {
                 @Override
                 public void onSuccess() {

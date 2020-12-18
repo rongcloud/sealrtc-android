@@ -171,7 +171,7 @@ public class FURenderer implements OnFUControlListener {
 
     private volatile int mInputOrientation = 270;
     private boolean mIsInputImage = false; // 输入的是否是图片
-    private volatile int mCameraFacing = Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private volatile int mCameraFacing = CameraInfo.CAMERA_FACING_FRONT;
     private volatile int mMaxFaces = 4; // 同时识别的最大人脸
     // 美发参数
     private volatile float mHairColorStrength = 0.6f;
@@ -223,6 +223,7 @@ public class FURenderer implements OnFUControlListener {
         }
         // 获取 Nama SDK 版本信息
         Log.e(TAG, "fu sdk version " + faceunity.fuGetVersion());
+        //authpack.A()为相芯美颜证书，请到相芯官网申请
         fuSetup(context, BUNDLE_AI_MODEL_FACE_PROCESSOR, authpack.A());
         loadTongueModel(context, BUNDLE_TONGUE);
         sIsInited = true;
@@ -324,7 +325,7 @@ public class FURenderer implements OnFUControlListener {
      * @return
      */
     public static int getCameraOrientation(int cameraFacing) {
-        Camera.CameraInfo info = new Camera.CameraInfo();
+        CameraInfo info = new CameraInfo();
         int cameraId = -1;
         int numCameras = Camera.getNumberOfCameras();
         for (int i = 0; i < numCameras; i++) {
@@ -574,7 +575,7 @@ public class FURenderer implements OnFUControlListener {
         prepareDrawFrame();
 
         int flags = mInputImageFormat;
-        if (mCameraFacing != Camera.CameraInfo.CAMERA_FACING_FRONT) flags |= FU_ADM_FLAG_FLIP_X;
+        if (mCameraFacing != CameraInfo.CAMERA_FACING_FRONT) flags |= FU_ADM_FLAG_FLIP_X;
 
         if (mNeedBenchmark) mFuCallStartTime = System.nanoTime();
         int fuTex = faceunity.fuRenderToNV21Image(img, w, h, mFrameId++, mItemsArray, flags);
@@ -645,7 +646,7 @@ public class FURenderer implements OnFUControlListener {
         prepareDrawFrame();
 
         int flags = mInputTextureType | mInputImageFormat;
-        if (mCameraFacing != Camera.CameraInfo.CAMERA_FACING_FRONT) flags |= FU_ADM_FLAG_FLIP_X;
+        if (mCameraFacing != CameraInfo.CAMERA_FACING_FRONT) flags |= FU_ADM_FLAG_FLIP_X;
 
         if (mNeedBenchmark) mFuCallStartTime = System.nanoTime();
         int fuTex = faceunity.fuDualInputToTexture(img, tex, flags, w, h, mFrameId++, mItemsArray);
@@ -680,7 +681,7 @@ public class FURenderer implements OnFUControlListener {
         prepareDrawFrame();
 
         int flags = mInputTextureType | mInputImageFormat;
-        if (mCameraFacing != Camera.CameraInfo.CAMERA_FACING_FRONT) flags |= FU_ADM_FLAG_FLIP_X;
+        if (mCameraFacing != CameraInfo.CAMERA_FACING_FRONT) flags |= FU_ADM_FLAG_FLIP_X;
 
         if (mNeedBenchmark) mFuCallStartTime = System.nanoTime();
         int fuTex =
@@ -1231,7 +1232,7 @@ public class FURenderer implements OnFUControlListener {
         }
 
         // queueEvent的Runnable在此处被调用
-        while (!mEventQueue.isEmpty()) {
+        while (mEventQueue != null && !mEventQueue.isEmpty()) {
             mEventQueue.remove(0).run();
         }
     }
@@ -1265,7 +1266,7 @@ public class FURenderer implements OnFUControlListener {
                     @Override
                     public void run() {
                         mFrameId = 0;
-                        mCameraFacing = isFrontCamera ? Camera.CameraInfo.CAMERA_FACING_FRONT
+                        mCameraFacing = isFrontCamera ? CameraInfo.CAMERA_FACING_FRONT
                             : CameraInfo.CAMERA_FACING_BACK;
 //                        mInputOrientation = disPlayOrientation2Angle(disPlayOrientation);
                         faceunity.fuOnCameraChange();
@@ -1425,13 +1426,13 @@ public class FURenderer implements OnFUControlListener {
     private int calculateRotModeLagacy() {
         int mode;
         if (mInputOrientation == 270) {
-            if (mCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (mCameraFacing == CameraInfo.CAMERA_FACING_FRONT) {
                 mode = mDeviceOrientation / 90;
             } else {
                 mode = (mDeviceOrientation - 180) / 90;
             }
         } else {
-            if (mCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (mCameraFacing == CameraInfo.CAMERA_FACING_FRONT) {
                 mode = (mDeviceOrientation + 180) / 90;
             } else {
                 mode = mDeviceOrientation / 90;
@@ -1455,7 +1456,7 @@ public class FURenderer implements OnFUControlListener {
     private int calculateRotationMode() {
         int rotMode = faceunity.FU_ROTATION_MODE_0;
         if (mInputOrientation == 270) {
-            if (mCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (mCameraFacing == CameraInfo.CAMERA_FACING_FRONT) {
                 rotMode = mDeviceOrientation / 90;
             } else {
                 if (mDeviceOrientation == 90) {
@@ -1467,7 +1468,7 @@ public class FURenderer implements OnFUControlListener {
                 }
             }
         } else if (mInputOrientation == 90) {
-            if (mCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            if (mCameraFacing == CameraInfo.CAMERA_FACING_BACK) {
                 if (mDeviceOrientation == 90) {
                     rotMode = faceunity.FU_ROTATION_MODE_270;
                 } else if (mDeviceOrientation == 270) {
@@ -2366,7 +2367,7 @@ public class FURenderer implements OnFUControlListener {
             // rotationAngle 参数是用于旋转普通道具
             faceunity.fuItemSetParam(itemHandle, "rotationAngle", mRotationMode * 90);
         }
-        int back = mCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0;
+        int back = mCameraFacing == CameraInfo.CAMERA_FACING_BACK ? 1 : 0;
         if (effectType == Effect.EFFECT_TYPE_AVATAR) {
             // Avatar 头型和头发镜像
             faceunity.fuItemSetParam(itemHandle, "isFlipExpr", back);
@@ -2416,7 +2417,7 @@ public class FURenderer implements OnFUControlListener {
 
     private void setAvatarHairParams(int itemAvatarHair) {
         if (itemAvatarHair > 0) {
-            int back = mCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0;
+            int back = mCameraFacing == CameraInfo.CAMERA_FACING_BACK ? 1 : 0;
             faceunity.fuItemSetParam(itemAvatarHair, "is3DFlipH", back);
             faceunity.fuItemSetParam(itemAvatarHair, "isFlipTrack", back);
             faceunity.fuItemSetParam(
@@ -2441,7 +2442,7 @@ public class FURenderer implements OnFUControlListener {
         private boolean isNeedFaceBeauty = true;
         private boolean isNeedPosterFace = false;
         private int filterStyle = CartoonFilter.NO_FILTER;
-        private int cameraFacing = Camera.CameraInfo.CAMERA_FACING_FRONT;
+        private int cameraFacing = CameraInfo.CAMERA_FACING_FRONT;
         private OnBundleLoadCompleteListener onBundleLoadCompleteListener;
         private OnFUDebugListener onFUDebugListener;
         private OnTrackingStatusChangedListener onTrackingStatusChangedListener;
@@ -3174,7 +3175,7 @@ public class FURenderer implements OnFUControlListener {
                             }
                             mItemsArray[ITEM_ARRAYS_LIVE_PHOTO_INDEX] = itemLivePhoto;
                         }
-                        setIsFrontCamera(mCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT);
+                        setIsFrontCamera(mCameraFacing == CameraInfo.CAMERA_FACING_FRONT);
 
                         final MakeupParamHelper.TextureImage textureImage =
                                 MakeupParamHelper.createTextureImage(

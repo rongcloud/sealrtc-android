@@ -196,6 +196,7 @@
     <string name="mix_remote_volume">远端音量</string>
     <string name="mix_mic_volume">麦克音量</string>
     <string name="mix_mix_mode">混音模式</string>
+    <string name="mix_ear_monitor">开启耳返</string>
     <string name="mix_mode_play_mix">本地播放，混音</string>
     <string name="mix_mode_mix_only">本地不播放，混音</string>
     <string name="mix_mode_play_only">本地播放，不混音</string>

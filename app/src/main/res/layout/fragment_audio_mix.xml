@@ -157,29 +157,55 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+      android:layout_width="match_parent"
+      android:layout_height="50dp"
+      android:orientation="horizontal"
+      android:gravity="center_vertical">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:textColor="@android:color/white"
-            android:text="@string/mix_mix_mode"/>
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginRight="20dp"
+          android:textColor="@android:color/white"
+          android:text="@string/mix_mix_mode" />
 
         <Button
-            android:id="@+id/btn_change_mode"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:textColor="@android:color/white"
-            tools:text="1.本地播放|混音"
-            android:background="@android:color/transparent"
-            android:textAllCaps="false"
-            android:gravity="left|center_vertical"
-            android:drawableRight="@drawable/icon_arrow"/>
+          android:id="@+id/btn_change_mode"
+          android:layout_width="0dp"
+          android:layout_height="50dp"
+          android:layout_weight="1"
+          android:textColor="@android:color/white"
+          tools:text="1.本地播放|混音"
+          android:background="@android:color/transparent"
+          android:textAllCaps="false"
+          android:gravity="left|center_vertical"
+          android:drawableRight="@drawable/icon_arrow" />
+
+    </LinearLayout>
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="50dp"
+      android:orientation="horizontal"
+      android:gravity="center_vertical">
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginRight="20dp"
+          android:textColor="@android:color/white"
+          android:text="@string/mix_ear_monitor" />
+
+        <Button
+          android:id="@+id/btn_open_earmonitor"
+          android:layout_width="0dp"
+          android:layout_height="50dp"
+          android:layout_weight="1"
+          android:textColor="@android:color/white"
+          tools:text="1.本地播放|混音"
+          android:background="@android:color/transparent"
+          android:textAllCaps="false"
+          android:gravity="left|center_vertical"
+          android:drawableRight="@drawable/icon_arrow" />
 
     </LinearLayout>
 

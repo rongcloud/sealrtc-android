@@ -48,11 +48,17 @@ public class AudioMixFragment extends Fragment implements SeekBar.OnSeekBarChang
     // 替换麦克风数据，不播放
     public static final int MODE_REPLACE = 3;
 
+    // 开启耳返
+    public static final int MODE_YES = 1;
+    // 不开启耳返
+    public static final int MODE_NO = 0;
+
     private Context context;
     private ImageButton img_btn_play_pause;
     private ImageButton img_btn_stop;
     private Button btn_select_music;
     private Button btn_change_mode;
+    private Button btn_ear_monitor;
     private SeekBar sb_mix_local_vol;
     private SeekBar sb_mix_remote_vol;
     private SeekBar sb_mic_vol;
@@ -64,7 +70,9 @@ public class AudioMixFragment extends Fragment implements SeekBar.OnSeekBarChang
     public static boolean mixing = false;
     public static boolean alive = false;
     public static int mixMode = MODE_PLAY_MIX;
+    public static int earMonitorMode = MODE_NO;
     private String[] mixModes = new String[4];
+    private String[] earMonitorModes = new String[2];
 
     public AudioMixFragment() { }
 
@@ -87,6 +95,7 @@ public class AudioMixFragment extends Fragment implements SeekBar.OnSeekBarChang
         img_btn_stop = (ImageButton) view.findViewById(R.id.img_btn_stop);
         btn_select_music = (Button) view.findViewById(R.id.btn_select_music);
         btn_change_mode = (Button) view.findViewById(R.id.btn_change_mode);
+        btn_ear_monitor = (Button) view.findViewById(R.id.btn_open_earmonitor);
         sb_mix_local_vol = (SeekBar) view.findViewById(R.id.sb_mix_local_vol);
         sb_mix_remote_vol = (SeekBar) view.findViewById(R.id.sb_mix_remote_vol);
         sb_mic_vol = (SeekBar) view.findViewById(R.id.sb_mic_vol);
@@ -101,6 +110,7 @@ public class AudioMixFragment extends Fragment implements SeekBar.OnSeekBarChang
         img_btn_play_pause.setOnClickListener(this);
         view.findViewById(R.id.btn_select_music).setOnClickListener(this);
         view.findViewById(R.id.btn_change_mode).setOnClickListener(this);
+        view.findViewById(R.id.btn_open_earmonitor).setOnClickListener(this);
 
         sb_mic_vol.setOnSeekBarChangeListener(this);
         sb_mix_remote_vol.setOnSeekBarChangeListener(this);
@@ -124,8 +134,12 @@ public class AudioMixFragment extends Fragment implements SeekBar.OnSeekBarChang
         mixModes[2] = getResources().getString(R.string.mix_mode_play_only);
         mixModes[3] = getResources().getString(R.string.mix_mode_replace);
 
+        earMonitorModes[0] = getResources().getString(R.string.settings_no);
+        earMonitorModes[1] = getResources().getString(R.string.settings_yes);
+
         btn_select_music.setText(getFileName(audioPath));
         btn_change_mode.setText(mixModes[mixMode]);
+        btn_ear_monitor.setText(earMonitorModes[earMonitorMode]);
 
         return view;
     }
@@ -149,6 +163,9 @@ public class AudioMixFragment extends Fragment implements SeekBar.OnSeekBarChang
                 break;
             case R.id.btn_change_mode:
                 performChangeMode();
+                break;
+            case R.id.btn_open_earmonitor:
+                performOpenEarMonitor();
                 break;
         }
     }
@@ -210,22 +227,37 @@ public class AudioMixFragment extends Fragment implements SeekBar.OnSeekBarChang
     }
 
     private void performChangeMode() {
-        new AlertDialog.Builder(context)
-                .setItems(
-                        mixModes,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int index) {
-                                mixMode = index;
-                                btn_change_mode.setText(mixModes[mixMode]);
-                                dialogInterface.dismiss();
-                                performStop();
-                            }
-                        })
-                .create()
-                .show();
+        new AlertDialog.Builder(context).setItems(mixModes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int index) {
+                mixMode = index;
+                btn_change_mode.setText(mixModes[mixMode]);
+                dialogInterface.dismiss();
+                performStop();
+            }
+        }).create().show();
     }
 
+    private void performOpenEarMonitor() {
+        new AlertDialog.Builder(context).setItems(earMonitorModes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int index) {
+                earMonitorMode = index;
+                btn_ear_monitor.setText(earMonitorModes[earMonitorMode]);
+                performChangeEarMonitor();
+                dialogInterface.dismiss();
+                performStop();
+            }
+        }).create().show();
+    }
+
+    private void performChangeEarMonitor() {
+        if (earMonitorMode == MODE_NO) {
+            RCRTCEngine.getInstance().getDefaultAudioStream().enableEarMonitoring(false);
+        } else if (earMonitorMode == MODE_YES) {
+            RCRTCEngine.getInstance().getDefaultAudioStream().enableEarMonitoring(true);
+        }
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
